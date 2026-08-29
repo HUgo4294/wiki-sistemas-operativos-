@@ -1,71 +1,113 @@
-💻 Wiki de Sistemas Operativos
+# 💻 Wiki de Sistemas Operativos
 
-Una wiki educativa desarrollada con Astro + Starlight para recopilar, organizar y explicar de forma clara los principales conceptos relacionados con los Sistemas Operativos.
+## 📚 Descripción del proyecto
 
-El objetivo de este proyecto es proporcionar información completa y fácil de comprender sobre el funcionamiento de los sistemas operativos, sus componentes, procesos, memoria, almacenamiento, seguridad y otros temas fundamentales.
+Este proyecto consiste en la creación de una **Wiki de Sistemas Operativos**, desarrollada utilizando **Astro y Starlight**.
 
-📚 Contenido de la Wiki
+La idea principal de este proyecto es reunir información importante sobre los Sistemas Operativos y presentarla de una manera sencilla, ordenada y fácil de entender.
 
-La wiki está organizada en diferentes temas para facilitar el aprendizaje:
+En esta wiki se explican diferentes temas relacionados con los Sistemas Operativos, comenzando desde los conceptos básicos y avanzando poco a poco hacia temas más específicos.
 
-🖥️ 01. Introducción a los Sistemas Operativos
-¿Qué es un Sistema Operativo?
-Historia de los Sistemas Operativos
-Funciones principales
-Características
-Tipos de Sistemas Operativos
-Ejemplos de Sistemas Operativos
-Importancia de los Sistemas Operativos
-⚙️ 02. Procesos
-Concepto de proceso
-Estados de un proceso
-Ciclo de vida
-PCB (Process Control Block)
-Planificación de procesos
-Algoritmos de planificación
-Creación y terminación de procesos
-🧠 03. Gestión de Memoria
-Memoria principal
-Memoria virtual
-Paginación
-Segmentación
-Asignación de memoria
-Fragmentación
-💾 04. Gestión de Archivos
-Concepto de archivo
-Directorios
-Sistemas de archivos
-Permisos
-Organización y almacenamiento
-🔐 05. Seguridad y Protección
-Seguridad informática
-Usuarios y permisos
-Autenticación
-Control de acceso
-Amenazas y vulnerabilidades
-Protección del sistema
-🛠️ Tecnologías utilizadas
+Mi objetivo es que la información pueda servir como material de apoyo para estudiantes que estén aprendiendo sobre Sistemas Operativos.
 
-Este proyecto utiliza las siguientes tecnologías:
+---
 
-Astro — Framework utilizado para construir el sitio web.
-Starlight — Sistema de documentación utilizado para crear la wiki.
-Markdown / MDX — Para crear y organizar el contenido.
-TypeScript — Para la configuración y desarrollo.
-Node.js — Entorno necesario para ejecutar el proyecto.
-npm — Administrador de paquetes.
-📁 Estructura del proyecto
+## 🎯 Objetivo
 
-La estructura principal del proyecto es:
+El objetivo principal de esta wiki es crear un espacio donde pueda encontrar y organizar información relacionada con los Sistemas Operativos.
 
+También busco explicar los diferentes temas de una forma clara, utilizando ejemplos y explicaciones que permitan comprender mejor cómo funcionan los Sistemas Operativos.
+
+---
+
+## 📖 Temas de la Wiki
+
+Actualmente, la wiki está organizada en diferentes secciones:
+
+### 🖥️ 01. Introducción a los Sistemas Operativos
+
+En esta sección se explican los conceptos básicos de los Sistemas Operativos.
+
+- ¿Qué es un Sistema Operativo?
+- Historia de los Sistemas Operativos
+- Funciones principales
+- Características
+- Tipos de Sistemas Operativos
+- Ejemplos de Sistemas Operativos
+- Importancia de los Sistemas Operativos
+
+### ⚙️ 02. Procesos
+
+En esta sección se explica cómo funcionan los procesos dentro de un Sistema Operativo.
+
+- ¿Qué es un proceso?
+- Estados de un proceso
+- Ciclo de vida de un proceso
+- PCB (Process Control Block)
+- Planificación de procesos
+- Algoritmos de planificación
+- Creación y terminación de procesos
+
+### 🧠 03. Gestión de Memoria
+
+Aquí se explican los diferentes métodos que utiliza un Sistema Operativo para administrar la memoria.
+
+- Memoria principal
+- Memoria virtual
+- Paginación
+- Segmentación
+- Asignación de memoria
+- Fragmentación
+
+### 💾 04. Gestión de Archivos
+
+En esta sección se explica cómo los Sistemas Operativos organizan y administran los archivos.
+
+- Concepto de archivo
+- Directorios
+- Sistemas de archivos
+- Permisos
+- Organización de archivos
+- Almacenamiento
+
+### 🔐 05. Seguridad y Protección
+
+En esta parte se explican algunos conceptos relacionados con la seguridad de los Sistemas Operativos.
+
+- Seguridad informática
+- Usuarios y permisos
+- Autenticación
+- Control de acceso
+- Amenazas
+- Vulnerabilidades
+- Protección del sistema
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+Para realizar este proyecto utilicé diferentes herramientas y tecnologías:
+
+- **Astro:** utilizado para desarrollar el sitio web.
+- **Starlight:** utilizado para crear y organizar la documentación.
+- **Markdown y MDX:** utilizados para escribir el contenido de la wiki.
+- **TypeScript:** utilizado principalmente en la configuración del proyecto.
+- **Node.js:** necesario para ejecutar el proyecto.
+- **npm:** utilizado para instalar y administrar las dependencias.
+
+---
+
+## 📁 Estructura del proyecto
+
+La estructura principal de mi proyecto está organizada de la siguiente manera:
+
+```text
 wiki-sistemas-operativos/
 │
 ├── public/
-│   └── imágenes y archivos estáticos
 │
 ├── src/
 │   ├── assets/
-│   │   └── recursos e imágenes
 │   │
 │   ├── content/
 │   │   └── docs/
@@ -81,99 +123,3 @@ wiki-sistemas-operativos/
 ├── package.json
 ├── tsconfig.json
 └── README.md
-🚀 Instalación
-
-Para utilizar este proyecto en tu computadora necesitas tener instalado Node.js.
-
-Después, clona el repositorio:
-
-git clone https://github.com/HUgo4294/wiki-sistemas-operativos-.git
-
-Entra a la carpeta del proyecto:
-
-cd wiki-sistemas-operativos-
-
-Instala las dependencias:
-
-npm install
-▶️ Ejecutar el proyecto
-
-Para iniciar el servidor de desarrollo:
-
-npm run dev
-
-Después abre en tu navegador:
-
-http://localhost:4321
-
-La página se actualizará automáticamente cada vez que realices cambios en los archivos.
-
-🏗️ Crear una versión de producción
-
-Para generar la versión final del proyecto:
-
-npm run build
-
-Los archivos generados se encontrarán dentro de:
-
-dist/
-
-También puedes comprobar la versión de producción utilizando:
-
-npm run preview
-✏️ Agregar nuevos temas
-
-Los contenidos de la wiki se encuentran principalmente dentro de:
-
-src/content/docs/
-
-Para agregar un nuevo tema puedes crear un archivo .md o .mdx.
-
-Por ejemplo:
-
-src/content/docs/01-introduccion/que-es-un-sistema-operativo.md
-
-Un archivo puede comenzar de la siguiente manera:
-
----
-title: ¿Qué es un Sistema Operativo?
-description: Conceptos fundamentales sobre los sistemas operativos.
----
-
-# ¿Qué es un Sistema Operativo?
-
-Un sistema operativo es el software encargado de administrar los recursos
-de hardware y proporcionar servicios a los programas que se ejecutan
-en una computadora.
-
-## Funciones principales
-
-- Administrar el procesador.
-- Administrar la memoria.
-- Gestionar archivos.
-- Controlar dispositivos.
-- Proporcionar seguridad.
-- Permitir la interacción con el usuario.
-🎯 Objetivo del proyecto
-
-El propósito de esta wiki es servir como una herramienta de apoyo académico para estudiantes que desean aprender sobre Sistemas Operativos.
-
-La información está organizada de manera progresiva, comenzando con conceptos básicos y avanzando hacia temas más complejos.
-
-👨‍💻 Proyecto académico
-
-Proyecto: Wiki de Sistemas Operativos
-Tecnología principal: Astro + Starlight
-Formato de contenido: Markdown / MDX
-
-📖 Recursos
-Astro
-Starlight
-Node.js
-⭐ Contribuciones
-
-
-
-s.
-
-💡 La finalidad de esta wiki es aprender Sistemas Operativos de una manera sencilla, organizada y práctica.
