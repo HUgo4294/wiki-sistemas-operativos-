@@ -1,0 +1,36 @@
+/* 1. Fondo de la imagen general */
+html, body {
+  background-image: url('/fondo.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+/* 2. Respetar el layout de Starlight sin sobreponer elementos */
+:root {
+  --sl-color-bg: transparent !important;
+  --sl-color-bg-nav: rgba(15, 23, 42, 0.95) !important;
+}
+
+/* 3. Ajustar el contenedor principal para que mantenga su margen derecho */
+.main-pane {
+  background-color: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 1.5rem !important;
+  margin-left: 0 !important;
+}
+
+/* 4. Estilizar la barra lateral izquierda */
+.sidebar-pane {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 5. Estilizar el menú derecho (On this page) */
+.right-sidebar-container {
+  background-color: rgba(15, 23, 42, 0.90) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px;
+}

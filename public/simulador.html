@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Gestión de CPU y Memoria RAM</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.92); /* Fondo semi-transparente para apreciar la imagen */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* Imagen de fondo de Linux Tux */
+            background-image: url('https://hardwaresfera.com/wp-content/uploads/2020/12/linux-tux.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(4px);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+        }
+
+        .panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 9px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: #0f172a;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Metrics bar */
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .metric-card .title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .metric-card .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .ram-bar-container {
+            width: 100%;
+            height: 24px;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .ram-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            transition: width 0.3s ease;
+        }
+
+        .ram-bar-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        /* Tables & Lists */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-running { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .badge-waiting { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .badge-finished { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--text-muted); }
+
+        .progress-mini {
+            width: 100px;
+            height: 8px;
+            background: #0f172a;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .progress-mini-fill {
+            height: 100%;
+            background: var(--accent-green);
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulador de Sistema Operativo: Procesos y Memoria RAM</h1>
+        <p>Especificaciones: 1 CPU (Concurrente) | RAM Total: 1024 MB (1 GB) | Liberación Automática</p>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- Form Panel -->
+        <div class="panel">
+            <h2>Creación de Procesos</h2>
+            <form id="processForm">
+                <div class="form-group">
+                    <label for="pid">PID (Auto/Manual):</label>
+                    <input type="number" id="pid" placeholder="Ej: 101">
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre del Proceso:</label>
+                    <input type="text" id="nombre" placeholder="Ej: Navegador Web">
+                </div>
+                <div class="form-group">
+                    <label for="memoria">RAM Requerida (MB):</label>
+                    <input type="number" id="memoria" placeholder="Ej: 256" min="1" max="1024" required>
+                </div>
+                <div class="form-group">
+                    <label for="duracion">Duración (segundos):</label>
+                    <input type="number" id="duracion" placeholder="Ej: 10" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-primary">+ Agregar Proceso</button>
+            </form>
+        </div>
+
+        <!-- Main Monitor Panel -->
+        <div class="panel">
+            <h2>Estado del Sistema</h2>
+
+            <div class="metrics-bar">
+                <div class="metric-card">
+                    <div class="title">RAM Usada / Total</div>
+                    <div class="value" id="ramText">0 MB / 1024 MB</div>
+                    <div class="ram-bar-container">
+                        <div class="ram-bar-fill" id="ramFill"></div>
+                        <div class="ram-bar-text" id="ramPercent">0%</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="title">Procesos en Ejecución</div>
+                    <div class="value" id="countRunning" style="color: var(--accent-green);">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="title">Cola de Espera</div>
+                    <div class="value" id="countWaiting" style="color: var(--accent-amber);">0</div>
+                </div>
+            </div>
+
+            <!-- Table of Active Processes -->
+            <h3 style="font-size: 1rem; margin-top: 15px; margin-bottom: 10px; color: var(--text-muted);">Procesos en Sistema</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>Nombre</th>
+                            <th>RAM</th>
+                            <th>Estado</th>
+                            <th>Progreso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processTableBody">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TOTAL_RAM = 1024; // 1 GB in MB
+        let currentRAM = 0;
+        let autoPID = 1;
+
+        let processes = [];
+
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let pidInput = document.getElementById('pid').value;
+            let nombreInput = document.getElementById('nombre').value.trim();
+            let memoriaInput = parseInt(document.getElementById('memoria').value);
+            let duracionInput = parseInt(document.getElementById('duracion').value);
+
+            let pid = pidInput ? parseInt(pidInput) : autoPID++;
+            if (!nombreInput) {
+                nombreInput = `Proceso_${pid}`;
+            }
+
+            if (memoriaInput > TOTAL_RAM) {
+                alert(`Error: La RAM requerida (${memoriaInput} MB) supera el total del sistema (${TOTAL_RAM} MB).`);
+                return;
+            }
+
+            const newProcess = {
+                pid: pid,
+                nombre: nombreInput,
+                memoria: memoriaInput,
+                duracion: duracionInput,
+                restante: duracionInput,
+                estado: 'espera',
+                timer: null
+            };
+
+            processes.push(newProcess);
+            
+            document.getElementById('pid').value = '';
+            document.getElementById('nombre').value = '';
+            document.getElementById('memoria').value = '';
+            document.getElementById('duracion').value = '';
+
+            evaluarCola();
+            renderUI();
+        });
+
+        function evaluarCola() {
+            for (let p of processes) {
+                if (p.estado === 'espera') {
+                    if (currentRAM + p.memoria <= TOTAL_RAM) {
+                        currentRAM += p.memoria;
+                        p.estado = 'ejecucion';
+                        iniciarEjecucion(p);
+                    }
+                }
+            }
+        }
+
+        function iniciarEjecucion(p) {
+            p.timer = setInterval(() => {
+                p.restante--;
+                if (p.restante <= 0) {
+                    clearInterval(p.timer);
+                    p.estado = 'finalizado';
+                    currentRAM -= p.memoria;
+                    evaluarCola();
+                }
+                renderUI();
+            }, 1000);
+        }
+
+        function renderUI() {
+            document.getElementById('ramText').innerText = `${currentRAM} MB / ${TOTAL_RAM} MB`;
+            let percent = Math.round((currentRAM / TOTAL_RAM) * 100);
+            document.getElementById('ramFill').style.width = `${percent}%`;
+            document.getElementById('ramPercent').innerText = `${percent}%`;
+
+            let running = processes.filter(p => p.estado === 'ejecucion').length;
+            let waiting = processes.filter(p => p.estado === 'espera').length;
+
+            document.getElementById('countRunning').innerText = running;
+            document.getElementById('countWaiting').innerText = waiting;
+
+            const tbody = document.getElementById('processTableBody');
+            tbody.innerHTML = '';
+
+            if (processes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No hay procesos agregados.</td></tr>`;
+                return;
+            }
+
+            processes.forEach(p => {
+                let tr = document.createElement('tr');
+                
+                let badgeClass = 'badge-waiting';
+                let estadoText = 'En Cola de Espera';
+                if (p.estado === 'ejecucion') {
+                    badgeClass = 'badge-running';
+                    estadoText = 'Ejecutando';
+                } else if (p.estado === 'finalizado') {
+                    badgeClass = 'badge-finished';
+                    estadoText = 'Finalizado';
+                }
+
+                let progPercent = Math.round(((p.duracion - p.restante) / p.duracion) * 100);
+
+                tr.innerHTML = `
+                    <td><b>P${p.pid}</b></td>
+                    <td>${p.nombre}</td>
+                    <td>${p.memoria} MB</td>
+                    <td><span class="badge ${badgeClass}">${estadoText}</span></td>
+                    <td>
+                        <div class="progress-mini"><div class="progress-mini-fill" style="width: ${progPercent}%"></div></div>
+                        <span>${p.restante}s</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        renderUI();
+    </script>
+</body>
+</html>
