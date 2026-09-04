@@ -1,53 +1,132 @@
-<<<<<<< HEAD
-# wiki-sistemas-operativos-
-=======
-# Starlight Starter Kit: Basics
+# 💻 Wiki de Sistemas Operativos 1
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Wiki educativa desarrollada para el curso de **Sistemas Operativos 1**.
 
-```
-npm create astro@latest -- --template starlight
-```
+Este proyecto tiene como objetivo presentar de una manera clara, organizada y visual los principales conceptos relacionados con los sistemas operativos, combinando contenido teórico, ejemplos, diagramas y simulaciones.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+---
 
-## 🚀 Project Structure
+## 📚 Contenido de la Wiki
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
+El proyecto está organizado por unidades para facilitar el estudio de cada tema.
 
-```
-.
+### 📘 Unidad 1: Introducción a los Sistemas Operativos
+
+En esta unidad se estudian los fundamentos de los sistemas operativos, entre ellos:
+
+- Concepto de Sistema Operativo.
+- Historia y evolución.
+- Funciones principales.
+- Kernel.
+- Gestión de procesos.
+- Gestión de memoria.
+- Sistema de archivos.
+- Dispositivos de entrada y salida.
+- Llamadas al sistema.
+- Interrupciones.
+- Modos Usuario y Kernel.
+- Arquitectura de los Sistemas Operativos.
+
+### ⚙️ Unidad 2: Definición y Control de Procesos
+
+Esta unidad explica cómo un Sistema Operativo crea, administra y controla los procesos.
+
+Entre los temas incluidos se encuentran:
+
+- Programa y proceso.
+- Ciclo de vida de un proceso.
+- Estados de los procesos.
+- PCB (Process Control Block).
+- PID.
+- Scheduler.
+- Cambio de contexto.
+- Hilos.
+- Colas de procesos.
+- Planificación de CPU.
+- FCFS.
+- SJF.
+- SRTF.
+- Round Robin.
+- Prioridades.
+- Aging.
+
+También se incluyen imágenes y diagramas para facilitar la comprensión de los diferentes conceptos.
+
+---
+
+##  Simulador de Procesos
+
+La Wiki incluye un **simulador interactivo de procesos** que permite poner en práctica algunos de los conceptos estudiados.
+
+El simulador permite visualizar de una forma más sencilla cómo el Sistema Operativo administra los procesos y los recursos disponibles.
+
+Entre sus funciones se encuentran:
+
+- Creación de procesos.
+- Visualización de procesos.
+- Administración de memoria RAM.
+- Estados de los procesos.
+- Ejecución de procesos.
+- Seguimiento del progreso.
+- Simulación de planificación de CPU.
+
+---
+
+## 🖼️ Recursos Visuales
+
+Para facilitar el aprendizaje se utilizan diferentes recursos gráficos como:
+
+- Diagramas.
+- Mapas conceptuales.
+- Esquemas de memoria.
+- Representaciones del ciclo de vida de los procesos.
+- Mapas generales de procesos.
+- Ejemplos visuales.
+- Tablas comparativas.
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+El proyecto fue desarrollado utilizando:
+
+- **Astro**
+- **Starlight**
+- **HTML**
+- **CSS**
+- **JavaScript**
+- **Markdown / MDX**
+- **Git**
+- **GitHub**
+- **Visual Studio Code**
+
+---
+
+## 📂 Estructura principal del proyecto
+
+```text
+wiki-sistemas-operativos/
+│
 ├── public/
+│   ├── imagen-simulador.png
+│   ├── estructura-memoria.png
+│   ├── mapa-general-procesos.png
+│   ├── programa-proceso.png
+│   └── simulador.html
+│
 ├── src/
 │   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
+│   │   └── styles/
+│   │       └── custom.css
+│   │
+│   └── content/
+│       └── docs/
+│           ├── unidad-1/
+│           │   └── introduccion.mdx
+│           │
+│           └── unidad-2/
+│               └── procesos-y-control.mdx
+│
 ├── astro.config.mjs
 ├── package.json
-└── tsconfig.json
-```
-
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
->>>>>>> 4cc1ca9 (Primer commit: Wiki de Sistemas Operativos con imágenes traducidas)
+└── README.md
