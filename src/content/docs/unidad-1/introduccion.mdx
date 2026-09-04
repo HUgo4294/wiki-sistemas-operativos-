@@ -1,0 +1,2464 @@
+---
+title: Unidad 1 - Introducción a los Sistemas Operativos
+
+description: Conceptos fundamentales, arquitectura, llamadas al sistema, modos de operación, gestión de recursos y evolución de los sistemas operativos.
+---
+# Unidad 1 - Introducción a los Sistemas Operativos
+
+
+<div className="u1-hero">
+  <div className="u1-hero-icon">📘</div>
+  <div>
+    <strong>Fundamentos de Sistemas Operativos</strong>
+    <p>
+      Conceptos fundamentales, arquitectura, llamadas al sistema, modos de operación,
+      gestión de recursos y evolución de los sistemas operativos.
+    </p>
+  </div>
+</div>
+
+En esta unidad se estudian los conceptos fundamentales de los sistemas operativos, su función dentro de una computadora, los recursos que administran, la relación entre hardware y software, los modos de ejecución del procesador, las llamadas al sistema y las principales arquitecturas de los núcleos.
+
+Comprender estos conceptos permite conocer cómo trabaja internamente una computadora y cómo el sistema operativo coordina los diferentes componentes para que los programas puedan ejecutarse de manera segura y eficiente.
+---
+## 1. ¿Qué es un Sistema Operativo?
+Un **Sistema Operativo (SO)** es el software fundamental que administra los recursos físicos y lógicos de una computadora.
+
+Actúa como intermediario entre:
+
+- El usuario.
+
+- Los programas.
+
+- El hardware.
+
+Su función principal es facilitar el uso de la computadora y controlar todos los recursos disponibles.
+
+Podemos representarlo de la siguiente manera:
+
+<div className="u1-diagram">
+  <pre>{`+-----------------------------+
+
+|           USUARIO           |
+
++-----------------------------+
+
+              |
+
+              ↓
+
++-----------------------------+
+
+|        APLICACIONES         |
+
++-----------------------------+
+
+              |
+
+              ↓
+
++-----------------------------+
+
+|     SISTEMA OPERATIVO       |
+
++-----------------------------+
+
+              |
+
+              ↓
+
++-----------------------------+
+
+|          HARDWARE           |
+
++-----------------------------+`}</pre>
+</div>
+
+El sistema operativo permite que los programas utilicen recursos como:
+
+- CPU.
+
+- Memoria RAM.
+
+- Disco duro.
+
+- Teclado.
+
+- Mouse.
+
+- Pantalla.
+
+- Red.
+
+- Impresoras.
+
+- Dispositivos USB.
+
+Sin un sistema operativo, el usuario tendría que controlar directamente el hardware, lo cual sería extremadamente complicado.
+
+<figure className="u1-figure">
+  <img src="/esquema-so.png" alt="Ubicación del Sistema Operativo entre Hardware y Usuario" />
+  <figcaption>Relación entre usuario, aplicaciones, sistema operativo y hardware.</figcaption>
+</figure>
+---
+## 2. ¿Por qué es importante un Sistema Operativo?
+El sistema operativo es importante porque permite que el hardware sea utilizado de forma organizada.
+
+Entre sus funciones principales se encuentran:
+
+- Controlar el procesador.
+
+- Administrar la memoria.
+
+- Controlar dispositivos.
+
+- Administrar archivos.
+
+- Ejecutar programas.
+
+- Proporcionar seguridad.
+
+- Organizar usuarios.
+
+- Controlar conexiones de red.
+
+- Gestionar procesos.
+
+Por ejemplo, cuando abrimos un navegador, el sistema operativo debe:
+
+1\. Localizar el programa en el disco.
+
+2\. Cargarlo en memoria.
+
+3\. Crear un proceso.
+
+4\. Asignarle tiempo de CPU.
+
+5\. Permitir que utilice la red.
+
+6\. Controlar los archivos que necesita.
+
+7\. Mostrar la interfaz en pantalla.
+
+Todo esto ocurre automáticamente.
+---
+## 3. Objetivos principales de un Sistema Operativo
+Los sistemas operativos buscan cumplir principalmente tres objetivos.
+### 3.1 Comodidad
+El sistema debe facilitar el uso de la computadora.
+
+Por ejemplo, en lugar de que el usuario controle manualmente sectores del disco, puede utilizar archivos y carpetas.
+### 3.2 Eficiencia
+El sistema operativo debe aprovechar correctamente los recursos.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`CPU
+
+RAM
+
+Disco
+
+Red
+
+Dispositivos`}</pre>
+</div>
+
+El sistema debe administrar estos recursos para evitar desperdicio.
+### 3.3 Capacidad de evolución
+El sistema operativo debe poder adaptarse a nuevos dispositivos y tecnologías.
+
+Por ejemplo:
+
+- Nuevos procesadores.
+
+- Nuevas tarjetas gráficas.
+
+- Nuevos sistemas de almacenamiento.
+
+- Nuevos dispositivos USB.
+
+- Nuevas tecnologías de red.
+---
+## 4. Funciones principales del Sistema Operativo
+Un sistema operativo realiza muchas tareas.
+
+Las más importantes son:
+### Gestión de procesos
+Controla los programas que se están ejecutando.
+
+Incluye:
+
+- Creación de procesos.
+
+- Planificación.
+
+- Suspensión.
+
+- Finalización.
+
+- Sincronización.
+
+- Comunicación.
+### Gestión de memoria
+Administra la memoria RAM.
+
+Decide:
+
+- Qué proceso utiliza memoria.
+
+- Cuánta memoria recibe.
+
+- Cuándo liberar memoria.
+
+- Cómo proteger la memoria entre procesos.
+### Gestión de archivos
+Permite organizar información mediante:
+
+- Archivos.
+
+- Carpetas.
+
+- Directorios.
+
+- Permisos.
+
+- Sistemas de archivos.
+### Gestión de dispositivos
+Controla dispositivos mediante controladores o drivers.
+
+Por ejemplo:
+
+- Impresoras.
+
+- Teclados.
+
+- Mouse.
+
+- Tarjetas de red.
+
+- Discos.
+
+- Memorias USB.
+### Gestión de seguridad
+Controla:
+
+- Usuarios.
+
+- Contraseñas.
+
+- Permisos.
+
+- Acceso a archivos.
+
+- Acceso a dispositivos.
+
+- Privilegios.
+---
+## 5. El Kernel o Núcleo
+El **Kernel** es la parte central del sistema operativo.
+
+Se encarga de controlar directamente los recursos más importantes de la computadora.
+
+Podemos representarlo así:
+
+<div className="u1-diagram">
+  <pre>{`Aplicaciones
+
+     |
+
+     ↓
+
++-------------+
+
+|   KERNEL    |
+
++-------------+
+
+     |
+
+     ↓
+
+Hardware`}</pre>
+</div>
+
+El Kernel normalmente controla:
+
+- CPU.
+
+- Memoria.
+
+- Procesos.
+
+- Dispositivos.
+
+- Interrupciones.
+
+- Entrada y salida.
+
+- Llamadas al sistema.
+
+El Kernel se ejecuta con privilegios elevados.
+---
+## 6. Diferencia entre Sistema Operativo y Kernel
+Aunque muchas veces se utilizan como si fueran lo mismo, no son exactamente iguales.
+
+| Sistema Operativo | Kernel |
+
+|---|---|
+
+| Incluye múltiples componentes | Es el núcleo principal |
+
+| Puede incluir interfaz gráfica | No necesariamente incluye interfaz |
+
+| Incluye herramientas y servicios | Controla recursos básicos |
+
+| Es el entorno completo | Es una parte del sistema |
+
+Por ejemplo, un sistema operativo puede incluir:
+
+<div className="u1-diagram">
+  <pre>{`Sistema Operativo
+
+│
+
+├── Kernel
+
+├── Drivers
+
+├── Sistema de archivos
+
+├── Servicios
+
+├── Interfaz gráfica
+
+└── Utilidades`}</pre>
+</div>
+---
+## 7. Arquitectura básica de un Sistema Operativo
+Una computadora puede visualizarse como una serie de capas.
+
+<div className="u1-diagram">
+  <pre>{`+----------------------------+
+
+|          Usuario           |
+
++----------------------------+
+
+|        Aplicaciones        |
+
++----------------------------+
+
+|     Bibliotecas / APIs     |
+
++----------------------------+
+
+|     Sistema Operativo      |
+
++----------------------------+
+
+|           Kernel           |
+
++----------------------------+
+
+|          Hardware          |
+
++----------------------------+`}</pre>
+</div>
+
+Cada capa interactúa con la capa inferior.
+
+Esta organización facilita el desarrollo y mantenimiento del sistema.
+---
+## 8. Gestión del Procesador
+La CPU es uno de los recursos más importantes.
+
+El sistema operativo debe decidir qué programa puede utilizarla.
+
+Cuando existen varios programas abiertos:
+
+<div className="u1-diagram">
+  <pre>{`Chrome
+
+Word
+
+Spotify
+
+Terminal`}</pre>
+</div>
+
+todos necesitan tiempo de CPU.
+
+El sistema operativo utiliza un planificador para decidir quién se ejecuta primero.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`P1 → CPU
+
+P2 → espera
+
+P3 → espera
+
+P4 → espera`}</pre>
+</div>
+
+Después puede realizar un cambio:
+
+<div className="u1-diagram">
+  <pre>{`P1 → espera
+
+P2 → CPU
+
+P3 → espera
+
+P4 → espera`}</pre>
+</div>
+
+Esto permite la multitarea.
+---
+## 9. Gestión de Memoria
+La memoria RAM es un recurso limitado.
+
+El sistema operativo debe controlar:
+
+- Qué zonas están ocupadas.
+
+- Qué zonas están libres.
+
+- Qué proceso utiliza cada zona.
+
+- Cuándo liberar memoria.
+
+- Cómo evitar accesos no autorizados.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`RAM
+
++----------------------+
+
+| Sistema Operativo    |
+
++----------------------+
+
+| Proceso A            |
+
++----------------------+
+
+| Proceso B            |
+
++----------------------+
+
+| Proceso C            |
+
++----------------------+
+
+| Espacio libre        |
+
++----------------------+`}</pre>
+</div>
+---
+## 10. Gestión de Almacenamiento
+El sistema operativo también administra dispositivos como:
+
+- HDD.
+
+- SSD.
+
+- Memorias USB.
+
+- Tarjetas SD.
+
+El usuario normalmente no trabaja directamente con sectores físicos.
+
+En su lugar utiliza:
+
+- Archivos.
+
+- Carpetas.
+
+- Directorios.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Documentos/
+
+├── tarea.pdf
+
+├── informe.docx
+
+└── notas.txt`}</pre>
+</div>
+
+El sistema operativo traduce esta organización lógica a ubicaciones físicas en el dispositivo.
+---
+## 11. Sistemas de Archivos
+Un sistema de archivos es la forma en que el sistema operativo organiza la información almacenada.
+
+Algunos ejemplos son:
+
+- NTFS.
+
+- FAT32.
+
+- exFAT.
+
+- ext4.
+
+- APFS.
+
+El sistema de archivos puede administrar:
+
+- Nombre de archivos.
+
+- Tamaño.
+
+- Ubicación.
+
+- Permisos.
+
+- Fechas.
+
+- Propietarios.
+---
+## 12. Gestión de Entrada y Salida
+La entrada y salida se conoce como **E/S** o **I/O**.
+
+Ejemplos de dispositivos de entrada:
+
+- Teclado.
+
+- Mouse.
+
+- Micrófono.
+
+- Cámara.
+
+Ejemplos de dispositivos de salida:
+
+- Monitor.
+
+- Impresora.
+
+- Bocinas.
+
+Algunos dispositivos pueden realizar ambas funciones.
+
+Por ejemplo:
+
+- Disco duro.
+
+- Tarjeta de red.
+
+- Pantalla táctil.
+---
+## 13. Drivers o Controladores
+Un **driver** es un programa que permite al sistema operativo comunicarse con un dispositivo.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+    |
+
+    ↓
+
+Sistema Operativo
+
+    |
+
+    ↓
+
+Driver
+
+    |
+
+    ↓
+
+Hardware`}</pre>
+</div>
+
+Sin el driver correcto, el sistema puede no saber cómo controlar un dispositivo.
+
+Ejemplos:
+
+- Driver de video.
+
+- Driver de sonido.
+
+- Driver de impresora.
+
+- Driver de red.
+
+- Driver USB.
+---
+## 14. Modos de operación de la CPU
+Para mejorar la seguridad, los procesadores utilizan diferentes niveles de privilegio.
+
+Los dos más conocidos son:
+
+- Modo Usuario.
+
+- Modo Kernel.
+---
+## 15. Modo Usuario
+El **Modo Usuario** es donde normalmente se ejecutan las aplicaciones.
+
+Tiene privilegios limitados.
+
+Por ejemplo, una aplicación normalmente no puede:
+
+- Acceder directamente a toda la memoria.
+
+- Controlar directamente el procesador.
+
+- Modificar estructuras internas del kernel.
+
+- Acceder directamente a determinados dispositivos.
+
+Esto mejora la seguridad.
+
+Si una aplicación falla, en muchos casos solamente se cierra esa aplicación.
+---
+## 16. Modo Kernel
+El **Modo Kernel** tiene privilegios elevados.
+
+El sistema operativo puede realizar operaciones que no están permitidas a las aplicaciones normales.
+
+Por ejemplo:
+
+- Configurar dispositivos.
+
+- Administrar memoria.
+
+- Controlar interrupciones.
+
+- Modificar tablas internas.
+
+- Administrar procesos.
+---
+## 17. Comparación entre Modo Usuario y Modo Kernel
+| Modo de ejecución | Privilegios | Uso |
+
+|---|---|---|
+
+| Modo Usuario | Limitados | Aplicaciones |
+
+| Modo Kernel | Elevados | Núcleo del sistema |
+
+Podemos representarlo de la siguiente manera:
+
+<div className="u1-diagram">
+  <pre>{`+----------------------+
+
+|    MODO USUARIO      |
+
+| Navegador            |
+
+| Editor               |
+
+| Juegos               |
+
++----------------------+
+
+          |
+
+          ↓
+
+     System Call
+
+          |
+
+          ↓
+
++----------------------+
+
+|    MODO KERNEL       |
+
+| Sistema Operativo    |
+
++----------------------+
+
+          |
+
+          ↓
+
+       Hardware`}</pre>
+</div>
+---
+## 18. Protección del sistema
+La separación entre modo usuario y modo kernel evita que las aplicaciones tengan control total del equipo.
+
+Por ejemplo, si cualquier programa pudiera modificar la memoria del kernel, podría:
+
+- Bloquear el sistema.
+
+- Eliminar información.
+
+- Interferir con otros programas.
+
+- Obtener acceso no autorizado.
+
+Por eso se utilizan diferentes niveles de privilegio.
+---
+## 19. Llamadas al Sistema
+Las **Llamadas al Sistema**, conocidas como **System Calls**, permiten que un programa solicite un servicio al sistema operativo.
+
+Las aplicaciones no acceden directamente al hardware.
+
+En lugar de eso, realizan solicitudes al kernel.
+
+<figure className="u1-figure">
+  <img src="/kenel.jpg" alt="Flujo de una llamada al sistema entre Modo Usuario y Modo Kernel" />
+  <figcaption>Transición de Modo Usuario a Modo Kernel mediante una llamada al sistema.</figcaption>
+</figure>
+---
+## 20. Funcionamiento de una llamada al sistema
+El proceso básico puede representarse así:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+    |
+
+    ↓
+
+Solicita servicio
+
+    |
+
+    ↓
+
+System Call
+
+    |
+
+    ↓
+
+Kernel
+
+    |
+
+    ↓
+
+Realiza operación
+
+    |
+
+    ↓
+
+Devuelve resultado
+
+    |
+
+    ↓
+
+Aplicación`}</pre>
+</div>
+
+Por ejemplo, cuando una aplicación quiere leer un archivo:
+
+<div className="u1-diagram">
+  <pre>{`Programa
+
+   |
+
+   ↓
+
+read()
+
+   |
+
+   ↓
+
+Kernel
+
+   |
+
+   ↓
+
+Disco
+
+   |
+
+   ↓
+
+Datos`}</pre>
+</div>
+---
+## 21. Tipos de llamadas al sistema
+Las llamadas al sistema pueden clasificarse según su función.
+### Control de procesos
+Permiten crear, ejecutar y finalizar procesos.
+
+Ejemplos:
+
+<div className="u1-diagram">
+  <pre>{`fork()
+
+execve()
+
+exit()
+
+wait()`}</pre>
+</div>
+### Administración de archivos
+Permiten trabajar con archivos.
+
+Ejemplos:
+
+<div className="u1-diagram">
+  <pre>{`open()
+
+read()
+
+write()
+
+close()`}</pre>
+</div>
+### Gestión de dispositivos
+Permiten controlar dispositivos.
+### Información del sistema
+Permiten obtener datos del sistema.
+
+Ejemplos:
+
+<div className="u1-diagram">
+  <pre>{`getpid()
+
+time()
+
+uname()`}</pre>
+</div>
+### Comunicación
+Permiten intercambiar información entre procesos.
+---
+## 22. Ejemplo sencillo de llamada al sistema
+Supongamos que un programa desea abrir un archivo.
+
+El proceso sería:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+   |
+
+   ↓
+
+open("archivo.txt")
+
+   |
+
+   ↓
+
+Kernel
+
+   |
+
+   ↓
+
+Busca el archivo
+
+   |
+
+   ↓
+
+Comprueba permisos
+
+   |
+
+   ↓
+
+Abre archivo
+
+   |
+
+   ↓
+
+Devuelve descriptor`}</pre>
+</div>
+
+El programa no necesita saber exactamente cómo funciona físicamente el disco.
+---
+## 23. API y llamadas al sistema
+Las aplicaciones normalmente trabajan mediante APIs o bibliotecas.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+    |
+
+    ↓
+
+Biblioteca / API
+
+    |
+
+    ↓
+
+System Call
+
+    |
+
+    ↓
+
+Kernel`}</pre>
+</div>
+
+Esto facilita la programación.
+
+El desarrollador puede utilizar funciones de alto nivel sin controlar directamente el hardware.
+---
+## 24. Interrupciones
+Una **interrupción** es una señal que indica al procesador que debe atender un evento.
+
+Por ejemplo:
+
+- Se presionó una tecla.
+
+- Llegó información de red.
+
+- Terminó una operación de disco.
+
+- Se activó un temporizador.
+
+Podemos representarlo así:
+
+<div className="u1-diagram">
+  <pre>{`CPU ejecutando programa
+
+        |
+
+        ↓
+
+   INTERRUPCIÓN
+
+        |
+
+        ↓
+
+Sistema Operativo
+
+        |
+
+        ↓
+
+Atiende evento
+
+        |
+
+        ↓
+
+Continúa ejecución`}</pre>
+</div>
+---
+## 25. Tipos de interrupciones
+Existen diferentes tipos de interrupciones.
+### Interrupciones de hardware
+Provienen de dispositivos físicos.
+
+Por ejemplo:
+
+- Teclado.
+
+- Mouse.
+
+- Disco.
+
+- Tarjeta de red.
+### Interrupciones de software
+Pueden generarse mediante instrucciones o eventos del software.
+### Excepciones
+Ocurren cuando la CPU detecta alguna condición especial.
+
+Por ejemplo:
+
+- División entre cero.
+
+- Instrucción inválida.
+
+- Acceso incorrecto a memoria.
+---
+## 26. Importancia de las interrupciones
+Las interrupciones permiten que la CPU no tenga que revisar constantemente todos los dispositivos.
+
+En lugar de eso, los dispositivos avisan cuando necesitan atención.
+
+Esto mejora la eficiencia.
+---
+## 27. Evolución histórica de los Sistemas Operativos
+Los sistemas operativos han evolucionado junto con las computadoras.
+
+Podemos dividir su historia en diferentes etapas.
+---
+## 28. Primera generación de computadoras
+Las primeras computadoras no tenían sistemas operativos modernos.
+
+Los programas debían cargarse manualmente.
+
+Características:
+
+- Uso de lenguaje máquina.
+
+- No existía multitarea.
+
+- Programación muy difícil.
+
+- Uso de tarjetas perforadas en algunos sistemas.
+---
+## 29. Sistemas por lotes
+Posteriormente aparecieron los sistemas por lotes o **Batch Systems**.
+
+Los trabajos se agrupaban y se ejecutaban uno después de otro.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Trabajo 1
+
+   ↓
+
+Trabajo 2
+
+   ↓
+
+Trabajo 3
+
+   ↓
+
+Trabajo 4`}</pre>
+</div>
+
+El usuario no interactuaba directamente con el programa durante su ejecución.
+---
+## 30. Multiprogramación
+La multiprogramación permitió mantener varios programas en memoria.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`RAM
+
++--------------------+
+
+| Sistema Operativo  |
+
++--------------------+
+
+| Programa A         |
+
++--------------------+
+
+| Programa B         |
+
++--------------------+
+
+| Programa C         |
+
++--------------------+`}</pre>
+</div>
+
+Si un programa esperaba una operación de E/S, otro podía utilizar la CPU.
+
+Esto aumentó la eficiencia.
+---
+## 31. Sistemas de tiempo compartido
+Los sistemas de tiempo compartido permitieron que varios usuarios utilizaran una misma computadora.
+
+El procesador repartía pequeñas cantidades de tiempo entre diferentes tareas.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Tiempo →
+
+Usuario A | Usuario B | Usuario C | Usuario A | Usuario B`}</pre>
+</div>
+
+Esto permitió desarrollar sistemas interactivos.
+---
+## 32. Computadoras personales
+Con la aparición de las computadoras personales surgieron sistemas operativos orientados al usuario.
+
+Ejemplos históricos:
+
+- MS-DOS.
+
+- Windows.
+
+- Mac OS.
+
+- Linux.
+
+Con el tiempo estos sistemas incorporaron:
+
+- Interfaces gráficas.
+
+- Multitarea.
+
+- Redes.
+
+- Seguridad.
+
+- Internet.
+---
+## 33. Sistemas operativos modernos
+Actualmente los sistemas operativos deben administrar sistemas mucho más complejos.
+
+Por ejemplo:
+
+- Procesadores multinúcleo.
+
+- Computación en la nube.
+
+- Virtualización.
+
+- Dispositivos móviles.
+
+- Redes.
+
+- GPU.
+
+- Grandes cantidades de memoria.
+
+Ejemplos actuales:
+
+- Windows.
+
+- GNU/Linux.
+
+- macOS.
+
+- Android.
+
+- iOS.
+---
+## 34. Tipos de Sistemas Operativos
+Existen diferentes tipos de sistemas operativos.
+### Sistemas de escritorio
+Diseñados para computadoras personales.
+
+Ejemplos:
+
+- Windows.
+
+- macOS.
+
+- Linux.
+### Sistemas móviles
+Diseñados para teléfonos y tabletas.
+
+Ejemplos:
+
+- Android.
+
+- iOS.
+### Sistemas de servidor
+Diseñados para proporcionar servicios.
+
+Ejemplos:
+
+- Linux Server.
+
+- Windows Server.
+
+- Unix.
+### Sistemas embebidos
+Se utilizan en dispositivos especializados.
+
+Ejemplos:
+
+- Routers.
+
+- Automóviles.
+
+- Electrodomésticos.
+
+- Equipos industriales.
+---
+## 35. Sistemas de tiempo real
+Los sistemas de tiempo real deben responder dentro de límites de tiempo determinados.
+
+Se utilizan en situaciones donde una respuesta tardía puede causar problemas.
+
+Ejemplos:
+
+- Sistemas industriales.
+
+- Equipos médicos.
+
+- Sistemas automotrices.
+
+- Control aéreo.
+
+- Robótica.
+---
+## 36. Sistemas distribuidos
+Un sistema distribuido utiliza varias computadoras conectadas para realizar tareas.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Equipo A
+
+   |
+
+   +------ Red ------+
+
+   |                 |
+
+Equipo B          Equipo C`}</pre>
+</div>
+
+El usuario puede percibir diferentes computadoras como parte de un mismo sistema.
+---
+## 37. Sistemas de red
+Los sistemas operativos de red permiten administrar recursos compartidos entre diferentes computadoras.
+
+Por ejemplo:
+
+- Archivos.
+
+- Impresoras.
+
+- Usuarios.
+
+- Servidores.
+
+- Conexiones.
+---
+## 38. Sistemas multiprocesador
+Un sistema multiprocesador utiliza más de una unidad de procesamiento.
+
+Hoy en día es común encontrar CPUs con varios núcleos.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`CPU
+
+Núcleo 1
+
+Núcleo 2
+
+Núcleo 3
+
+Núcleo 4`}</pre>
+</div>
+
+El sistema operativo debe distribuir el trabajo entre ellos.
+---
+## 39. Multitarea
+La multitarea permite ejecutar diferentes programas durante el mismo periodo de tiempo.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Navegador
+
++
+
+Editor de texto
+
++
+
+Música
+
++
+
+Descarga`}</pre>
+</div>
+
+El sistema operativo cambia entre tareas rápidamente.
+
+En procesadores multinúcleo, algunas tareas pueden ejecutarse realmente en paralelo.
+---
+## 40. Multiusuario
+Un sistema multiusuario permite que diferentes usuarios utilicen los recursos de una computadora.
+
+Cada usuario puede tener:
+
+- Cuenta.
+
+- Contraseña.
+
+- Archivos.
+
+- Permisos.
+
+- Configuración.
+
+Linux y Unix son ejemplos de sistemas con fuertes características multiusuario.
+---
+## 41. Seguridad en los Sistemas Operativos
+La seguridad es una función importante.
+
+El sistema operativo debe proteger:
+
+- Datos.
+
+- Usuarios.
+
+- Procesos.
+
+- Memoria.
+
+- Archivos.
+
+- Red.
+
+- Dispositivos.
+
+Entre los mecanismos utilizados se encuentran:
+
+- Contraseñas.
+
+- Permisos.
+
+- Cuentas.
+
+- Cifrado.
+
+- Control de acceso.
+
+- Protección de memoria.
+---
+## 42. Usuarios y permisos
+Los archivos pueden tener permisos.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Lectura
+
+Escritura
+
+Ejecución`}</pre>
+</div>
+
+Esto permite decidir quién puede acceder a determinada información.
+---
+## 43. Administración de usuarios
+Un sistema operativo puede manejar diferentes tipos de usuarios.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Administrador
+
+Usuario estándar
+
+Invitado`}</pre>
+</div>
+
+Un administrador normalmente posee mayores privilegios.
+---
+## 44. Arquitecturas del Kernel
+Existen diferentes formas de organizar internamente un kernel.
+
+Las principales son:
+
+1\. Monolítica.
+
+2\. Microkernel.
+
+3\. Híbrida.
+
+4\. Modular.
+---
+## 45. Kernel Monolítico
+En un kernel monolítico, muchos servicios del sistema se ejecutan en modo kernel.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`+--------------------------------+
+
+|          KERNEL                |
+
+| Procesos                       |
+
+| Memoria                        |
+
+| Drivers                        |
+
+| Archivos                       |
+
+| Red                            |
+
++--------------------------------+`}</pre>
+</div>
+### Ventajas
+- Buen rendimiento.
+
+- Comunicación rápida entre componentes.
+### Desventajas
+- Una falla en un componente puede afectar gran parte del sistema.
+
+- Puede ser más complejo de mantener.
+
+Linux utiliza un kernel monolítico con diseño modular.
+---
+## 46. Microkernel
+Un microkernel intenta mantener dentro del kernel solamente las funciones esenciales.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Modo Usuario
+
++----------------------------+
+
+| Drivers                    |
+
+| Sistemas de archivos       |
+
+| Servicios                  |
+
++----------------------------+
+
+Modo Kernel
+
++----------------------------+
+
+| IPC                        |
+
+| Planificación              |
+
+| Gestión básica de memoria  |
+
++----------------------------+`}</pre>
+</div>
+### Ventajas
+- Mejor aislamiento.
+
+- Mayor modularidad.
+
+- Puede mejorar la estabilidad.
+### Desventajas
+- La comunicación entre componentes puede generar sobrecarga.
+---
+## 47. Kernel Híbrido
+Un kernel híbrido combina características de arquitecturas monolíticas y microkernel.
+
+Busca obtener:
+
+- Buen rendimiento.
+
+- Modularidad.
+
+- Flexibilidad.
+
+Windows NT y XNU utilizan diseños considerados híbridos.
+---
+## 48. Kernel Modular
+Un kernel modular permite cargar y descargar componentes según sea necesario.
+
+Estos componentes pueden llamarse módulos.
+
+Por ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Kernel
+
+ |
+
+ +--- Módulo de red
+
+ +--- Módulo USB
+
+ +--- Módulo de sonido
+
+ +--- Módulo de sistema de archivos`}</pre>
+</div>
+
+Esto permite ampliar funcionalidades sin recompilar todo el kernel.
+---
+## 49. Comparación de arquitecturas
+| Arquitectura | Característica |
+
+|---|---|
+
+| Monolítica | Muchos servicios dentro del kernel |
+
+| Microkernel | Solo funciones esenciales en kernel |
+
+| Híbrida | Combina diferentes enfoques |
+
+| Modular | Permite agregar módulos dinámicos |
+---
+## 50. Boot o proceso de arranque
+Cuando encendemos una computadora ocurre un proceso de arranque.
+
+De manera simplificada:
+
+<div className="u1-diagram">
+  <pre>{`Encendido
+
+   |
+
+   ↓
+
+Firmware
+
+   |
+
+   ↓
+
+Bootloader
+
+   |
+
+   ↓
+
+Kernel
+
+   |
+
+   ↓
+
+Servicios
+
+   |
+
+   ↓
+
+Interfaz del usuario`}</pre>
+</div>
+---
+## 51. Firmware
+El firmware es software almacenado en dispositivos electrónicos.
+
+En una computadora puede encargarse de iniciar el hardware.
+
+Ejemplos:
+
+- BIOS.
+
+- UEFI.
+---
+## 52. Bootloader
+El bootloader es un programa encargado de cargar el sistema operativo.
+
+Algunos ejemplos son:
+
+- GRUB.
+
+- Windows Boot Manager.
+
+El bootloader localiza el kernel y lo carga en memoria.
+---
+## 53. Inicio del Kernel
+Después de ser cargado, el kernel comienza a:
+
+- Detectar hardware.
+
+- Preparar memoria.
+
+- Iniciar controladores.
+
+- Crear estructuras internas.
+
+- Iniciar servicios.
+
+Posteriormente se inicia el entorno del usuario.
+---
+## 54. Shell
+El **Shell** es una interfaz que permite comunicarse con el sistema operativo.
+
+Puede ser gráfica o mediante comandos.
+
+Ejemplos de shells de línea de comandos:
+
+- Bash.
+
+- Zsh.
+
+- PowerShell.
+
+- CMD.
+
+Ejemplo:
+
+```bash
+
+ls
+
+```
+
+o en Windows:
+
+```powershell
+
+dir
+
+```
+---
+## 55. Interfaz gráfica
+La interfaz gráfica o GUI permite utilizar ventanas, iconos, botones y menús.
+
+Ejemplos:
+
+- Escritorio de Windows.
+
+- GNOME.
+
+- KDE Plasma.
+
+- Interfaz de macOS.
+
+La GUI facilita la interacción con el sistema.
+---
+## 56. CLI vs GUI
+| CLI | GUI |
+
+|---|---|
+
+| Usa comandos | Usa elementos gráficos |
+
+| Puede ser muy rápida | Más amigable para principiantes |
+
+| Requiere conocer comandos | Más visual |
+
+| Útil para administración | Útil para uso cotidiano |
+---
+## 57. Virtualización
+La virtualización permite ejecutar sistemas operativos dentro de otros sistemas.
+
+Ejemplo:
+
+<div className="u1-diagram">
+  <pre>{`Hardware
+
+   |
+
+   ↓
+
+Sistema Principal
+
+   |
+
+   ↓
+
+Hipervisor
+
+   |
+
+   +--- Máquina Virtual Linux
+
+   |
+
+   +--- Máquina Virtual Windows`}</pre>
+</div>
+
+Programas como VirtualBox permiten crear máquinas virtuales.
+---
+## 58. Máquina Virtual
+Una máquina virtual simula una computadora completa.
+
+Puede tener:
+
+- CPU virtual.
+
+- Memoria virtual.
+
+- Disco virtual.
+
+- Tarjeta de red virtual.
+
+Esto permite instalar sistemas operativos sin modificar directamente el equipo principal.
+---
+## 59. Hipervisor
+El hipervisor administra máquinas virtuales.
+
+Existen dos categorías principales.
+### Tipo 1
+Se ejecuta directamente sobre el hardware.
+### Tipo 2
+Se ejecuta sobre un sistema operativo existente.
+
+Ejemplo típico:
+
+<div className="u1-diagram">
+  <pre>{`Windows
+
+   |
+
+VirtualBox
+
+   |
+
+Linux virtual`}</pre>
+</div>
+---
+## 60. Abstracción
+Una función importante del sistema operativo es proporcionar abstracción.
+
+Por ejemplo, el usuario utiliza:
+
+<div className="u1-diagram">
+  <pre>{`archivo.txt`}</pre>
+</div>
+
+sin preocuparse de:
+
+- Sectores físicos.
+
+- Bloques del disco.
+
+- Dirección exacta.
+
+- Controlador del dispositivo.
+
+El sistema operativo oculta estos detalles.
+---
+## 61. Administración de recursos
+El sistema operativo puede considerarse un administrador de recursos.
+
+Controla:
+
+<div className="u1-diagram">
+  <pre>{`               SISTEMA OPERATIVO
+
+                       |
+
+       +---------------+---------------+
+
+       |               |               |
+
+       ↓               ↓               ↓
+
+      CPU            MEMORIA          DISCO
+
+       |               |               |
+
+       +---------------+---------------+
+
+                       |
+
+                       ↓
+
+                 DISPOSITIVOS`}</pre>
+</div>
+
+El objetivo es distribuir los recursos de forma ordenada.
+---
+## 62. Recursos físicos y lógicos### Recursos físicos
+Son componentes reales.
+
+Ejemplos:
+
+- CPU.
+
+- Memoria.
+
+- Disco.
+
+- Impresora.
+### Recursos lógicos
+Son estructuras proporcionadas por el software.
+
+Ejemplos:
+
+- Archivos.
+
+- Procesos.
+
+- Carpetas.
+
+- Usuarios.
+---
+## 63. Servicios de un Sistema Operativo
+Un sistema operativo proporciona diferentes servicios.
+
+Entre ellos:
+
+- Ejecución de programas.
+
+- Operaciones de E/S.
+
+- Manipulación de archivos.
+
+- Comunicación.
+
+- Detección de errores.
+
+- Asignación de recursos.
+
+- Seguridad.
+
+- Contabilidad del uso de recursos.
+---
+## 64. Detección de errores
+El sistema operativo debe detectar diferentes problemas.
+
+Por ejemplo:
+
+- Fallos de memoria.
+
+- Errores de disco.
+
+- Operaciones inválidas.
+
+- Fallas de dispositivos.
+
+- Errores de ejecución.
+
+Cuando detecta un problema puede:
+
+- Mostrar un mensaje.
+
+- Finalizar un proceso.
+
+- Registrar información.
+
+- Intentar recuperar el sistema.
+---
+## 65. Contabilidad de recursos
+Los sistemas operativos pueden registrar cuánto utiliza cada proceso.
+
+Por ejemplo:
+
+- Tiempo de CPU.
+
+- Memoria.
+
+- Disco.
+
+- Red.
+
+Esto ayuda a:
+
+- Supervisar rendimiento.
+
+- Detectar problemas.
+
+- Administrar servidores.
+
+- Controlar usuarios.
+---
+## 66. Ejemplo completo de ejecución de una aplicación
+Cuando un usuario abre una aplicación:
+
+<div className="u1-diagram">
+  <pre>{`Usuario
+
+   |
+
+   ↓
+
+Abre aplicación
+
+   |
+
+   ↓
+
+Sistema Operativo
+
+   |
+
+   ↓
+
+Localiza programa
+
+   |
+
+   ↓
+
+Carga programa en RAM
+
+   |
+
+   ↓
+
+Crea proceso
+
+   |
+
+   ↓
+
+Asigna CPU
+
+   |
+
+   ↓
+
+Carga drivers necesarios
+
+   |
+
+   ↓
+
+Aplicación ejecutándose`}</pre>
+</div>
+
+Esta secuencia muestra varias funciones del sistema operativo trabajando juntas.
+---
+## 67. Ejemplo de acceso a un archivo
+Cuando una aplicación abre un archivo:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+   |
+
+   ↓
+
+System Call
+
+   |
+
+   ↓
+
+Kernel
+
+   |
+
+   ↓
+
+Sistema de archivos
+
+   |
+
+   ↓
+
+Driver
+
+   |
+
+   ↓
+
+Disco`}</pre>
+</div>
+
+El usuario solamente ve el nombre del archivo.
+---
+## 68. Ejemplo de impresión
+Cuando enviamos un documento a imprimir:
+
+<div className="u1-diagram">
+  <pre>{`Aplicación
+
+   |
+
+   ↓
+
+Sistema Operativo
+
+   |
+
+   ↓
+
+Servicio de impresión
+
+   |
+
+   ↓
+
+Driver
+
+   |
+
+   ↓
+
+Impresora`}</pre>
+</div>
+
+El sistema operativo coordina todo el proceso.
+---
+## 69. Relación entre hardware y software
+Podemos representar la relación general así:
+
+<div className="u1-diagram">
+  <pre>{`USUARIO
+
+  |
+
+  ↓
+
+APLICACIONES
+
+  |
+
+  ↓
+
+SISTEMA OPERATIVO
+
+  |
+
+  ↓
+
+DRIVERS
+
+  |
+
+  ↓
+
+HARDWARE`}</pre>
+</div>
+
+Cada nivel tiene una función específica.
+---
+## 70. Sistemas Operativos conocidos
+Algunos de los sistemas operativos más conocidos son:
+### Microsoft Windows
+Utilizado ampliamente en computadoras personales.
+### GNU/Linux
+Utilizado en:
+
+- Servidores.
+
+- Computadoras.
+
+- Supercomputadoras.
+
+- Sistemas embebidos.
+### macOS
+Sistema operativo utilizado en computadoras Mac.
+### Android
+Sistema operativo utilizado principalmente en dispositivos móviles.
+### iOS
+Sistema utilizado principalmente en dispositivos móviles de Apple.
+---
+## 71. Linux
+Linux es un kernel libre y de código abierto.
+
+Normalmente se utiliza junto con herramientas y programas para formar distribuciones.
+
+Ejemplos de distribuciones:
+
+- Ubuntu.
+
+- Debian.
+
+- Fedora.
+
+- Arch Linux.
+
+- Linux Mint.
+---
+## 72. Distribuciones Linux
+Una distribución Linux normalmente incluye:
+
+<div className="u1-diagram">
+  <pre>{`Kernel Linux
+
++
+
+Herramientas
+
++
+
+Gestor de paquetes
+
++
+
+Bibliotecas
+
++
+
+Aplicaciones
+
++
+
+Interfaz gráfica`}</pre>
+</div>
+
+Cada distribución puede estar enfocada a diferentes tipos de usuarios.
+---
+## 73. Windows
+Windows es una familia de sistemas operativos desarrollada por Microsoft.
+
+Se utiliza ampliamente en:
+
+- Hogares.
+
+- Oficinas.
+
+- Videojuegos.
+
+- Empresas.
+
+Incluye una interfaz gráfica y herramientas de administración.
+---
+## 74. Diferencia entre software de sistema y software de aplicación### Software de sistema
+Administra la computadora.
+
+Ejemplos:
+
+- Sistema operativo.
+
+- Drivers.
+
+- Herramientas del sistema.
+### Software de aplicación
+Permite realizar tareas específicas.
+
+Ejemplos:
+
+- Navegador.
+
+- Procesador de texto.
+
+- Videojuego.
+
+- Reproductor multimedia.
+---
+## 75. Tabla comparativa
+| Elemento | Función |
+
+|---|---|
+
+| Hardware | Componentes físicos |
+
+| Sistema Operativo | Administra recursos |
+
+| Kernel | Núcleo del sistema |
+
+| Driver | Controla dispositivos |
+
+| Aplicación | Realiza tareas para el usuario |
+
+| System Call | Solicita servicios al kernel |
+
+| Shell | Permite interactuar con el sistema |
+---
+## 76. Ventajas de utilizar un Sistema Operativo
+Un sistema operativo permite:
+
+- Ejecutar programas.
+
+- Compartir recursos.
+
+- Facilitar el uso del hardware.
+
+- Proteger información.
+
+- Administrar usuarios.
+
+- Controlar dispositivos.
+
+- Organizar archivos.
+
+- Utilizar redes.
+
+- Ejecutar varias tareas.
+---
+## 77. Conceptos clave de la unidad
+> **Sistema Operativo:** Software encargado de administrar los recursos de una computadora.
+
+> **Kernel:** Núcleo del sistema operativo.
+
+> **Modo Usuario:** Nivel donde se ejecutan aplicaciones con permisos limitados.
+
+> **Modo Kernel:** Nivel privilegiado donde se ejecutan funciones críticas.
+
+> **System Call:** Mecanismo utilizado para solicitar servicios al kernel.
+
+> **Driver:** Software que permite controlar un dispositivo.
+
+> **Interrupción:** Señal que solicita atención del procesador.
+
+> **Proceso:** Programa que se encuentra en ejecución.
+
+> **Memoria:** Recurso utilizado para almacenar información temporalmente.
+
+> **Sistema de archivos:** Mecanismo para organizar datos en dispositivos de almacenamiento.
+
+> **Shell:** Interfaz que permite comunicarse con el sistema operativo.
+---
+## 78. Preguntas de repaso### 1. ¿Qué es un Sistema Operativo?
+Es el software encargado de administrar el hardware y proporcionar servicios a los programas.
+### 2. ¿Qué es el Kernel?
+Es el núcleo del sistema operativo y controla recursos fundamentales como CPU, memoria y dispositivos.
+### 3. ¿Qué diferencia existe entre modo usuario y modo kernel?
+El modo usuario tiene privilegios limitados, mientras que el modo kernel tiene acceso privilegiado al sistema.
+### 4. ¿Qué es una llamada al sistema?
+Es un mecanismo mediante el cual una aplicación solicita un servicio al kernel.
+### 5. ¿Qué es un driver?
+Es un software que permite al sistema operativo comunicarse con un dispositivo.
+### 6. ¿Qué función tiene la memoria RAM?
+Almacena temporalmente programas y datos que están siendo utilizados.
+### 7. ¿Qué es una interrupción?
+Es una señal que permite solicitar atención del procesador.
+### 8. ¿Qué es la multiprogramación?
+Es una técnica que mantiene varios programas disponibles para aprovechar mejor la CPU.
+### 9. ¿Qué es la multitarea?
+Es la capacidad del sistema operativo para administrar diferentes tareas durante el mismo periodo.
+### 10. ¿Qué es un sistema de archivos?
+Es el mecanismo utilizado para organizar la información almacenada.
+---
+## 79. Actividad de análisis
+Analiza la siguiente situación:
+
+Un usuario abre un navegador, reproduce música y copia archivos a una memoria USB.
+
+Identifica qué funciones del sistema operativo participan.
+
+Respuesta esperada:
+
+- Gestión de procesos.
+
+- Gestión de memoria.
+
+- Gestión de dispositivos.
+
+- Gestión de archivos.
+
+- Gestión de CPU.
+
+- Manejo de entrada y salida.
+---
+## 80. Ejercicio de clasificación
+Clasifica los siguientes elementos:
+
+<div className="u1-diagram">
+  <pre>{`CPU
+
+Chrome
+
+Linux
+
+Teclado
+
+Driver de sonido
+
+RAM
+
+Windows
+
+Archivo PDF`}</pre>
+</div>
+
+Una posible clasificación sería:
+
+| Elemento | Tipo |
+
+|---|---|
+
+| CPU | Hardware |
+
+| Chrome | Aplicación |
+
+| Linux | Sistema operativo / Kernel según contexto |
+
+| Teclado | Hardware |
+
+| Driver de sonido | Software de sistema |
+
+| RAM | Hardware |
+
+| Windows | Sistema operativo |
+
+| Archivo PDF | Datos |
+---
+## 81. Ejercicio sobre modos de ejecución
+Indica qué modo sería más apropiado.
+### Situación A
+Una calculadora se está ejecutando.
+
+**Respuesta:** Modo usuario.
+### Situación B
+El sistema operativo necesita modificar tablas de memoria.
+
+**Respuesta:** Modo kernel.
+### Situación C
+Una aplicación desea abrir un archivo.
+
+**Respuesta:** Inicia en modo usuario y solicita el servicio mediante una llamada al sistema.
+### Situación D
+El kernel controla un dispositivo.
+
+**Respuesta:** Modo kernel.
+---
+## 82. Ejercicio sobre System Calls
+Relaciona cada operación con una posible llamada al sistema.
+
+| Operación | Ejemplo |
+
+|---|---|
+
+| Crear proceso | \`fork()\` |
+
+| Ejecutar programa | \`execve()\` |
+
+| Leer archivo | \`read()\` |
+
+| Escribir archivo | \`write()\` |
+
+| Cerrar archivo | \`close()\` |
+
+| Obtener PID | \`getpid()\` |
+---
+## 83. Ejemplo de Linux
+En Linux podemos consultar información del sistema mediante comandos.
+### Información del kernel
+```bash
+
+uname -a
+
+```
+### Procesos
+```bash
+
+ps
+
+```
+### Memoria
+```bash
+
+free -h
+
+```
+### Disco
+```bash
+
+df -h
+
+```
+
+Estos comandos permiten observar algunos de los recursos administrados por el sistema operativo.
+---
+## 84. Ejemplo de Windows
+En Windows podemos utilizar herramientas como:
+
+<div className="u1-diagram">
+  <pre>{`Administrador de tareas
+
+Administrador de dispositivos
+
+Explorador de archivos
+
+Configuración del sistema`}</pre>
+</div>
+
+También podemos utilizar comandos como:
+
+```powershell
+
+tasklist
+
+```
+
+para observar procesos.
+---
+## 85. Mapa conceptual de la Unidad
+<div className="u1-diagram">
+  <pre>{`                    SISTEMA OPERATIVO
+
+                           |
+
+        +------------------+------------------+
+
+        |                  |                  |
+
+        ↓                  ↓                  ↓
+
+      KERNEL            RECURSOS          USUARIOS
+
+        |                  |
+
+        |        +---------+---------+
+
+        |        |         |         |
+
+        ↓        ↓         ↓         ↓
+
+    Procesos    CPU      Memoria    Disco
+
+        |
+
+        ↓
+
+    System Calls
+
+        |
+
+        ↓
+
+ Modo Usuario ↔ Modo Kernel
+
+        |
+
+        ↓
+
+     Hardware`}</pre>
+</div>
+---
+## 86. Importancia de estudiar Sistemas Operativos
+Comprender los sistemas operativos es importante porque permite conocer cómo funciona internamente una computadora.
+
+Estos conocimientos ayudan a comprender temas como:
+
+- Procesos.
+
+- Hilos.
+
+- Memoria.
+
+- Seguridad.
+
+- Redes.
+
+- Almacenamiento.
+
+- Virtualización.
+
+- Concurrencia.
+
+- Interbloqueos.
+
+Además, estos conceptos son fundamentales para áreas como:
+
+- Desarrollo de software.
+
+- Administración de sistemas.
+
+- Ciberseguridad.
+
+- Redes.
+
+- Computación en la nube.
+
+- Programación de bajo nivel.
+---
+## 87. Resumen general
+Un sistema operativo es el software que administra los recursos de una computadora y permite que los programas puedan ejecutarse correctamente.
+
+Entre sus funciones principales se encuentran la gestión de procesos, memoria, almacenamiento, dispositivos, seguridad y usuarios.
+
+El kernel representa la parte central del sistema y se ejecuta con privilegios elevados.
+
+Las aplicaciones normalmente funcionan en modo usuario y utilizan llamadas al sistema para solicitar servicios al kernel.
+
+La separación entre modo usuario y modo kernel mejora la estabilidad y seguridad del sistema.
+
+Los sistemas operativos también utilizan interrupciones para responder a eventos, drivers para controlar dispositivos y sistemas de archivos para organizar la información.
+
+A lo largo del tiempo, los sistemas operativos han evolucionado desde sistemas muy simples hasta plataformas capaces de administrar múltiples procesadores, usuarios, redes, máquinas virtuales y grandes cantidades de información.
+---
+## 88. Conclusión
+Los sistemas operativos son una parte fundamental de cualquier computadora moderna.
+
+Su función principal es actuar como intermediario entre las aplicaciones y el hardware, facilitando el uso de los recursos y evitando que los programas tengan que controlar directamente los componentes físicos.
+
+El sistema operativo administra recursos como la CPU, memoria, almacenamiento y dispositivos. Además, proporciona mecanismos de seguridad, llamadas al sistema, control de procesos y protección mediante diferentes niveles de privilegio.
+
+Comprender conceptos como kernel, modo usuario, modo kernel, drivers, llamadas al sistema, interrupciones y arquitecturas del kernel es fundamental para avanzar hacia temas más complejos relacionados con procesos, concurrencia, memoria e interbloqueos.
+---
+:::tip[Resumen de la Unidad]
+
+El **Sistema Operativo** administra los recursos de la computadora y actúa como intermediario entre las aplicaciones y el hardware.
+
+Las aplicaciones trabajan normalmente en **Modo Usuario** y utilizan **System Calls** para solicitar servicios al **Kernel**, que funciona con privilegios elevados.
+
+El sistema operativo administra principalmente CPU, memoria, archivos, dispositivos, procesos y seguridad.
+
+:::

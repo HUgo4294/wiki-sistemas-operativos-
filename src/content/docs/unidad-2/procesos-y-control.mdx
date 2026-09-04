@@ -1,0 +1,2788 @@
+---
+
+title: Unidad 2 - Definición y Control de Procesos
+
+description: Conceptos avanzados sobre administración de procesos, estados, PCB, hilos, cambio de contexto y planificación de procesos.
+
+---
+
+import { LinkButton } from '@astrojs/starlight/components';
+
+# Unidad 2 - Definición y Control de Procesos
+En esta unidad se estudia uno de los conceptos más importantes de los sistemas operativos: **los procesos**.
+
+Un proceso representa un programa que se encuentra en ejecución y que necesita diferentes recursos del sistema para poder funcionar.
+
+El sistema operativo se encarga de crear, controlar, organizar, suspender y finalizar los procesos. Para realizar estas tareas utiliza diferentes estructuras y mecanismos que permiten administrar de manera eficiente la CPU, la memoria y otros recursos.
+
+Los procesos son fundamentales porque permiten que una computadora pueda realizar varias tareas al mismo tiempo. Por ejemplo, mientras escuchamos música podemos navegar por Internet, escribir un documento y descargar un archivo.
+
+---
+
+## 1. Concepto de Proceso vs. Programa
+Aunque los términos **programa** y **proceso** están relacionados, no significan exactamente lo mismo.
+
+### Programa
+Un programa es un conjunto de instrucciones que indican a la computadora qué debe hacer.
+
+Es una entidad **pasiva**, porque mientras está almacenado en el disco no está realizando ninguna actividad.
+
+Algunos ejemplos son:
+
+- Un archivo `.exe` de Windows.
+
+- Un programa compilado en Linux.
+
+- Una aplicación instalada en un teléfono.
+
+- Un programa escrito en C, C++, Java o Python.
+
+- Un navegador web.
+
+- Una calculadora.
+
+Podemos imaginar un programa como una **receta de cocina**. La receta contiene las instrucciones, pero por sí sola no está realizando ninguna acción.
+
+### Proceso
+Un proceso es un programa que actualmente se encuentra en ejecución.
+
+Cuando el usuario abre una aplicación, el sistema operativo carga la información necesaria en la memoria y crea un proceso.
+por ejemplo 
+<img
+  src="/programa-proceso.png"
+  alt="Diferencia entre Programa y Proceso"
+  className="wiki-image"
+/>
+
+### Diferencia principal
+| Programa | Proceso |
+
+|---|---|
+
+| Es pasivo | Es activo |
+
+| Está almacenado | Está ejecutándose |
+
+| Contiene instrucciones | Ejecuta instrucciones |
+
+| No utiliza CPU mientras no se ejecuta | Utiliza CPU durante su ejecución |
+
+| Puede existir sin ejecutarse | Necesita recursos del sistema |
+
+---
+
+## 2. ¿Qué necesita un proceso para funcionar?
+Para poder ejecutarse, un proceso necesita diferentes recursos proporcionados por el sistema operativo.
+
+Entre los principales recursos se encuentran:
+
+- Tiempo de CPU.
+
+- Memoria RAM.
+
+- Registros del procesador.
+
+- Archivos.
+
+- Dispositivos de entrada y salida.
+
+- Permisos de acceso.
+
+- Información de control.
+
+El sistema operativo administra estos recursos para evitar conflictos entre los diferentes procesos.
+
+---
+
+## 3. Estructura de memoria de un proceso
+Cuando un proceso es cargado en memoria se utilizan diferentes áreas.
+
+<img
+  src="/estructura-memoria.png"
+  alt="Estructura de memoria de un proceso"
+  className="wiki-image"
+/>
+
+
+# 4. Ciclo de vida de un proceso
+Los principales estados de un proceso son:
+
+1\. Nuevo.
+
+2\. Listo.
+
+3\. Ejecución.
+
+4\. Bloqueado.
+
+5\. Terminado.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+                  +---------+
+
+                  |  NUEVO  |
+
+                  +----+----+
+
+                       |
+
+                       ↓
+
+                  +---------+
+
+                  |  LISTO  |
+
+                  +----+----+
+
+                       |
+
+                       ↓
+
+                +-------------+
+
+                | EJECUCIÓN   |
+
+                +------+------+
+
+                       |
+
+             +---------+---------+
+
+             |                   |
+
+             ↓                   ↓
+
+       +-----------+       +-----------+
+
+       | BLOQUEADO |       | TERMINADO |
+
+       +-----+-----+       +-----------+
+
+             |
+
+             ↓
+
+          +------+
+
+          | LISTO|
+
+          +------+
+</pre>
+</div>
+
+---
+
+## 5. Estado Nuevo
+Un proceso se encuentra en estado **Nuevo** cuando acaba de ser creado.
+
+El sistema operativo comienza a preparar los recursos necesarios para su ejecución.
+
+Entre las tareas realizadas se encuentran:
+
+- Crear estructuras de control.
+
+- Asignar un PID.
+
+- Preparar memoria.
+
+- Registrar información del proceso.
+
+---
+
+## 6. Estado Listo
+Un proceso está **Listo** cuando puede ejecutarse, pero está esperando que la CPU esté disponible.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+COLA DE LISTOS
+
+[ P1 ] → [ P2 ] → [ P3 ] → [ P4 ]
+
+                              |
+
+                              ↓
+
+                             CPU
+</pre>
+</div>
+
+El planificador determina cuál proceso recibe la CPU.
+
+---
+
+## 7. Estado de Ejecución
+Un proceso está en **Ejecución** cuando la CPU está procesando sus instrucciones.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+        CPU
+
+         |
+
+         ↓
+
+    +----------+
+
+    | Proceso  |
+
+    |    P1    |
+
+    +----------+
+</pre>
+</div>
+
+El proceso puede continuar ejecutándose, ser desalojado, bloquearse o terminar.
+
+---
+
+## 8. Estado Bloqueado
+Un proceso queda **Bloqueado** cuando necesita esperar un evento.
+
+Por ejemplo:
+
+- Lectura de disco.
+
+- Información de red.
+
+- Entrada del teclado.
+
+- Disponibilidad de un recurso.
+
+- Finalización de otra operación.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+EJECUCIÓN
+
+    |
+
+    ↓
+
+Solicita E/S
+
+    |
+
+    ↓
+
+BLOQUEADO
+
+    |
+
+    ↓
+
+Finaliza E/S
+
+    |
+
+    ↓
+
+LISTO
+</pre>
+</div>
+
+---
+
+## 9. Estado Terminado
+Un proceso pasa al estado **Terminado** cuando finaliza su ejecución.
+
+Puede ocurrir porque:
+
+- Terminó correctamente.
+
+- El usuario cerró la aplicación.
+
+- Ocurrió un error.
+
+- El sistema operativo lo finalizó.
+
+---
+
+# 10. Transiciones entre estados
+Las principales transiciones son:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Nuevo ──────────────→ Listo
+
+                       |
+
+                       ↓
+
+                    Ejecución
+
+                   /    |     \\
+
+                  /     |      \\
+
+                 ↓      ↓       ↓
+
+              Listo  Bloqueado Terminado
+
+                        |
+
+                        ↓
+
+                      Listo
+</pre>
+</div>
+
+### Nuevo → Listo
+El proceso ha sido admitido.
+
+### Listo → Ejecución
+El Scheduler le asigna CPU.
+
+### Ejecución → Listo
+El proceso pierde temporalmente la CPU.
+
+### Ejecución → Bloqueado
+Necesita esperar algún evento.
+
+### Bloqueado → Listo
+El evento solicitado terminó.
+
+### Ejecución → Terminado
+El proceso finaliza.
+
+---
+
+# 11. PCB - Process Control Block
+El **PCB (Process Control Block)** o **Bloque de Control de Procesos** es una estructura utilizada por el sistema operativo para almacenar información importante de cada proceso.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
++--------------------------------+
+
+|             PCB                |
+
++--------------------------------+
+
+| PID                            |
+
+| Estado                         |
+
+| Contador de programa           |
+
+| Registros de CPU               |
+
+| Prioridad                      |
+
+| Información de memoria         |
+
+| Información de E/S             |
+
+| Archivos abiertos              |
+
+| Información de planificación   |
+
++--------------------------------+
+</pre>
+</div>
+
+Podemos imaginar el PCB como el expediente que utiliza el sistema operativo para identificar y controlar un proceso.
+
+---
+
+# 12. PID
+El **PID (Process Identifier)** es un número que identifica a un proceso.
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso                 PID
+
+---------------------------
+
+Navegador               1024
+
+Editor                  1240
+
+Terminal                1350
+
+Reproductor             1560
+</pre>
+</div>
+
+Cada proceso activo necesita poder ser identificado por el sistema operativo.
+
+---
+
+# 13. Contador de Programa
+El **Program Counter** indica cuál será la próxima instrucción que ejecutará la CPU.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Instrucción 1
+
+Instrucción 2
+
+Instrucción 3  ← Program Counter
+
+Instrucción 4
+
+Instrucción 5
+</pre>
+</div>
+
+Su valor debe conservarse cuando se realiza un cambio de contexto.
+
+---
+
+# 14. Registros de CPU
+Los registros son pequeñas zonas de almacenamiento extremadamente rápidas dentro del procesador.
+
+Pueden almacenar:
+
+- Datos.
+
+- Direcciones.
+
+- Resultados.
+
+- Contadores.
+
+- Información de estado.
+
+La información de los registros debe guardarse cuando un proceso deja la CPU.
+
+---
+
+# 15. Cambio de Contexto
+El **Cambio de Contexto (Context Switch)** ocurre cuando la CPU deja de ejecutar un proceso y comienza a ejecutar otro.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
+    |
+
+    ↓
+
+Guardar contexto A
+
+    |
+
+    ↓
+
+Seleccionar proceso B
+
+    |
+
+    ↓
+
+Cargar contexto B
+
+    |
+
+    ↓
+
+Proceso B
+</pre>
+</div>
+
+El PCB permite guardar la información necesaria para continuar posteriormente con el proceso anterior.
+
+---
+
+# 16. Costo del Cambio de Contexto
+Los cambios de contexto son necesarios para la multitarea, pero también consumen recursos.
+
+Durante el cambio:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
+    ↓
+
+Guardar información
+
+    ↓
+
+Scheduler
+
+    ↓
+
+Cargar información
+
+    ↓
+
+Proceso B
+</pre>
+</div>
+
+Durante este tiempo la CPU está realizando trabajo administrativo.
+
+Por esta razón, realizar demasiados cambios de contexto puede afectar el rendimiento.
+
+---
+
+# 17. Scheduler
+El **Scheduler** o planificador decide cuál proceso debe utilizar la CPU.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Procesos Listos
+
+      |
+
+      ↓
+
++-------------+
+
+|  Scheduler  |
+
++-------------+
+
+      |
+
+      ↓
+
+     CPU
+</pre>
+</div>
+
+El Scheduler puede tomar decisiones utilizando diferentes algoritmos.
+
+---
+
+# 18. Dispatcher
+El **Dispatcher** es el componente que entrega el control de la CPU al proceso seleccionado.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Cola de procesos
+
+       |
+
+       ↓
+
+   Scheduler
+
+       |
+
+       ↓
+
+   Dispatcher
+
+       |
+
+       ↓
+
+      CPU
+</pre>
+</div>
+
+Entre sus funciones se encuentran:
+
+- Realizar el cambio de contexto.
+
+- Preparar la CPU.
+
+- Continuar la ejecución del proceso seleccionado.
+
+---
+
+# 19. Tipos de Planificadores
+Existen diferentes niveles de planificación.
+
+| Planificador | Función |
+
+|---|---|
+
+| Largo plazo | Decide qué procesos entran al sistema |
+
+| Mediano plazo | Suspende y reanuda procesos |
+
+| Corto plazo | Decide qué proceso obtiene la CPU |
+
+El planificador de corto plazo trabaja constantemente porque debe seleccionar procesos con mucha frecuencia.
+
+---
+
+# 20. Planificación de Procesos
+La planificación determina cómo se distribuye el tiempo de CPU.
+
+Los algoritmos más conocidos son:
+
+- FCFS.
+
+- SJF.
+
+- SRTF.
+
+- Round Robin.
+
+- Prioridades.
+
+---
+
+# 21. FCFS
+**First Come, First Served** significa:
+
+**Primero en llegar, primero en ser atendido.**
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Llegada:
+
+P1 → P2 → P3
+
+Ejecución:
+
+P1 → P2 → P3
+</pre>
+</div>
+
+### Ventajas
+- Fácil de entender.
+
+- Fácil de implementar.
+
+### Desventajas
+- Un proceso largo puede hacer esperar a los demás.
+
+- Puede aumentar el tiempo promedio de espera.
+
+---
+
+# 22. Ejemplo de FCFS
+Supongamos:
+
+| Proceso | Llegada | Duración |
+
+|---|---:|---:|
+
+| P1 | 0 | 5 |
+
+| P2 | 1 | 3 |
+
+| P3 | 2 | 2 |
+
+Diagrama de Gantt:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+0          5       8      10
+
+|    P1    |  P2   |  P3  |
+</pre>
+</div>
+
+---
+
+# 23. SJF
+**Shortest Job First** selecciona el proceso con menor duración.
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P1 = 8
+
+P2 = 3
+
+P3 = 5
+
+P4 = 2
+</pre>
+</div>
+
+Orden:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P4 → P2 → P3 → P1
+</pre>
+</div>
+
+### Ventaja
+Puede disminuir el tiempo promedio de espera.
+
+### Desventaja
+Los procesos largos podrían esperar demasiado.
+
+---
+
+# 24. SRTF
+**Shortest Remaining Time First** selecciona el proceso con menor tiempo restante.
+
+Es una versión apropiativa de SJF.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P1 ejecutándose
+
+      |
+
+      ↓
+
+Llega P2
+
+      |
+
+      ↓
+
+P2 tiene menor tiempo restante
+
+      |
+
+      ↓
+
+P1 es desalojado
+
+      |
+
+      ↓
+
+P2 utiliza CPU
+</pre>
+</div>
+
+---
+
+# 25. Round Robin
+**Round Robin** distribuye la CPU mediante pequeños intervalos llamados **quantum**.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Quantum = 2
+
+P1 → P2 → P3 → P1 → P2 → P3
+</pre>
+</div>
+
+Si un proceso no termina durante su quantum, vuelve a la cola de listos.
+
+### Ventajas
+- Reparte la CPU.
+
+- Es adecuado para sistemas interactivos.
+
+- Evita que un único proceso monopolice el procesador.
+
+---
+
+# 26. Quantum
+El **quantum** es la cantidad máxima de tiempo que un proceso puede utilizar la CPU antes de cederla.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Quantum = 3 ms
+
+P1 → 3 ms
+
+P2 → 3 ms
+
+P3 → 3 ms
+
+P1 → 3 ms
+</pre>
+</div>
+
+Un quantum demasiado pequeño puede generar muchos cambios de contexto.
+
+Un quantum demasiado grande puede hacer que Round Robin se parezca a FCFS.
+
+---
+
+# 27. Planificación por Prioridades
+Cada proceso recibe una prioridad.
+
+Ejemplo:
+
+| Proceso | Prioridad |
+
+|---|---:|
+
+| P1 | 3 |
+
+| P2 | 1 |
+
+| P3 | 2 |
+
+Si un número menor representa una prioridad mayor:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P2 → P3 → P1
+</pre>
+</div>
+
+---
+
+# 28. Aging
+El **Aging** permite aumentar progresivamente la prioridad de un proceso que lleva demasiado tiempo esperando.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Prioridad baja
+
+      |
+
+      ↓
+
+Proceso espera
+
+      |
+
+      ↓
+
+Aumenta prioridad
+
+      |
+
+      ↓
+
+Obtiene CPU
+</pre>
+</div>
+
+Esto ayuda a evitar la **inanición**.
+
+---
+
+# 29. Comparación de Algoritmos
+| Algoritmo | Característica |
+
+|---|---|
+
+| FCFS | Orden de llegada |
+
+| SJF | Menor duración |
+
+| SRTF | Menor tiempo restante |
+
+| Round Robin | Utiliza quantum |
+
+| Prioridades | Utiliza niveles de prioridad |
+
+---
+
+# 30. Tiempo de Espera
+El tiempo de espera indica cuánto tiempo permanece un proceso esperando CPU.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Tiempo de espera =
+
+Tiempo de inicio - Tiempo de llegada
+</pre>
+</div>
+
+En algoritmos apropiativos puede ser necesario considerar varios periodos de espera.
+
+---
+
+# 31. Tiempo de Retorno
+El **Turnaround Time** representa el tiempo total desde que el proceso llega hasta que termina.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Tiempo de retorno =
+
+Tiempo de finalización - Tiempo de llegada
+</pre>
+</div>
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Llegada = 2
+
+Finalización = 10
+
+Retorno = 10 - 2 = 8
+</pre>
+</div>
+
+---
+
+# 32. Tiempo de Respuesta
+El tiempo de respuesta representa cuánto tarda un proceso en recibir CPU por primera vez.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Tiempo de respuesta =
+
+Primer inicio - Tiempo de llegada
+</pre>
+</div>
+
+Esta métrica es importante en sistemas interactivos.
+
+---
+
+# 33. Diagrama de Gantt
+Un diagrama de Gantt permite visualizar la utilización de la CPU.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+0       4       7       9
+
+|  P1   |  P2   |  P3   |
+</pre>
+</div>
+
+Permite calcular:
+
+- Tiempo de espera.
+
+- Tiempo de retorno.
+
+- Tiempo de respuesta.
+
+- Orden de ejecución.
+
+---
+
+# 34. Planificación Apropiativa
+En la planificación apropiativa, el sistema operativo puede retirar la CPU a un proceso.
+
+Ejemplos:
+
+- Round Robin.
+
+- SRTF.
+
+- Prioridades apropiativas.
+
+---
+
+# 35. Planificación No Apropiativa
+El proceso conserva la CPU hasta que:
+
+- Termina.
+
+- Se bloquea.
+
+- Solicita una operación que requiere esperar.
+
+Ejemplos:
+
+- FCFS.
+
+- SJF no apropiativo.
+
+---
+
+# 36. Hilos o Threads
+Un **Thread** es una unidad de ejecución dentro de un proceso.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+              PROCESO
+
+                 |
+
+       +---------+---------+
+
+       |         |         |
+
+       ↓         ↓         ↓
+
+    Hilo 1    Hilo 2    Hilo 3
+</pre>
+</div>
+
+Los hilos de un mismo proceso pueden compartir:
+
+- Código.
+
+- Datos.
+
+- Memoria.
+
+- Archivos.
+
+---
+
+# 37. Diferencia entre Proceso e Hilo
+| Proceso | Hilo |
+
+|---|---|
+
+| Tiene espacio de memoria propio | Comparte memoria del proceso |
+
+| Es más independiente | Pertenece a un proceso |
+
+| Crear uno puede ser más costoso | Normalmente es más ligero |
+
+| Puede contener varios hilos | Es una unidad de ejecución |
+
+---
+
+# 38. Ejemplo de Hilos
+Un navegador puede utilizar diferentes hilos.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+NAVEGADOR
+
+   |
+
+   +--- Hilo de interfaz
+
+   |
+
+   +--- Hilo de red
+
+   |
+
+   +--- Hilo de descarga
+
+   |
+
+   +--- Hilo multimedia
+</pre>
+</div>
+
+Esto permite realizar varias tareas dentro de la misma aplicación.
+
+---
+
+# 39. Multihilo
+El **multihilo** permite que un proceso tenga varias unidades de ejecución.
+
+Sus ventajas pueden incluir:
+
+- Mejor respuesta.
+
+- Mejor aprovechamiento de procesadores multinúcleo.
+
+- División de tareas.
+
+- Compartición eficiente de recursos.
+
+---
+
+# 40. Multiprogramación
+La multiprogramación mantiene varios programas disponibles para aprovechar mejor la CPU.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM
+
++-------------------+
+
+| Sistema Operativo |
+
++-------------------+
+
+| Programa A        |
+
++-------------------+
+
+| Programa B        |
+
++-------------------+
+
+| Programa C        |
+
++-------------------+
+</pre>
+</div>
+
+Cuando un programa espera una operación de E/S, otro puede utilizar el procesador.
+
+---
+
+# 41. Multitarea
+La multitarea permite trabajar con diferentes aplicaciones durante el mismo periodo.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Navegador
+
+    +
+
+Música
+
+    +
+
+Editor
+
+    +
+
+Terminal
+</pre>
+</div>
+
+El sistema operativo cambia rápidamente entre procesos.
+
+---
+
+# 42. Concurrencia
+La concurrencia significa que varias tareas progresan durante el mismo periodo.
+
+En una CPU de un núcleo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Tiempo →
+
+P1 | P2 | P1 | P3 | P2 | P1
+</pre>
+</div>
+
+No necesariamente se ejecutan exactamente al mismo tiempo.
+
+---
+
+# 43. Paralelismo
+El paralelismo ocurre cuando diferentes tareas se ejecutan simultáneamente.
+
+Por ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+CPU de 4 núcleos
+
+Núcleo 1 → P1
+
+Núcleo 2 → P2
+
+Núcleo 3 → P3
+
+Núcleo 4 → P4
+</pre>
+</div>
+
+---
+
+# 44. Creación de Procesos
+Cuando se crea un proceso, el sistema operativo puede:
+
+1\. Asignar un PID.
+
+2\. Crear el PCB.
+
+3\. Reservar memoria.
+
+4\. Preparar los registros.
+
+5\. Cargar el programa.
+
+6\. Colocar el proceso en la cola de listos.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Programa
+
+   ↓
+
+Crear proceso
+
+   ↓
+
+Asignar PID
+
+   ↓
+
+Crear PCB
+
+   ↓
+
+Asignar memoria
+
+   ↓
+
+LISTO
+</pre>
+</div>
+
+---
+
+# 45. Procesos Padre e Hijo
+Un proceso puede crear otros procesos.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+             Proceso Padre
+
+                  |
+
+          +-------+-------+
+
+          |               |
+
+          ↓               ↓
+
+       Hijo 1           Hijo 2
+</pre>
+</div>
+
+Esta relación puede formar un árbol de procesos.
+
+---
+
+# 46. Terminación de Procesos
+Un proceso puede terminar:
+
+- Correctamente.
+
+- Por error.
+
+- Por solicitud del usuario.
+
+- Por decisión del sistema operativo.
+
+Después de terminar, el sistema puede liberar:
+
+- Memoria.
+
+- Archivos.
+
+- Recursos.
+
+- Información asociada.
+
+---
+
+# 47. Interrupciones
+Una interrupción informa a la CPU que debe atender un evento.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+CPU ejecutando P1
+
+       |
+
+       ↓
+
+  Interrupción
+
+       |
+
+       ↓
+
+Sistema Operativo
+
+       |
+
+       ↓
+
+Atiende evento
+
+       |
+
+       ↓
+
+Continúa ejecución
+</pre>
+</div>
+
+---
+
+# 48. Comunicación entre Procesos
+La comunicación entre procesos se conoce como **IPC (Inter-Process Communication)**.
+
+Algunos mecanismos son:
+
+- Pipes.
+
+- Colas de mensajes.
+
+- Memoria compartida.
+
+- Sockets.
+
+- Señales.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
+    |
+
+    | Datos
+
+    ↓
+
+Proceso B
+</pre>
+</div>
+
+---
+
+# 49. Memoria Compartida
+Dos o más procesos pueden utilizar una región compartida de memoria.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
+    |
+
+    ↓
+
++--------------------+
+
+| Memoria Compartida |
+
++--------------------+
+
+    ↑
+
+    |
+
+Proceso B
+</pre>
+</div>
+
+Es un mecanismo rápido, pero necesita sincronización.
+
+---
+
+# 50. Sincronización
+La sincronización controla el acceso a recursos compartidos.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A -----\\
+
+                \\
+
+                 → Recurso compartido
+
+                /
+
+Proceso B -----/
+</pre>
+</div>
+
+Sin sincronización podrían producirse resultados incorrectos.
+
+---
+
+# 51. Condición de Carrera
+Una **Race Condition** ocurre cuando el resultado depende del orden en que varios procesos o hilos modifican información compartida.
+
+Por ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Variable compartida = 10
+
+Hilo A → suma 5
+
+Hilo B → suma 10
+</pre>
+</div>
+
+Si ambos modifican el valor al mismo tiempo sin coordinación, puede aparecer un resultado incorrecto.
+
+---
+
+# 52. Mutex
+Un **Mutex** funciona como un mecanismo de exclusión.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Hilo A
+
+   |
+
+   ↓
+
+Obtiene MUTEX
+
+   |
+
+   ↓
+
+Recurso compartido
+
+   |
+
+   ↓
+
+Libera MUTEX
+</pre>
+</div>
+
+Mientras el mutex está ocupado, otros hilos deben esperar.
+
+---
+
+# 53. Semáforos
+Los semáforos son mecanismos de sincronización.
+
+Permiten:
+
+- Controlar acceso a recursos.
+
+- Coordinar procesos.
+
+- Coordinar hilos.
+
+- Evitar determinadas condiciones de carrera.
+
+---
+
+# 54. Interbloqueo o Deadlock
+Un **Deadlock** ocurre cuando procesos quedan esperando recursos entre sí.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
+   |
+
+   | Tiene R1
+
+   | Espera R2
+
+   ↓
+
+Proceso B
+
+   |
+
+   | Tiene R2
+
+   | Espera R1
+
+   ↓
+</pre>
+</div>
+
+Ninguno puede continuar.
+
+---
+
+# 55. Condiciones de Coffman
+Las cuatro condiciones clásicas para un interbloqueo son:
+
+1\. Exclusión mutua.
+
+2\. Retención y espera.
+
+3\. No apropiación.
+
+4\. Espera circular.
+
+Ejemplo de espera circular:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P1 → P2 → P3 → P1
+</pre>
+</div>
+
+---
+
+# 56. Procesos en Primer Plano
+Son procesos con los que el usuario interactúa directamente.
+
+Ejemplos:
+
+- Navegador.
+
+- Editor.
+
+- Calculadora.
+
+- Videojuego.
+
+---
+
+# 57. Procesos en Segundo Plano
+Funcionan sin interacción constante con el usuario.
+
+Ejemplos:
+
+- Servicios.
+
+- Actualizaciones.
+
+- Sincronización.
+
+- Procesos de red.
+
+- Mantenimiento.
+
+---
+
+# 58. Protección entre Procesos
+El sistema operativo intenta mantener aislados los espacios de memoria.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso A
+
++-------------+
+
+| Memoria A   |
+
++-------------+
+
+Proceso B
+
++-------------+
+
+| Memoria B   |
+
++-------------+
+</pre>
+</div>
+
+Esto evita que un proceso modifique directamente la memoria privada de otro sin autorización.
+
+---
+
+# 59. Modo Usuario y Modo Kernel
+Las aplicaciones normalmente trabajan en modo usuario.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
++-----------------------+
+
+|     MODO USUARIO      |
+
+| Aplicaciones          |
+
++-----------------------+
+
+           |
+
+           ↓
+
+      System Call
+
+           |
+
+           ↓
+
++-----------------------+
+
+|     MODO KERNEL       |
+
+| Sistema Operativo     |
+
++-----------------------+
+
+           |
+
+           ↓
+
+        Hardware
+</pre>
+</div>
+
+Las operaciones privilegiadas son administradas por el kernel.
+
+---
+
+# 60. System Calls relacionadas con Procesos
+En sistemas tipo Unix existen operaciones como:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+fork()
+
+exec()
+
+wait()
+
+exit()
+</pre>
+</div>
+
+Estas permiten realizar acciones relacionadas con:
+
+- Crear procesos.
+
+- Ejecutar programas.
+
+- Esperar procesos.
+
+- Terminar procesos.
+
+---
+
+# 61. Comandos de Procesos en Linux
+### Mostrar procesos
+```bash
+
+ps
+
+```
+
+### Mostrar información detallada
+```bash
+
+ps aux
+
+```
+
+### Observar procesos en tiempo real
+```bash
+
+top
+
+```
+
+### Mostrar árbol de procesos
+```bash
+
+pstree
+
+```
+
+---
+
+# 62. Procesos en Windows
+Windows permite visualizar procesos mediante el **Administrador de tareas**.
+
+Podemos observar información como:
+
+- CPU.
+
+- Memoria.
+
+- Disco.
+
+- Red.
+
+- Nombre del proceso.
+
+También podemos utilizar:
+
+```powershell
+
+tasklist
+
+```
+
+---
+
+# 63. Procesos y Memoria RAM
+Cada proceso necesita memoria para almacenar:
+
+- Código.
+
+- Datos.
+
+- Variables.
+
+- Stack.
+
+- Heap.
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM TOTAL = 1024 MB
+
++----------------------+
+
+| Sistema Operativo    |
+
++----------------------+
+
+| Proceso P1 - 256 MB  |
+
++----------------------+
+
+| Proceso P2 - 128 MB  |
+
++----------------------+
+
+| Proceso P3 - 300 MB  |
+
++----------------------+
+
+| Memoria Disponible   |
+
++----------------------+
+</pre>
+</div>
+
+El sistema operativo debe controlar cuánto espacio utiliza cada proceso.
+
+---
+
+# 64. Asignación de Memoria a Procesos
+Supongamos que tenemos:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM Total = 1024 MB
+
+P1 = 256 MB
+
+P2 = 128 MB
+
+P3 = 300 MB
+</pre>
+</div>
+
+La memoria utilizada sería:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+256 + 128 + 300 = 684 MB
+</pre>
+</div>
+
+Por lo tanto:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM utilizada = 684 MB
+
+RAM disponible = 340 MB
+</pre>
+</div>
+
+Cuando un proceso termina, la memoria que estaba utilizando puede ser liberada.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso termina
+
+       |
+
+       ↓
+
+Libera memoria
+
+       |
+
+       ↓
+
+RAM disponible aumenta
+</pre>
+</div>
+
+---
+
+# 65. Cola de Espera
+Si un proceso necesita un recurso que actualmente no está disponible, puede ser colocado en una cola de espera.
+
+Ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM disponible = 200 MB
+
+Nuevo proceso solicita = 300 MB
+
+             ↓
+
+No existe suficiente RAM
+
+             ↓
+
+        COLA DE ESPERA
+
+             ↓
+
+Otro proceso termina
+
+             ↓
+
+Se libera RAM
+
+             ↓
+
+Proceso puede continuar
+</pre>
+</div>
+
+Este concepto es especialmente importante para comprender el simulador incluido en esta unidad.
+
+---
+
+# 66. Ejemplo Completo
+Supongamos que tenemos una computadora con:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM TOTAL = 1024 MB
+
+CPU = 1
+</pre>
+</div>
+
+Creamos:
+
+| PID | Proceso | RAM | Duración |
+
+|---:|---|---:|---:|
+
+| 101 | Navegador | 300 MB | 10 s |
+
+| 102 | Editor | 200 MB | 8 s |
+
+| 103 | Música | 150 MB | 12 s |
+
+RAM utilizada:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+300 + 200 + 150 = 650 MB
+</pre>
+</div>
+
+RAM disponible:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+1024 - 650 = 374 MB
+</pre>
+</div>
+
+Cuando un proceso termina, su memoria puede volver a estar disponible.
+
+---
+
+# 67. Simulación de Procesos
+Una simulación permite representar de forma visual algunos de los conceptos estudiados.
+
+Podemos visualizar:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso
+
+   |
+
+   ↓
+
+Asignación de RAM
+
+   |
+
+   ↓
+
+Ejecución
+
+   |
+
+   ↓
+
+Progreso
+
+   |
+
+   ↓
+
+Terminación
+
+   |
+
+   ↓
+
+Liberación de RAM
+</pre>
+</div>
+
+Esto ayuda a relacionar la teoría con una representación práctica.
+
+---
+
+# 68. Simulador Interactivo de Procesos y Memoria RAM
+Para complementar esta unidad se ha desarrollado un **Simulador de Sistema Operativo: Procesos y Memoria RAM**.
+
+El simulador permite experimentar directamente con varios de los conceptos estudiados anteriormente.
+
+Dentro del programa podemos crear procesos indicando:
+
+- PID.
+
+- Nombre del proceso.
+
+- Memoria RAM requerida.
+
+- Duración del proceso.
+
+Después de agregar un proceso, el simulador muestra información sobre el estado actual del sistema.
+
+Entre los datos que podemos observar se encuentran:
+
+- RAM utilizada.
+
+- RAM total.
+
+- Porcentaje de utilización de memoria.
+
+- Cantidad de procesos en ejecución.
+
+- Procesos en cola de espera.
+
+- PID de cada proceso.
+
+- Nombre.
+
+- Memoria utilizada.
+
+- Estado.
+
+- Progreso de ejecución.
+
+El simulador utiliza una memoria total de:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+1024 MB = 1 GB
+</pre>
+</div>
+
+y representa una CPU concurrente junto con un sistema de liberación automática de memoria.
+
+### Funcionamiento general
+<div className="visual-diagram">
+<pre className="visual-pre">
+             USUARIO
+
+                |
+
+                ↓
+
+        Crear un proceso
+
+                |
+
+                ↓
+
+      Introducir información
+
+                |
+
+       +--------+--------+
+
+       |        |        |
+
+       ↓        ↓        ↓
+
+      PID     Nombre     RAM
+
+                         |
+
+                         ↓
+
+                     Duración
+
+                         |
+
+                         ↓
+
+                Agregar proceso
+
+                         |
+
+                         ↓
+
+                Verificar memoria
+
+                         |
+
+              +----------+----------+
+
+              |                     |
+
+              ↓                     ↓
+
+        RAM disponible       RAM insuficiente
+
+              |                     |
+
+              ↓                     ↓
+
+          Ejecución           Cola de espera
+
+              |
+
+              ↓
+
+           Progreso
+
+              |
+
+              ↓
+
+          Finalización
+
+              |
+
+              ↓
+
+       Liberación de RAM
+</pre>
+</div>
+
+### ¿Qué podemos aprender con el simulador?
+El programa permite observar de manera práctica cómo un sistema puede administrar procesos y memoria.
+
+Por ejemplo, podemos crear:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+PID: 101
+
+Nombre: Navegador Web
+
+RAM: 256 MB
+
+Duración: 10 segundos
+</pre>
+</div>
+
+Después podemos crear:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+PID: 102
+
+Nombre: Editor
+
+RAM: 300 MB
+
+Duración: 8 segundos
+</pre>
+</div>
+
+Y posteriormente:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+PID: 103
+
+Nombre: Reproductor
+
+RAM: 200 MB
+
+Duración: 12 segundos
+</pre>
+</div>
+
+El simulador irá mostrando el consumo de memoria y el progreso de cada proceso.
+
+---
+
+## 🚀 Acceso al Simulador
+Puedes utilizar el siguiente botón para abrir el programa interactivo:
+
+<LinkButton href="/simulador.html">
+
+🚀 Abrir Simulador de Procesos
+
+</LinkButton>
+
+Al ingresar podrás crear tus propios procesos y observar directamente cómo cambia el estado del sistema.
+
+---
+
+# 69. ¿Qué ocurre al agregar un proceso?
+Cuando presionamos el botón **Agregar Proceso**, el simulador recibe la información ingresada.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+PID
+
+ |
+
+Nombre
+
+ |
+
+RAM requerida
+
+ |
+
+Duración
+
+ |
+
+↓
+
+AGREGAR PROCESO
+</pre>
+</div>
+
+Después puede comprobar si existen recursos suficientes.
+
+Si existe memoria:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso
+
+   |
+
+   ↓
+
+RAM disponible
+
+   |
+
+   ↓
+
+Proceso agregado
+
+   |
+
+   ↓
+
+Ejecución
+</pre>
+</div>
+
+Si no existe memoria suficiente:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Proceso
+
+   |
+
+   ↓
+
+RAM insuficiente
+
+   |
+
+   ↓
+
+Cola de espera
+</pre>
+</div>
+
+---
+
+# 70. Estado del Sistema
+El simulador muestra un panel llamado **Estado del Sistema**.
+
+Este panel permite visualizar datos importantes.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
++---------------------------------------------------+
+
+|               ESTADO DEL SISTEMA                  |
+
++---------------------------------------------------+
+
+| RAM usada / total                                 |
+
+| Procesos en ejecución                             |
+
+| Cola de espera                                    |
+
++---------------------------------------------------+
+</pre>
+</div>
+
+Esta información cambia conforme se crean y terminan procesos.
+
+---
+
+# 71. Progreso de los Procesos
+Cada proceso tiene una duración determinada.
+
+Por ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Duración = 10 segundos
+</pre>
+</div>
+
+Mientras el proceso se ejecuta, el simulador puede representar su progreso.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+0% ─────────────── 50% ─────────────── 100%
+
+Inicio                                 Terminado
+</pre>
+</div>
+
+Cuando llega al 100 %, el proceso finaliza.
+
+---
+
+# 72. Liberación Automática de RAM
+Cuando un proceso termina, ya no necesita mantener reservada la memoria utilizada.
+
+Por ejemplo:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+RAM total = 1024 MB
+
+Proceso P1 utiliza 300 MB
+
+RAM disponible = 724 MB
+</pre>
+</div>
+
+Cuando P1 termina:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P1 terminado
+
+     |
+
+     ↓
+
+Libera 300 MB
+
+     |
+
+     ↓
+
+RAM disponible = 1024 MB
+</pre>
+</div>
+
+Esta característica permite observar cómo los recursos pueden ser reutilizados por otros procesos.
+
+---
+
+# 73. Relación entre la Teoría y el Simulador
+El simulador permite relacionar diferentes conceptos de esta unidad:
+
+| Concepto teórico | Representación en el simulador |
+
+|---|---|
+
+| PID | Número identificador |
+
+| Proceso | Elemento agregado al sistema |
+
+| RAM | Memoria solicitada |
+
+| Ejecución | Proceso activo |
+
+| Cola de espera | Proceso esperando recursos |
+
+| Duración | Tiempo de ejecución |
+
+| Terminación | Proceso finalizado |
+
+| Liberación de memoria | RAM recuperada |
+
+| Estado | Situación actual del proceso |
+
+De esta manera, el programa funciona como una herramienta práctica para reforzar la teoría.
+
+---
+
+# 74. Ejercicio Práctico con el Simulador
+Abre el simulador utilizando el botón anterior y crea los siguientes procesos:
+
+| PID | Nombre | RAM | Duración |
+
+|---:|---|---:|---:|
+
+| 101 | Navegador | 300 MB | 10 s |
+
+| 102 | Editor | 250 MB | 15 s |
+
+| 103 | Música | 200 MB | 8 s |
+
+| 104 | Terminal | 150 MB | 12 s |
+
+Antes de ejecutarlos, intenta responder:
+
+1\. ¿Cuánta memoria utilizarán en total?
+
+2\. ¿Cuánta RAM quedará disponible?
+
+3\. ¿Cuál proceso terminará primero?
+
+4\. ¿Qué ocurre con la memoria cuando termina un proceso?
+
+Memoria total solicitada:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+300 + 250 + 200 + 150 = 900 MB
+</pre>
+</div>
+
+Memoria restante:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+1024 - 900 = 124 MB
+</pre>
+</div>
+
+Después puedes comprobar el resultado directamente en el simulador.
+
+<LinkButton href="/simulador.html">
+
+🧪 Realizar Ejercicio en el Simulador
+
+</LinkButton>
+
+---
+
+# 75. Ejercicio de Cola de Espera
+También podemos experimentar con procesos que soliciten más memoria.
+
+Por ejemplo:
+
+| PID | Nombre | RAM |
+
+|---:|---|---:|
+
+| 201 | Programa A | 500 MB |
+
+| 202 | Programa B | 400 MB |
+
+| 203 | Programa C | 300 MB |
+
+La memoria solicitada sería:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+500 + 400 + 300 = 1200 MB
+</pre>
+</div>
+
+Pero el sistema solamente tiene:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+1024 MB
+</pre>
+</div>
+
+Por lo tanto, no todos los procesos pueden disponer simultáneamente de toda esa memoria.
+
+Utiliza el simulador para observar qué sucede.
+
+<LinkButton href="/simulador.html">
+
+🔬 Probar Cola de Espera
+
+</LinkButton>
+
+---
+
+# 76. Importancia de la Administración de Procesos
+La administración de procesos permite:
+
+- Compartir la CPU.
+
+- Administrar memoria.
+
+- Ejecutar diferentes programas.
+
+- Controlar recursos.
+
+- Mantener estabilidad.
+
+- Mejorar el rendimiento.
+
+- Proporcionar multitarea.
+
+Sin esta administración, los programas competirían desordenadamente por los recursos.
+
+---
+
+# 77. Problemas relacionados con Procesos
+Entre los problemas que pueden aparecer se encuentran:
+
+- Condiciones de carrera.
+
+- Interbloqueos.
+
+- Inanición.
+
+- Uso excesivo de memoria.
+
+- Demasiados cambios de contexto.
+
+- Esperas prolongadas.
+
+- Competencia por recursos.
+
+Estos problemas serán estudiados con mayor profundidad en otras unidades.
+
+---
+
+# 78. Inanición
+La **inanición (Starvation)** ocurre cuando un proceso espera durante demasiado tiempo porque otros procesos reciben continuamente los recursos.
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+P1 → Esperando
+
+P2 → Ejecutando
+
+P3 → Ejecutando
+
+P4 → Ejecutando
+
+P5 → Ejecutando
+
+P1 → Sigue esperando
+</pre>
+</div>
+
+El Aging puede utilizarse para reducir este problema.
+
+---
+
+# 79. Rendimiento del Sistema
+Un buen sistema de planificación intenta:
+
+### Aumentar
+- Utilización de CPU.
+
+- Productividad.
+
+- Capacidad de respuesta.
+
+### Reducir
+- Tiempo de espera.
+
+- Tiempo de retorno.
+
+- Cambios innecesarios.
+
+- Uso innecesario de recursos.
+
+---
+
+## 80. Ejemplo de la Vida Cotidiana
+Podemos comparar la CPU con un empleado que atiende clientes.
+
+<img src="/cola-procesos.png" alt="Procesos, cola de procesos y CPU" className="wiki-image" />
+
+La comparación sería:
+
+| Sistema Operativo | Ejemplo |
+
+| --- | --- |
+
+| Proceso | Cliente |
+
+| CPU | Empleado |
+
+| Cola de procesos | Fila de clientes |
+
+| Scheduler | Organiza los turnos |
+
+| PCB | Información de cada cliente |
+
+| Quantum | Tiempo disponible para ser atendido |
+
+| Bloqueado | Cliente esperando algún recurso |
+
+| Terminado | Cliente que ya fue atendido |
+
+# 81. Mapa General de Procesos
+<img src="/mapa-general-procesos.png" alt="Mapa General de Procesos del Sistema Operativo" className="wiki-image" />
+
+---
+
+# 82. Tabla General de Conceptos
+| Concepto | Significado |
+
+|---|---|
+
+| Programa | Conjunto de instrucciones |
+
+| Proceso | Programa en ejecución |
+
+| PID | Identificador del proceso |
+
+| PCB | Bloque de control |
+
+| Scheduler | Planificador |
+
+| Dispatcher | Entrega CPU |
+
+| Context Switch | Cambio de contexto |
+
+| Thread | Hilo |
+
+| Quantum | Tiempo asignado |
+
+| FCFS | Primero en llegar |
+
+| SJF | Trabajo más corto |
+
+| SRTF | Menor tiempo restante |
+
+| IPC | Comunicación entre procesos |
+
+| Mutex | Exclusión mutua |
+
+| Deadlock | Interbloqueo |
+
+| RAM | Memoria utilizada por procesos |
+
+---
+
+# 83. Preguntas de Repaso
+### 1. ¿Qué es un proceso?
+Es un programa que se encuentra en ejecución.
+
+### 2. ¿Cuál es la diferencia entre programa y proceso?
+Un programa contiene instrucciones almacenadas y un proceso representa esas instrucciones ejecutándose.
+
+### 3. ¿Qué es el PCB?
+Es una estructura utilizada para almacenar información sobre un proceso.
+
+### 4. ¿Qué es un PID?
+Es un identificador utilizado para distinguir un proceso.
+
+### 5. ¿Qué hace el Scheduler?
+Decide qué proceso utiliza la CPU.
+
+### 6. ¿Qué es un cambio de contexto?
+Es el cambio de ejecución de un proceso a otro.
+
+### 7. ¿Qué es un Thread?
+Es una unidad de ejecución dentro de un proceso.
+
+### 8. ¿Qué es Round Robin?
+Es un algoritmo que reparte CPU utilizando un quantum.
+
+### 9. ¿Qué es una cola de espera?
+Es una estructura donde pueden permanecer procesos que esperan algún recurso o evento.
+
+### 10. ¿Qué ocurre con la RAM cuando un proceso termina?
+La memoria que utilizaba puede ser liberada y utilizada por otros procesos.
+
+---
+
+# 84. Actividad de Investigación
+Investiga cómo visualizar los procesos activos de tu computadora.
+
+### En Windows
+Puedes utilizar:
+
+```powershell
+
+tasklist
+
+```
+
+También puedes abrir el:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Administrador de tareas
+</pre>
+</div>
+
+### En Linux
+Puedes utilizar:
+
+```bash
+
+ps aux
+
+```
+
+o:
+
+```bash
+
+top
+
+```
+
+Observa:
+
+- Cantidad de procesos.
+
+- Memoria utilizada.
+
+- CPU utilizada.
+
+- PID.
+
+- Nombre del proceso.
+
+---
+
+# 85. Actividad con el Simulador
+Utiliza el simulador incluido en esta unidad y crea al menos cinco procesos.
+
+Registra:
+
+- PID.
+
+- Nombre.
+
+- RAM.
+
+- Duración.
+
+- Estado.
+
+Después responde:
+
+1\. ¿Cuánta RAM se utilizó?
+
+2\. ¿Cuánta memoria quedó disponible?
+
+3\. ¿Qué proceso terminó primero?
+
+4\. ¿Qué ocurrió cuando terminó?
+
+5\. ¿Algún proceso entró en cola de espera?
+
+<LinkButton href="/simulador.html">
+
+▶️ Iniciar Actividad en el Simulador
+
+</LinkButton>
+
+---
+
+# 86. Conceptos Importantes
+Al finalizar esta unidad es importante recordar:
+
+1\. Un proceso es un programa en ejecución.
+
+2\. Los procesos necesitan CPU y memoria.
+
+3\. Cada proceso puede tener un PID.
+
+4\. El PCB almacena información del proceso.
+
+5\. Los procesos cambian de estado.
+
+6\. El Scheduler selecciona procesos.
+
+7\. El Dispatcher entrega la CPU.
+
+8\. El cambio de contexto permite alternar procesos.
+
+9\. Los hilos permiten varias unidades de ejecución.
+
+10\. Los algoritmos determinan cómo se distribuye la CPU.
+
+11\. Los procesos pueden necesitar memoria RAM.
+
+12\. Los procesos pueden esperar recursos.
+
+13\. Al finalizar un proceso pueden liberarse sus recursos.
+
+14\. El simulador permite observar algunos de estos conceptos de forma práctica.
+
+---
+
+# 87. Resumen de la Unidad
+La administración de procesos es una de las funciones más importantes de los sistemas operativos.
+
+Un **programa** es un conjunto de instrucciones almacenadas, mientras que un **proceso** es un programa que se encuentra en ejecución.
+
+Los procesos pueden pasar por estados como:
+
+<div className="visual-diagram">
+<pre className="visual-pre">
+Nuevo
+
+  ↓
+
+Listo
+
+  ↓
+
+Ejecución
+
+  ↓
+
+Bloqueado
+
+  ↓
+
+Listo
+
+  ↓
+
+Ejecución
+
+  ↓
+
+Terminado
+</pre>
+</div>
+
+El sistema operativo utiliza el **PCB** para almacenar información importante de cada proceso y el **PID** para identificarlo.
+
+El **Scheduler** decide qué proceso recibe la CPU y el **Dispatcher** se encarga de transferirle el control.
+
+Los algoritmos de planificación como **FCFS, SJF, SRTF, Round Robin y Prioridades** utilizan diferentes estrategias para distribuir el procesador.
+
+Los procesos también necesitan memoria RAM. El sistema operativo debe controlar cuánta memoria utiliza cada proceso y liberar los recursos cuando estos dejan de ser necesarios.
+
+El simulador desarrollado para esta unidad permite observar de forma práctica la creación de procesos, utilización de RAM, duración, progreso, cola de espera y liberación de memoria.
+
+---
+
+# 88. Conclusión
+Comprender la administración de procesos permite conocer cómo un sistema operativo organiza los programas que utilizamos diariamente.
+
+Aunque para el usuario parece que diferentes aplicaciones trabajan simultáneamente, el sistema operativo debe administrar constantemente CPU, memoria, estados y otros recursos.
+
+Conceptos como **PCB, PID, estados, hilos, cambio de contexto, planificación, quantum y memoria RAM** son fundamentales para comprender este funcionamiento.
+
+La utilización del simulador permite complementar la teoría mediante una representación interactiva donde se pueden crear procesos y observar cómo cambia el estado del sistema.
+
+---
+
+##  Simulador de la Unidad
+<div className="simulator-card">
+  <div className="simulator-badge">SIMULADOR INTERACTIVO</div>
+
+  <h2>Simulador de Procesos y Memoria RAM</h2>
+
+  <p className="simulator-description">
+    Pon en práctica los conceptos aprendidos en esta unidad creando procesos
+    y observando cómo el sistema operativo administra la memoria RAM,
+    los estados y la ejecución de cada proceso.
+  </p>
+
+  <img
+    src="/imagen-simulador.png"
+    alt="Procesos, Memoria RAM, Ejecución y Progreso"
+    className="wiki-image"
+  />
+
+  <div className="contenedor-boton-simulador">
+    <a href="/simulador.html" className="boton-simulador">
+      <span className="icono-simulador"> </span>
+      <span>Iniciar Simulador</span>
+      <span className="flecha-simulador">→</span>
+    </a>
+  </div>
+
+  <p className="simulator-note">
+    Simulación interactiva disponible directamente desde la Wiki.
+  </p>
+</div>
+
+---
+
+## Navegación
+<LinkButton href="/unidad-1/introduccion">
+
+  ← Unidad 1: Introducción
+
+</LinkButton>
+
+<LinkButton href="/unidad-3/concurrencia">
+
+  Unidad 3: Concurrencia →
+
+</LinkButton>
