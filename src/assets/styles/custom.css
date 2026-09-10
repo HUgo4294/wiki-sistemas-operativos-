@@ -1,208 +1,412 @@
-/* 1. Fondo de la imagen general */
-html, body {
-  background-image: url('/fondo.jpg') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  background-attachment: fixed !important;
-  background-repeat: no-repeat !important;
-}
-
-/* 2. Respetar el layout de Starlight sin sobreponer elementos */
-:root {
-  --sl-color-bg: transparent !important;
-  --sl-color-bg-nav: rgba(15, 23, 42, 0.95) !important;
-}
-
-/* 3. Ajustar el contenedor principal para que mantenga su margen derecho */
-.main-pane {
-  background-color: rgba(15, 23, 42, 0.85) !important;
-  backdrop-filter: blur(8px);
-  border-radius: 8px;
-  padding: 1.5rem !important;
-  margin-left: 0 !important;
-}
-
-/* 4. Estilizar la barra lateral izquierda */
-.sidebar-pane {
-  background-color: rgba(15, 23, 42, 0.95) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* 5. Estilizar el menú derecho (On this page) */
-.right-sidebar-container {
-  background-color: rgba(15, 23, 42, 0.90) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 8px;
-}
-/* Botón del simulador */
-
-.boton-simulador {
-  display: flex;
-  width: fit-content;
-  margin: 20px auto;
-
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-
-  padding: 14px 28px;
-
-  background: linear-gradient(90deg, #2563eb, #4f46e5);
-
-  color: white !important;
-  text-decoration: none !important;
-
-  font-size: 1rem;
-  font-weight: 600;
-
-  border-radius: 12px;
-
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
-
-  transition: all 0.2s ease;
-}
-
-.boton-simulador:hover {
-  transform: translateY(-2px);
-
-  background: linear-gradient(90deg, #1d4ed8, #4338ca);
-
-  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.5);
-}
-
-.icono-simulador {
-  font-size: 1.3rem;
-}
-
-.flecha-simulador {
-  font-size: 1.2rem;
-}npm
-/* Centrar botón del simulador */
-
-.contenedor-boton-simulador {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin: 20px 0;
-}
 /* =========================================================
-   BLOQUES VISUALES - UNIDAD 2
-   Reemplazan los antiguos cuadros grises de ```text```
+   WIKI SISTEMAS OPERATIVOS 1
+   CUSTOM.CSS COMPLETO
    ========================================================= */
 
-.visual-diagram {
-  width: 100%;
-  margin: 24px auto;
-  padding: 22px 24px;
-  overflow-x: auto;
-  border: 1px solid rgba(96, 165, 250, 0.28);
-  border-radius: 14px;
+/* =========================================================
+   VARIABLES GENERALES
+   ========================================================= */
+
+:root {
+  --wiki-bg: #0b1220;
+  --wiki-panel: rgba(15, 23, 42, 0.76);
+
+  --wiki-text: #f8fafc;
+  --wiki-muted: #cbd5e1;
+
+  --wiki-blue: #3b82f6;
+  --wiki-cyan: #22d3ee;
+  --wiki-green: #10b981;
+  --wiki-violet: #8b5cf6;
+  --wiki-amber: #f59e0b;
+
+  --wiki-border: rgba(148, 163, 184, 0.18);
+  --wiki-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
+
+  --sl-color-bg: transparent !important;
+  --sl-color-bg-nav: rgba(8, 17, 31, 0.94) !important;
+}
+
+
+/* =========================================================
+   FONDO GENERAL - MODO OSCURO
+   ========================================================= */
+
+html,
+body {
+  min-height: 100%;
+
   background:
-    linear-gradient(135deg,
-      rgba(30, 64, 175, 0.10),
-      rgba(15, 23, 42, 0.28));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    linear-gradient(
+      rgba(8, 17, 31, 0.55),
+      rgba(8, 17, 31, 0.60)
+    ),
+    url('/fondo.jpg') center center / cover fixed no-repeat !important;
 }
 
-.visual-diagram pre {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--sl-color-text) !important;
-  font-family: inherit !important;
-  font-size: 0.95rem;
-  line-height: 1.8;
-  text-align: center;
-  white-space: pre-wrap;
-  overflow: visible;
+
+/* =========================================================
+   QUITAR DESENFOQUE
+   ========================================================= */
+
+.main-pane,
+.sidebar-pane,
+.right-sidebar-container,
+header.header {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Evita apariencia de bloque de código dentro del diagrama */
-.visual-diagram pre::before,
-.visual-diagram pre::after {
+
+/* =========================================================
+   CONTENIDO CENTRAL
+   ========================================================= */
+
+.main-pane {
+  background: rgba(10, 19, 34, 0.76) !important;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+
+/* =========================================================
+   BARRA SUPERIOR
+   ========================================================= */
+
+header.header {
+  background: rgba(8, 17, 31, 0.94) !important;
+
+  border-bottom:
+    1px solid rgba(96, 165, 250, 0.18) !important;
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+
+/* =========================================================
+   SIDEBAR IZQUIERDO
+   ========================================================= */
+
+.sidebar-pane {
+  background: rgba(8, 17, 31, 0.90) !important;
+
+  border-right:
+    1px solid rgba(96, 165, 250, 0.14) !important;
+}
+
+.sidebar-content a {
+  border-radius: 8px;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.sidebar-content a:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+
+/* =========================================================
+   SIDEBAR DERECHO
+   ========================================================= */
+
+.right-sidebar-container {
+  background: rgba(8, 17, 31, 0.88) !important;
+
+  border-left:
+    1px solid rgba(96, 165, 250, 0.14) !important;
+}
+
+
+/* =========================================================
+   TEXTO GENERAL
+   ========================================================= */
+
+.sl-markdown-content {
+  color: #e5e7eb;
+  line-height: 1.78;
+}
+
+.sl-markdown-content p {
+  color: #d1d5db;
+}
+
+.sl-markdown-content strong {
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   TÍTULO PRINCIPAL
+   ========================================================= */
+
+.sl-markdown-content h1 {
+  color: #ffffff;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   TÍTULOS H2
+   ========================================================= */
+
+.sl-markdown-content h2 {
+  margin-top: 3rem;
+  margin-bottom: 1.15rem;
+
+  padding: 13px 17px;
+
+  border-left:
+    4px solid var(--wiki-blue);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37, 99, 235, 0.20),
+      rgba(15, 23, 42, 0.20)
+    );
+
+  color: #f8fafc;
+
+  line-height: 1.25;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.10);
+}
+
+
+/* =========================================================
+   TÍTULOS H3
+   ========================================================= */
+
+.sl-markdown-content h3 {
+  margin-top: 2rem;
+  padding-bottom: 8px;
+
+  color: #f8fafc;
+
+  border-bottom:
+    1px solid rgba(148, 163, 184, 0.18);
+}
+
+
+/* =========================================================
+   QUITAR CADENAS / ICONOS EN LOS TÍTULOS
+   ========================================================= */
+
+.sl-anchor-link,
+.sl-heading-wrapper > .sl-anchor-link,
+.sl-markdown-content .anchor-link,
+.sl-markdown-content
+:is(h1, h2, h3, h4, h5, h6)
+> a[aria-hidden="true"] {
   display: none !important;
 }
 
-/* Adaptación para pantallas pequeñas */
-@media (max-width: 700px) {
-  .visual-diagram {
-    padding: 16px 12px;
-    border-radius: 10px;
-  }
 
-  .visual-diagram pre {
-    font-size: 0.82rem;
-    line-height: 1.6;
-  }
-}
 /* =========================================================
-   ESTILO PARA DIAGRAMAS Y ELEMENTOS VISUALES - UNIDAD 2
-   Pegar al final de: src/assets/styles/custom.css
+   TARJETAS DE LA PORTADA
    ========================================================= */
 
-/* Imágenes de la unidad */
-.wiki-image {
-  display: block;
+.card-grid {
+  gap: 1.35rem !important;
+}
+
+.card-grid > * {
+  position: relative;
+  overflow: hidden;
+
+  min-height: 155px;
+
+  padding: 1.05rem !important;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.30) !important;
+
+  border-radius: 15px !important;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(30, 41, 59, 0.84),
+      rgba(15, 23, 42, 0.82)
+    ) !important;
+
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+}
+
+
+/* Línea de color superior */
+
+.card-grid > *::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
   width: 100%;
-  max-width: 950px;
-  height: auto;
-  margin: 24px auto;
-  border-radius: 10px;
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--wiki-blue),
+      var(--wiki-violet),
+      var(--wiki-green)
+    );
 }
 
-/* Reemplaza los antiguos bloques ```text``` */
-.visual-diagram {
+
+/* Efecto al pasar el mouse */
+
+.card-grid > *:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(96, 165, 250, 0.70) !important;
+
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.34),
+    0 0 18px rgba(59, 130, 246, 0.08);
+}
+
+.card-grid strong {
+  color: #ffffff !important;
+  font-size: 1.05rem;
+}
+
+.card-grid p {
+  color: #d1d5db !important;
+  line-height: 1.58;
+}
+
+
+/* =========================================================
+   BOTÓN DEL SIMULADOR
+   ========================================================= */
+
+.contenedor-boton-simulador {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
   width: 100%;
-  margin: 22px 0;
-  padding: 18px 20px;
-  overflow-x: auto;
 
-  border: 1px solid rgba(96, 165, 250, 0.24);
-  border-left: 4px solid #3b82f6;
-  border-radius: 10px;
-
-  background: rgba(30, 41, 59, 0.28);
+  margin: 26px 0 12px;
 }
 
-/* El contenido ya no parece código */
-.visual-diagram .visual-pre {
-  margin: 0 !important;
-  padding: 0 !important;
+.boton-simulador {
+  display: inline-flex;
 
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  align-items: center;
+  justify-content: center;
 
-  color: var(--sl-color-text) !important;
-  font-family: inherit !important;
-  font-size: 0.95rem;
-  font-weight: 500;
-  line-height: 1.75;
-  text-align: center;
+  gap: 12px;
 
-  white-space: pre-wrap;
-  overflow: visible;
-}
+  width: fit-content;
 
-/* Tarjeta del simulador */
-.simulator-card {
-  margin: 30px 0;
-  padding: 26px;
+  padding: 14px 30px;
 
-  border: 1px solid rgba(96, 165, 250, 0.22);
+  border:
+    1px solid rgba(96, 165, 250, 0.28);
+
   border-radius: 12px;
 
-  background: rgba(15, 23, 42, 0.22);
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  color: #ffffff !important;
+
+  text-decoration: none !important;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 10px 26px rgba(37, 99, 235, 0.30);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.boton-simulador:hover {
+  transform: translateY(-3px);
+
+  filter: brightness(1.10);
+
+  box-shadow:
+    0 16px 34px rgba(37, 99, 235, 0.44);
+}
+
+.icono-simulador,
+.flecha-simulador {
+  font-size: 1.1rem;
+}
+
+
+/* =========================================================
+   TARJETA DEL SIMULADOR
+   ========================================================= */
+
+.simulator-card {
+  margin: 28px 0;
+
+  padding: 24px;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.25);
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 41, 59, 0.78),
+      rgba(15, 23, 42, 0.80)
+    );
+
+  box-shadow:
+    var(--wiki-shadow);
 }
 
 .simulator-badge {
   margin-bottom: 8px;
+
   color: #60a5fa;
-  font-size: 0.8rem;
+
+  font-size: 0.78rem;
   font-weight: 700;
+
   letter-spacing: 0.06em;
 }
 
@@ -212,58 +416,794 @@ html, body {
 
 .simulator-note {
   margin-top: 15px;
+
+  color: #94a3b8;
+
   text-align: center;
+
   font-size: 0.85rem;
-  opacity: 0.75;
 }
 
-/* Centrar el botón del simulador */
-.contenedor-boton-simulador {
-  display: flex;
-  justify-content: center;
+
+/* =========================================================
+   IMÁGENES
+   ========================================================= */
+
+.wiki-image,
+.u1-figure img {
+  display: block;
+
   width: 100%;
-  margin: 22px 0 8px;
+  max-width: 950px;
+  height: auto;
+
+  margin: 26px auto;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.28);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.32);
 }
 
-.boton-simulador {
-  display: inline-flex;
+.u1-figure {
+  margin: 26px auto;
+  text-align: center;
+}
+
+.u1-figure figcaption {
+  margin-top: 9px;
+
+  color: #94a3b8;
+
+  font-size: 0.82rem;
+
+  font-style: italic;
+}
+
+
+/* =========================================================
+   DIAGRAMAS UNIDAD 1
+   ========================================================= */
+
+.u1-diagram {
+  position: relative;
+
+  width: 100%;
+
+  margin: 24px 0;
+
+  padding: 22px 24px;
+
+  overflow-x: auto;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.32);
+
+  border-left:
+    4px solid var(--wiki-blue);
+
+  border-radius: 14px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.15),
+      transparent 36%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(30, 64, 175, 0.18),
+      rgba(15, 23, 42, 0.66)
+    );
+
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.20);
+}
+
+.u1-diagram::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 22px;
+
+  width: 72px;
+  height: 3px;
+
+  border-radius:
+    0 0 5px 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--wiki-cyan),
+      var(--wiki-violet)
+    );
+}
+
+.u1-diagram pre {
+  margin: 0 !important;
+
+  padding: 0 !important;
+
+  border: 0 !important;
+
+  background: transparent !important;
+
+  box-shadow: none !important;
+
+  color: #e5e7eb !important;
+
+  font-family: inherit !important;
+
+  font-size: 0.96rem;
+
+  font-weight: 500;
+
+  line-height: 1.75;
+
+  text-align: center;
+
+  white-space: pre-wrap;
+
+  overflow: visible;
+}
+
+
+/* =========================================================
+   DIAGRAMAS UNIDAD 2
+   ========================================================= */
+
+.visual-diagram {
+  width: 100%;
+
+  margin: 24px 0;
+
+  padding: 20px 22px;
+
+  overflow-x: auto;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.30);
+
+  border-left:
+    4px solid var(--wiki-blue);
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(30, 64, 175, 0.17),
+      rgba(15, 23, 42, 0.66)
+    );
+
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.20);
+}
+
+.visual-diagram pre,
+.visual-diagram .visual-pre {
+  margin: 0 !important;
+
+  padding: 0 !important;
+
+  border: 0 !important;
+
+  background: transparent !important;
+
+  box-shadow: none !important;
+
+  color: #e5e7eb !important;
+
+  font-family: inherit !important;
+
+  font-size: 0.95rem;
+
+  line-height: 1.75;
+
+  text-align: center;
+
+  white-space: pre-wrap;
+
+  overflow: visible;
+}
+
+
+/* =========================================================
+   TARJETAS AUXILIARES
+   ========================================================= */
+
+.so-card {
+  max-width: 850px;
+
+  margin: 25px auto;
+
+  padding: 22px 24px;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.30);
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 41, 59, 0.80),
+      rgba(15, 23, 42, 0.82)
+    );
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.24);
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.so-card.azul {
+  border-left:
+    4px solid var(--wiki-blue);
+}
+
+.so-card.verde {
+  border-left:
+    4px solid var(--wiki-green);
+}
+
+.so-card.morado {
+  border-left:
+    4px solid var(--wiki-violet);
+}
+
+.so-card.naranja {
+  border-left:
+    4px solid var(--wiki-amber);
+}
+
+.so-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.32);
+}
+
+.so-card h4 {
+  margin: 0 0 14px;
+
+  color: #f8fafc;
+}
+
+.so-card p {
+  color: #cbd5e1;
+}
+
+.so-flow {
+  display: flex;
+
   align-items: center;
   justify-content: center;
+
+  flex-wrap: wrap;
+
   gap: 12px;
+}
 
-  width: fit-content;
-  padding: 14px 28px;
+.so-node {
+  padding: 12px 18px;
 
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  border:
+    1px solid rgba(148, 163, 184, 0.24);
 
-  color: white !important;
-  text-decoration: none !important;
+  border-radius: 9px;
+
+  background:
+    rgba(15, 23, 42, 0.78);
+
+  text-align: center;
+
   font-weight: 600;
-
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.boton-simulador:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.4);
+.so-arrow {
+  color: #60a5fa;
+
+  font-size: 1.4rem;
 }
 
-.icono-simulador,
-.flecha-simulador {
-  font-size: 1.1rem;
+
+/* =========================================================
+   HERO UNIDAD 1
+   ========================================================= */
+
+.u1-hero {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  margin: 20px 0 34px;
+
+  padding: 18px 22px;
+
+  border:
+    1px solid rgba(56, 189, 248, 0.48);
+
+  border-left:
+    5px solid var(--wiki-cyan);
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(3, 105, 161, 0.20),
+      rgba(15, 23, 42, 0.65)
+    );
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.20);
 }
 
-/* Adaptación para celulares */
+.u1-hero-icon {
+  flex: 0 0 auto;
+
+  display: grid;
+
+  place-items: center;
+
+  width: 58px;
+  height: 58px;
+
+  border-radius: 12px;
+
+  background:
+    rgba(14, 165, 233, 0.16);
+
+  border:
+    1px solid rgba(56, 189, 248, 0.34);
+
+  font-size: 2rem;
+}
+
+.u1-hero strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #ffffff;
+
+  font-size: 1.05rem;
+}
+
+.u1-hero p {
+  margin: 0;
+
+  color: #cbd5e1;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   TABLAS
+   ========================================================= */
+
+.sl-markdown-content table {
+  width: 100%;
+
+  margin: 24px 0;
+
+  overflow: hidden;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+
+  border:
+    1px solid rgba(96, 165, 250, 0.28);
+
+  border-radius: 12px;
+
+  background:
+    rgba(15, 23, 42, 0.62);
+}
+
+.sl-markdown-content thead {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(37, 99, 235, 0.32),
+      rgba(79, 70, 229, 0.25)
+    );
+}
+
+.sl-markdown-content th {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.sl-markdown-content th,
+.sl-markdown-content td {
+  padding: 12px 15px;
+
+  border-bottom:
+    1px solid rgba(148, 163, 184, 0.13);
+}
+
+.sl-markdown-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.sl-markdown-content tbody tr {
+  transition:
+    background 0.18s ease;
+}
+
+.sl-markdown-content tbody tr:hover {
+  background:
+    rgba(59, 130, 246, 0.11);
+}
+
+
+/* =========================================================
+   LISTAS
+   ========================================================= */
+
+.sl-markdown-content li {
+  margin: 0.42rem 0;
+}
+
+.sl-markdown-content li::marker {
+  color: var(--wiki-cyan);
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   CITAS
+   ========================================================= */
+
+.sl-markdown-content blockquote {
+  margin: 18px 0;
+
+  padding: 14px 18px;
+
+  border-left:
+    4px solid var(--wiki-violet);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(139, 92, 246, 0.18),
+      rgba(15, 23, 42, 0.38)
+    );
+
+  color: #dbe3ee;
+}
+
+
+/* =========================================================
+   SEPARADORES
+   ========================================================= */
+
+.sl-markdown-content hr {
+  margin: 34px 0;
+
+  border: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(96, 165, 250, 0.42),
+      transparent
+    );
+}
+
+
+/* =========================================================
+   BLOQUES DE CÓDIGO
+   ========================================================= */
+
+.sl-markdown-content .expressive-code {
+  margin: 22px 0;
+
+  overflow: hidden;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.20);
+}
+
+
+/* =========================================================
+   MODO CLARO
+   AQUÍ SE DEJA EL FONDO DE LINUX MÁS VISIBLE
+   ========================================================= */
+
+:root[data-theme='light'] {
+  --sl-color-bg: transparent !important;
+
+  --sl-color-bg-nav:
+    rgba(248, 250, 252, 0.88) !important;
+}
+
+
+/* Fondo principal claro */
+
+:root[data-theme='light'] body {
+  background:
+    linear-gradient(
+      rgba(241, 245, 249, 0.42),
+      rgba(241, 245, 249, 0.46)
+    ),
+    url('/fondo.jpg') center center / cover fixed no-repeat !important;
+}
+
+
+/* Centro transparente para dejar ver Linux */
+
+:root[data-theme='light'] .main-pane {
+  background:
+    rgba(248, 250, 252, 0.58) !important;
+}
+
+
+/* Barra superior */
+
+:root[data-theme='light'] header.header {
+  background:
+    rgba(248, 250, 252, 0.90) !important;
+
+  border-bottom:
+    1px solid rgba(59, 130, 246, 0.18) !important;
+}
+
+
+/* Laterales */
+
+:root[data-theme='light'] .sidebar-pane,
+:root[data-theme='light'] .right-sidebar-container {
+  background:
+    rgba(248, 250, 252, 0.72) !important;
+}
+
+
+/* Texto */
+
+:root[data-theme='light']
+.sl-markdown-content {
+  color: #1e293b;
+}
+
+:root[data-theme='light']
+.sl-markdown-content p,
+
+:root[data-theme='light']
+.sl-markdown-content li {
+  color: #334155;
+}
+
+:root[data-theme='light']
+.sl-markdown-content h1,
+
+:root[data-theme='light']
+.sl-markdown-content h2,
+
+:root[data-theme='light']
+.sl-markdown-content h3,
+
+:root[data-theme='light']
+.sl-markdown-content strong {
+  color: #0f172a;
+
+  text-shadow: none;
+}
+
+
+/* =========================================================
+   TARJETAS MODO CLARO
+   ========================================================= */
+
+:root[data-theme='light']
+.card-grid > * {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.08),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.78),
+      rgba(241, 245, 249, 0.70)
+    ) !important;
+
+  border-color:
+    rgba(59, 130, 246, 0.34) !important;
+
+  box-shadow:
+    0 10px 26px rgba(15, 23, 42, 0.12);
+}
+
+:root[data-theme='light']
+.card-grid > *:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(239, 246, 255, 0.82)
+    ) !important;
+
+  border-color:
+    rgba(37, 99, 235, 0.60) !important;
+
+  box-shadow:
+    0 16px 34px rgba(15, 23, 42, 0.18);
+}
+
+:root[data-theme='light']
+.card-grid strong {
+  color: #0f172a !important;
+}
+
+:root[data-theme='light']
+.card-grid p {
+  color: #334155 !important;
+}
+
+
+/* =========================================================
+   TÍTULOS MODO CLARO
+   ========================================================= */
+
+:root[data-theme='light']
+.sl-markdown-content h2 {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.12),
+      rgba(255, 255, 255, 0.20)
+    );
+
+  border-left:
+    4px solid #2563eb;
+}
+
+
+/* =========================================================
+   DIAGRAMAS Y TARJETAS EN MODO CLARO
+   ========================================================= */
+
+:root[data-theme='light'] .u1-diagram,
+:root[data-theme='light'] .visual-diagram,
+:root[data-theme='light'] .so-card,
+:root[data-theme='light'] .simulator-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.78),
+      rgba(241, 245, 249, 0.72)
+    );
+
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.10);
+}
+
+:root[data-theme='light']
+.u1-diagram pre,
+
+:root[data-theme='light']
+.visual-diagram pre,
+
+:root[data-theme='light']
+.visual-diagram .visual-pre {
+  color: #1e293b !important;
+}
+
+
+/* =========================================================
+   TABLAS EN MODO CLARO
+   ========================================================= */
+
+:root[data-theme='light']
+.sl-markdown-content table {
+  background:
+    rgba(255, 255, 255, 0.72);
+
+  border-color:
+    rgba(59, 130, 246, 0.25);
+}
+
+:root[data-theme='light']
+.sl-markdown-content thead {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.16),
+      rgba(139, 92, 246, 0.10)
+    );
+}
+
+:root[data-theme='light']
+.sl-markdown-content th {
+  color: #0f172a;
+}
+
+
+/* =========================================================
+   HERO EN MODO CLARO
+   ========================================================= */
+
+:root[data-theme='light']
+.u1-hero {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(224, 242, 254, 0.78),
+      rgba(255, 255, 255, 0.66)
+    );
+}
+
+:root[data-theme='light']
+.u1-hero strong {
+  color: #0f172a;
+}
+
+:root[data-theme='light']
+.u1-hero p {
+  color: #334155;
+}
+
+
+/* =========================================================
+   RESPONSIVE - CELULARES
+   ========================================================= */
+
 @media (max-width: 700px) {
-  .visual-diagram {
-    padding: 14px 10px;
+
+  .sl-markdown-content h2 {
+    padding: 11px 13px;
+
+    font-size: 1.35rem;
   }
 
+  .u1-hero {
+    align-items: flex-start;
+
+    padding: 15px;
+  }
+
+  .u1-hero-icon {
+    width: 46px;
+    height: 46px;
+
+    font-size: 1.55rem;
+  }
+
+  .u1-diagram,
+  .visual-diagram {
+    padding: 16px 12px;
+  }
+
+  .u1-diagram pre,
+  .visual-diagram pre,
   .visual-diagram .visual-pre {
-    font-size: 0.82rem;
-    line-height: 1.55;
+    font-size: 0.83rem;
+
+    line-height: 1.58;
   }
 
   .simulator-card {
@@ -272,378 +1212,11 @@ html, body {
 
   .boton-simulador {
     width: 100%;
+
     padding: 13px 16px;
   }
-}
-/* Ocultar el icono de enlace que aparece junto a los títulos */
-.sl-markdown-content .anchor-link {
-  display: none !important;
-}
-/* Ocultar enlaces de encabezados de Starlight */
-.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) > a[aria-hidden="true"],
-.sl-markdown-content :is(h1, h2, h3, h4, h5, h6) .anchor-link {
-  display: none !important;
-}
-/* Ocultar únicamente el icono de enlace de los encabezados */
-.sl-markdown-content h1 a[aria-hidden="true"],
-.sl-markdown-content h2 a[aria-hidden="true"],
-.sl-markdown-content h3 a[aria-hidden="true"],
-.sl-markdown-content h4 a[aria-hidden="true"],
-.sl-markdown-content h5 a[aria-hidden="true"],
-.sl-markdown-content h6 a[aria-hidden="true"] {
-  display: none !important;
-}
-.sl-heading-wrapper > .sl-anchor-link {
-  display: none !important;
-}
-/* =========================================
-   TARJETAS VISUALES - UNIDAD 1
-   ========================================= */
 
-.so-card {
-  margin: 25px auto;
-  padding: 22px 25px;
-  max-width: 850px;
-  border-radius: 14px;
-  background:
-    linear-gradient(135deg,
-      rgba(15, 23, 42, 0.95),
-      rgba(30, 41, 59, 0.88));
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-/* Azul: CPU, procesos, sistema operativo */
-.so-card.azul {
-  border-left: 4px solid #3b82f6;
-}
-
-/* Verde: memoria y recursos */
-.so-card.verde {
-  border-left: 4px solid #10b981;
-}
-
-/* Morado: kernel y arquitectura */
-.so-card.morado {
-  border-left: 4px solid #8b5cf6;
-}
-
-/* Naranja: hardware, interrupciones, drivers */
-.so-card.naranja {
-  border-left: 4px solid #f59e0b;
-}
-
-.so-card h4 {
-  margin: 0 0 15px 0;
-  font-size: 1.15rem;
-  color: #f8fafc;
-}
-
-.so-card p {
-  margin: 7px 0;
-  color: #cbd5e1;
-}
-
-.so-flow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.so-node {
-  padding: 12px 18px;
-  border-radius: 9px;
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  font-weight: 600;
-  text-align: center;
-}
-
-.so-arrow {
-  font-size: 1.5rem;
-  color: #60a5fa;
-}
-
-/* Efecto al pasar el mouse */
-.so-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.so-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-}
-/* ==========================================================
-   UNIDAD 1 - ESTILO MODERNO
-   Pegar al FINAL de src/assets/styles/custom.css
-   ========================================================== */
-
-/* ---------- Encabezado principal ---------- */
-.sl-markdown-content > h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.08;
-}
-
-/* ---------- Tarjeta introductoria ---------- */
-.u1-hero {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 20px 0 34px;
-  padding: 18px 22px;
-  border: 1px solid rgba(56, 189, 248, 0.62);
-  border-left: 5px solid #38bdf8;
-  border-radius: 13px;
-  background:
-    linear-gradient(135deg,
-      rgba(3, 105, 161, 0.22),
-      rgba(15, 23, 42, 0.30));
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
-}
-
-.u1-hero-icon {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  font-size: 2rem;
-  border-radius: 12px;
-  background: rgba(14, 165, 233, 0.16);
-  border: 1px solid rgba(56, 189, 248, 0.38);
-}
-
-.u1-hero strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 1.05rem;
-  color: var(--sl-color-white);
-}
-
-.u1-hero p {
-  margin: 0;
-  color: var(--sl-color-gray-2);
-  line-height: 1.6;
-}
-
-/* ---------- Títulos de las secciones ---------- */
-.sl-markdown-content h2 {
-    padding: 12px 14px;
-    font-size: 1.35rem;
+  .card-grid > * {
+    min-height: auto;
   }
-
-.sl-markdown-content h3 {
-  margin-top: 2rem;
-  padding-bottom: 7px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-  color: var(--sl-color-white);
-}
-
-/* ---------- Diagramas que antes eran cuadros grises ---------- */
-.u1-diagram {
-  position: relative;
-  width: 100%;
-  margin: 24px 0;
-  padding: 24px;
-  overflow-x: auto;
-  border: 1px solid rgba(96, 165, 250, 0.35);
-  border-left: 4px solid #3b82f6;
-  border-radius: 14px;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(59, 130, 246, 0.13),
-      transparent 36%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(30, 64, 175, 0.16),
-      rgba(15, 23, 42, 0.38)
-    );
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-/* pequeño detalle superior */
-.u1-diagram::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 22px;
-  width: 72px;
-  height: 3px;
-  border-radius: 0 0 5px 5px;
-  background: linear-gradient(90deg, #38bdf8, #8b5cf6);
-}
-
-.u1-diagram pre {
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--sl-color-gray-1) !important;
-  font-family: inherit !important;
-  font-size: 0.96rem;
-  font-weight: 550;
-  line-height: 1.75;
-  text-align: center;
-  white-space: pre-wrap;
-  overflow: visible;
-}
-
-/* ---------- Código REAL: Bash / PowerShell ---------- */
-/* Estos se mantienen como código, pero con un acabado más elegante. */
-.sl-markdown-content .expressive-code {
-  margin: 22px 0;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
-}
-
-/* ---------- Imágenes ---------- */
-.u1-figure {
-  margin: 26px auto;
-  text-align: center;
-}
-
-.u1-figure img {
-  display: block;
-  width: 100%;
-  max-width: 720px;
-  height: auto;
-  margin: 0 auto;
-  padding: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.26);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
-}
-
-.u1-figure figcaption {
-  margin-top: 9px;
-  color: var(--sl-color-gray-3);
-  font-size: 0.82rem;
-  font-style: italic;
-}
-
-/* ---------- Tablas ---------- */
-.sl-markdown-content table {
-  width: 100%;
-  margin: 24px 0;
-  overflow: hidden;
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 1px solid rgba(96, 165, 250, 0.25);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.18);
-}
-
-.sl-markdown-content thead {
-  background: linear-gradient(90deg,
-    rgba(37, 99, 235, 0.28),
-    rgba(79, 70, 229, 0.22));
-}
-
-.sl-markdown-content th {
-  color: var(--sl-color-white);
-  font-weight: 700;
-}
-
-.sl-markdown-content th,
-.sl-markdown-content td {
-  padding: 12px 15px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.13);
-}
-
-.sl-markdown-content tr:last-child td {
-  border-bottom: 0;
-}
-
-.sl-markdown-content tbody tr {
-  transition: background 0.18s ease;
-}
-
-.sl-markdown-content tbody tr:hover {
-  background: rgba(59, 130, 246, 0.08);
-}
-
-/* ---------- Listas ---------- */
-.sl-markdown-content ul:not(.right-sidebar-panel ul),
-.sl-markdown-content ol {
-  padding-left: 1.4rem;
-}
-
-.sl-markdown-content li {
-  margin: 0.42rem 0;
-}
-
-.sl-markdown-content li::marker {
-  color: #38bdf8;
-  font-weight: 700;
-}
-
-/* ---------- Conceptos clave (blockquotes) ---------- */
-.sl-markdown-content blockquote {
-  margin: 18px 0;
-  padding: 14px 18px;
-  border-left: 4px solid #8b5cf6;
-  border-radius: 8px;
-  background: linear-gradient(90deg,
-    rgba(139, 92, 246, 0.13),
-    rgba(15, 23, 42, 0.06));
-  color: var(--sl-color-gray-1);
-}
-
-/* ---------- Separadores ---------- */
-.sl-markdown-content hr {
-  margin: 34px 0;
-  border: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(96, 165, 250, 0.38),
-    transparent
-  );
-}
-
-/* ---------- Adaptación móvil ---------- */
-@media (max-width: 700px) {
-  .u1-hero {
-    align-items: flex-start;
-    padding: 15px;
-  }
-
-  .u1-hero-icon {
-    width: 46px;
-    height: 46px;
-    font-size: 1.55rem;
-  }
-
-  .sl-markdown-content h2 {
-    padding: 12px 12px 12px 48px;
-    font-size: 1.35rem;
-  }
-
-  .sl-markdown-content h2::before {
-    left: 10px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .u1-diagram {
-    padding: 17px 12px;
-  }
-
-  .u1-diagram pre {
-    font-size: 0.83rem;
-    line-height: 1.6;
-}
 }

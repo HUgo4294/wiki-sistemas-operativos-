@@ -1,0 +1,1481 @@
+---
+title: Unidad 3 - Concurrencia
+description: Conceptos de concurrencia, sección crítica, exclusión mutua, algoritmos de Dekker y Peterson, mutex, semáforos, monitores, IPC y problemas clásicos de sincronización.
+---
+
+# Unidad 3 - Concurrencia
+
+<div className="u3-hero">
+  <div className="u3-hero-icon">🔄</div>
+
+  <div>
+    <strong>Concurrencia y Sincronización</strong>
+
+    <p>
+      En esta unidad se estudia cómo varios procesos o hilos pueden avanzar durante un mismo
+      periodo de tiempo, compartir recursos y coordinarse de manera segura.
+    </p>
+  </div>
+</div>
+
+La concurrencia es una característica fundamental de los sistemas operativos modernos.
+
+Permite que varias tareas puedan avanzar durante un mismo periodo de tiempo, aunque no necesariamente se ejecuten exactamente al mismo instante.
+
+Esto ocurre constantemente cuando usamos una computadora.
+
+Por ejemplo:
+
+- Escuchamos música.
+- Navegamos por Internet.
+- Descargamos archivos.
+- Editamos documentos.
+- Ejecutamos aplicaciones.
+- Copiamos archivos.
+- Utilizamos dispositivos externos.
+
+El sistema operativo debe coordinar todas estas actividades para evitar errores.
+
+---
+
+## 1. ¿Qué es la Concurrencia?
+
+La concurrencia ocurre cuando varios procesos o hilos pueden avanzar durante un mismo periodo de tiempo.
+
+<div className="u3-card azul">
+
+  <h3>🔄 Ejemplo de Concurrencia</h3>
+
+  <div className="u3-flow">
+
+    <div className="u3-node">
+      <strong>Proceso A</strong>
+      <span>Navegador</span>
+    </div>
+
+    <div className="u3-arrow">→</div>
+
+    <div className="u3-node activo">
+      <strong>CPU</strong>
+      <span>Ejecutando</span>
+    </div>
+
+    <div className="u3-node">
+      <strong>Proceso B</strong>
+      <span>Música</span>
+    </div>
+
+    <div className="u3-node">
+      <strong>Proceso C</strong>
+      <span>Descarga</span>
+    </div>
+
+  </div>
+
+</div>
+
+En un sistema con un solo núcleo, la CPU puede cambiar rápidamente entre diferentes procesos.
+
+Esto produce la sensación de que todas las tareas se ejecutan simultáneamente.
+
+---
+
+## 2. Concurrencia y Paralelismo
+
+Aunque estos conceptos están relacionados, no significan exactamente lo mismo.
+
+<div className="u3-grid">
+
+  <div className="u3-card azul">
+
+    <div className="u3-big-icon">🔄</div>
+
+    <h3>Concurrencia</h3>
+
+    <p>
+      Varias tareas avanzan durante el mismo periodo de tiempo.
+    </p>
+
+    <div className="u3-mini-list">
+      <span>Proceso A</span>
+      <span>Proceso B</span>
+      <span>Proceso C</span>
+    </div>
+
+  </div>
+
+  <div className="u3-card verde">
+
+    <div className="u3-big-icon">⚡</div>
+
+    <h3>Paralelismo</h3>
+
+    <p>
+      Varias tareas se ejecutan realmente al mismo tiempo utilizando varios núcleos.
+    </p>
+
+    <div className="u3-mini-list">
+      <span>Núcleo 1 → Proceso A</span>
+      <span>Núcleo 2 → Proceso B</span>
+      <span>Núcleo 3 → Proceso C</span>
+    </div>
+
+  </div>
+
+</div>
+
+### Diferencia principal
+
+| Concurrencia | Paralelismo |
+| --- | --- |
+| Varias tareas avanzan durante el mismo periodo | Varias tareas se ejecutan al mismo tiempo |
+| Puede funcionar con un solo núcleo | Normalmente requiere varios núcleos |
+| La CPU cambia entre tareas | Cada núcleo puede ejecutar una tarea |
+| Se enfoca en organización | Se enfoca en ejecución simultánea |
+
+---
+
+## 3. Procesos Concurrentes
+
+Dos procesos son concurrentes cuando sus ejecuciones se superponen durante un periodo de tiempo.
+
+<div className="u3-card morado">
+
+  <h3>⚙️ Procesos Concurrentes</h3>
+
+  <div className="u3-process-list">
+
+    <div>
+      <span className="u3-status azul-dot"></span>
+      <strong>Navegador</strong>
+      <small>Recibiendo información de Internet</small>
+    </div>
+
+    <div>
+      <span className="u3-status verde-dot"></span>
+      <strong>Reproductor</strong>
+      <small>Reproduciendo música</small>
+    </div>
+
+    <div>
+      <span className="u3-status morado-dot"></span>
+      <strong>Editor</strong>
+      <small>Guardando un documento</small>
+    </div>
+
+  </div>
+
+</div>
+
+Todos estos procesos pueden encontrarse activos durante el mismo periodo.
+
+El sistema operativo debe administrar correctamente:
+
+- CPU.
+- Memoria.
+- Archivos.
+- Dispositivos.
+- Recursos compartidos.
+
+---
+
+## 4. Hilos Concurrentes
+
+Un mismo proceso puede contener varios hilos.
+
+Cada hilo puede realizar una tarea diferente.
+
+<div className="u3-card azul">
+
+  <h3>🧵 Ejemplo de Hilos en un Navegador</h3>
+
+  <div className="u3-grid-4">
+
+    <div className="u3-small-card">
+      <span>🖥️</span>
+      <strong>Interfaz</strong>
+      <small>Muestra ventanas y botones</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🌐</span>
+      <strong>Red</strong>
+      <small>Descarga información</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🎥</span>
+      <strong>Video</strong>
+      <small>Reproduce contenido multimedia</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>⚙️</span>
+      <strong>JavaScript</strong>
+      <small>Ejecuta instrucciones</small>
+    </div>
+
+  </div>
+
+</div>
+
+Los hilos comparten recursos del mismo proceso, por lo que necesitan sincronización.
+
+---
+
+## 5. Recursos Compartidos
+
+Un recurso compartido es cualquier elemento que puede ser utilizado por varios procesos o hilos.
+
+<div className="u3-resource-grid">
+
+  <div className="u3-resource">
+    <span>🧠</span>
+    <strong>Memoria</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>📄</span>
+    <strong>Archivos</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>🖨️</span>
+    <strong>Impresora</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>📦</span>
+    <strong>Buffer</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>🌐</span>
+    <strong>Red</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>💾</span>
+    <strong>Disco</strong>
+  </div>
+
+</div>
+
+Cuando varios procesos utilizan el mismo recurso, pueden aparecer problemas de sincronización.
+
+---
+
+## 6. Condición de Carrera
+
+Una condición de carrera ocurre cuando el resultado de una operación depende del orden en que se ejecutan varios procesos o hilos.
+
+<div className="u3-card rojo">
+
+  <h3>⚠️ Ejemplo de Condición de Carrera</h3>
+
+  <p>Supongamos que:</p>
+
+  <div className="u3-counter">
+    contador = 10
+  </div>
+
+  <div className="u3-two-columns">
+
+    <div>
+      <strong>Proceso A</strong>
+      <p>Lee 10</p>
+      <p>Suma 1</p>
+      <p>Guarda 11</p>
+    </div>
+
+    <div>
+      <strong>Proceso B</strong>
+      <p>Lee 10</p>
+      <p>Suma 1</p>
+      <p>Guarda 11</p>
+    </div>
+
+  </div>
+
+  <div className="u3-warning">
+    Resultado esperado: 12 · Resultado posible: 11
+  </div>
+
+</div>
+
+Esto demuestra que el acceso simultáneo a datos compartidos puede producir resultados incorrectos.
+
+---
+
+## 7. Sección Crítica
+
+La sección crítica es la parte de un programa donde se accede a un recurso compartido.
+
+<div className="u3-process">
+
+  <div className="u3-step">
+    <span className="u3-step-number">1</span>
+    <strong>🚪 Entrada</strong>
+    <p>Solicita permiso.</p>
+  </div>
+
+  <div className="u3-process-arrow">→</div>
+
+  <div className="u3-step critical">
+    <span className="u3-step-number">2</span>
+    <strong>🔐 Sección Crítica</strong>
+    <p>Utiliza el recurso.</p>
+  </div>
+
+  <div className="u3-process-arrow">→</div>
+
+  <div className="u3-step">
+    <span className="u3-step-number">3</span>
+    <strong>🚶 Salida</strong>
+    <p>Libera el recurso.</p>
+  </div>
+
+  <div className="u3-process-arrow">→</div>
+
+  <div className="u3-step">
+    <span className="u3-step-number">4</span>
+    <strong>⚙️ Resto</strong>
+    <p>Continúa ejecución.</p>
+  </div>
+
+</div>
+
+El objetivo principal es evitar que dos procesos modifiquen un recurso compartido de forma simultánea.
+
+---
+
+## 8. Exclusión Mutua
+
+La exclusión mutua garantiza que solamente un proceso pueda entrar a la sección crítica en determinado momento.
+
+<div className="u3-card verde">
+
+  <h3>🔒 Exclusión Mutua</h3>
+
+  <div className="u3-access">
+
+    <div className="u3-access-process permitido">
+      <strong>Proceso A</strong>
+      <span>Acceso permitido</span>
+    </div>
+
+    <div className="u3-lock-center">
+      🔐
+      <strong>RECURSO</strong>
+    </div>
+
+    <div className="u3-access-process bloqueado">
+      <strong>Proceso B</strong>
+      <span>Esperando</span>
+    </div>
+
+  </div>
+
+</div>
+
+Cuando el Proceso A termina, libera el recurso y otro proceso puede entrar.
+
+---
+
+## 9. Requisitos de una Solución Correcta
+
+Una solución para el problema de la sección crítica debe cumplir tres condiciones principales.
+
+<div className="u3-grid">
+
+  <div className="u3-card azul">
+    <div className="u3-big-icon">🔐</div>
+    <h3>Exclusión Mutua</h3>
+    <p>Solo un proceso puede entrar a la sección crítica.</p>
+  </div>
+
+  <div className="u3-card verde">
+    <div className="u3-big-icon">▶️</div>
+    <h3>Progreso</h3>
+    <p>Si el recurso está libre, algún proceso debe poder utilizarlo.</p>
+  </div>
+
+  <div className="u3-card morado">
+    <div className="u3-big-icon">⏳</div>
+    <h3>Espera Limitada</h3>
+    <p>Ningún proceso debe esperar indefinidamente.</p>
+  </div>
+
+</div>
+
+---
+
+## 10. Espera Activa
+
+La espera activa ocurre cuando un proceso permanece comprobando continuamente si un recurso está disponible.
+
+<div className="u3-card naranja">
+
+  <h3>⏳ Busy Waiting</h3>
+
+  <p>
+    Mientras el recurso se encuentre ocupado, el proceso sigue ejecutando comprobaciones.
+  </p>
+
+  <div className="u3-inline-flow">
+    <span>Proceso</span>
+    <b>→</b>
+    <span>¿Libre?</span>
+    <b>→</b>
+    <span>No</span>
+    <b>↺</b>
+    <span>Volver a comprobar</span>
+  </div>
+
+</div>
+
+Este método puede desperdiciar tiempo de CPU.
+
+---
+
+## 11. Algoritmo de Dekker
+
+El algoritmo de Dekker fue una de las primeras soluciones de software para controlar el acceso a una sección crítica entre dos procesos.
+
+<div className="u3-card morado">
+
+  <h3>🧠 Elementos utilizados por Dekker</h3>
+
+  <div className="u3-grid-3">
+
+    <div className="u3-small-card">
+      <span>🚩</span>
+      <strong>Bandera P0</strong>
+      <small>Indica interés</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🚩</span>
+      <strong>Bandera P1</strong>
+      <small>Indica interés</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🔄</span>
+      <strong>Turno</strong>
+      <small>Define prioridad</small>
+    </div>
+
+  </div>
+
+</div>
+
+### Características
+
+- Funciona con dos procesos.
+- Utiliza banderas.
+- Utiliza una variable de turno.
+- Garantiza exclusión mutua.
+- Utiliza espera activa.
+
+### Ventajas
+
+- No necesita hardware especial.
+- Fue importante para el desarrollo de técnicas de sincronización.
+
+### Desventajas
+
+- Es complejo.
+- Solo está pensado para dos procesos.
+- Utiliza espera activa.
+
+---
+
+## 12. Algoritmo de Peterson
+
+El algoritmo de Peterson es otra solución clásica para sincronizar dos procesos.
+
+<div className="u3-card azul">
+
+  <h3>⚙️ Elementos de Peterson</h3>
+
+  <div className="u3-grid-3">
+
+    <div className="u3-small-card">
+      <span>🚩</span>
+      <strong>flag[0]</strong>
+      <small>Proceso 0 desea entrar</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🚩</span>
+      <strong>flag[1]</strong>
+      <small>Proceso 1 desea entrar</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🔁</span>
+      <strong>turno</strong>
+      <small>Define quién entra primero</small>
+    </div>
+
+  </div>
+
+</div>
+
+Cuando un proceso desea entrar:
+
+1. Activa su bandera.
+2. Cede el turno al otro proceso.
+3. Espera si el otro también quiere entrar.
+4. Entra a la sección crítica.
+5. Al salir, desactiva su bandera.
+
+### Ventajas
+
+- Es sencillo de comprender.
+- Garantiza exclusión mutua.
+- Es útil para estudiar sincronización.
+
+### Desventajas
+
+- Funciona principalmente con dos procesos.
+- Utiliza espera activa.
+- No suele utilizarse directamente en sistemas modernos.
+
+---
+
+## 13. Mutex
+
+Mutex significa **Mutual Exclusion**.
+
+Es un mecanismo utilizado para bloquear temporalmente un recurso compartido.
+
+<div className="u3-lock-card">
+
+  <div className="u3-lock-icon">🔐</div>
+
+  <h3>Funcionamiento de un Mutex</h3>
+
+  <div className="u3-inline-flow">
+    <span className="ok">Mutex Libre</span>
+    <b>→</b>
+    <span>Proceso A entra</span>
+    <b>→</b>
+    <span className="wait">Proceso B espera</span>
+    <b>→</b>
+    <span className="ok">Proceso A libera</span>
+  </div>
+
+</div>
+
+Las operaciones más comunes son:
+
+| Operación | Función |
+| --- | --- |
+| lock() | Bloquea el recurso |
+| unlock() | Libera el recurso |
+
+---
+
+## 14. Semáforos
+
+Un semáforo es una estructura utilizada para controlar el acceso a recursos compartidos.
+
+<div className="u3-semaphore">
+
+  <h3>🚦 Semáforo</h3>
+
+  <div className="u3-semaphore-grid">
+
+    <div>
+      <span className="u3-light green"></span>
+      <strong>Disponible</strong>
+      <p>El proceso puede utilizar el recurso.</p>
+    </div>
+
+    <div>
+      <span className="u3-light red"></span>
+      <strong>Ocupado</strong>
+      <p>El proceso debe esperar.</p>
+    </div>
+
+  </div>
+
+</div>
+
+Las operaciones más comunes son:
+
+- `wait()`
+- `signal()`
+
+También pueden encontrarse como:
+
+- `P()`
+- `V()`
+
+---
+
+## 15. Semáforo Binario
+
+Un semáforo binario solamente puede representar dos estados.
+
+<div className="u3-grid">
+
+  <div className="u3-card verde">
+    <div className="u3-big-icon">1</div>
+    <h3>Recurso Disponible</h3>
+    <p>El proceso puede entrar.</p>
+  </div>
+
+  <div className="u3-card rojo">
+    <div className="u3-big-icon">0</div>
+    <h3>Recurso Ocupado</h3>
+    <p>El proceso debe esperar.</p>
+  </div>
+
+</div>
+
+Su funcionamiento puede parecerse al de un mutex.
+
+---
+
+## 16. Semáforo Contador
+
+Un semáforo contador puede tener valores mayores que uno.
+
+Se utiliza cuando existen varios recursos iguales.
+
+<div className="u3-card azul">
+
+  <h3>🖨️ Ejemplo con tres impresoras</h3>
+
+  <div className="u3-resource-count">
+
+    <div>
+      <span>3</span>
+      <small>Disponibles</small>
+    </div>
+
+    <b>→</b>
+
+    <div>
+      <span>2</span>
+      <small>Una ocupada</small>
+    </div>
+
+    <b>→</b>
+
+    <div>
+      <span>1</span>
+      <small>Dos ocupadas</small>
+    </div>
+
+    <b>→</b>
+
+    <div>
+      <span>0</span>
+      <small>Todas ocupadas</small>
+    </div>
+
+  </div>
+
+</div>
+
+Cuando el valor llega a cero, los siguientes procesos deben esperar.
+
+---
+
+## 17. Productor y Consumidor
+
+El problema Productor-Consumidor es uno de los ejemplos clásicos de sincronización.
+
+<div className="u3-production">
+
+  <div className="u3-production-item productor">
+    <span>🏭</span>
+    <strong>Productor</strong>
+    <small>Genera información</small>
+  </div>
+
+  <div className="u3-arrow">→</div>
+
+  <div className="u3-buffer">
+    <span>📦</span>
+    <strong>Buffer</strong>
+
+    <div className="buffer-cells">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+  </div>
+
+  <div className="u3-arrow">→</div>
+
+  <div className="u3-production-item consumidor">
+    <span>👤</span>
+    <strong>Consumidor</strong>
+    <small>Utiliza información</small>
+  </div>
+
+</div>
+
+### Reglas principales
+
+- El productor no debe escribir si el buffer está lleno.
+- El consumidor no debe leer si el buffer está vacío.
+- Ambos deben coordinar el acceso al buffer.
+
+---
+
+## 18. Buffer Limitado
+
+Supongamos que tenemos un buffer con cinco espacios.
+
+<div className="u3-buffer-demo">
+
+  <div className="u3-buffer-row">
+    <strong>Vacío</strong>
+
+    <div className="buffer-cells large">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </div>
+  </div>
+
+  <div className="u3-buffer-row">
+    <strong>En uso</strong>
+
+    <div className="buffer-cells large">
+      <i className="full"></i>
+      <i className="full"></i>
+      <i className="full"></i>
+      <i></i>
+      <i></i>
+    </div>
+  </div>
+
+  <div className="u3-buffer-row">
+    <strong>Lleno</strong>
+
+    <div className="buffer-cells large">
+      <i className="full"></i>
+      <i className="full"></i>
+      <i className="full"></i>
+      <i className="full"></i>
+      <i className="full"></i>
+    </div>
+  </div>
+
+</div>
+
+Cuando está lleno, el productor debe esperar.
+
+---
+
+## 19. Lectores y Escritores
+
+Este problema estudia el acceso concurrente a información compartida.
+
+<div className="u3-grid">
+
+  <div className="u3-card azul">
+    <div className="u3-big-icon">📖</div>
+    <h3>Lectores</h3>
+    <p>Varios lectores pueden acceder simultáneamente.</p>
+  </div>
+
+  <div className="u3-card naranja">
+    <div className="u3-big-icon">✏️</div>
+    <h3>Escritor</h3>
+    <p>Necesita acceso exclusivo para modificar la información.</p>
+  </div>
+
+</div>
+
+El reto consiste en evitar errores y al mismo tiempo permitir buen rendimiento.
+
+---
+
+## 20. Filósofos Comensales
+
+El problema de los filósofos comensales permite estudiar sincronización e interbloqueos.
+
+<div className="u3-card morado">
+
+  <h3>🍽️ Situación</h3>
+
+  <p>
+    Varios filósofos se encuentran alrededor de una mesa.
+  </p>
+
+  <div className="u3-philosophers">
+
+    <div>🧑‍🏫<span>Filósofo 1</span></div>
+    <div>🍴</div>
+    <div>🧑‍🏫<span>Filósofo 2</span></div>
+    <div>🍴</div>
+    <div>🧑‍🏫<span>Filósofo 3</span></div>
+
+  </div>
+
+  <p>
+    Cada filósofo necesita dos tenedores para poder comer.
+  </p>
+
+</div>
+
+Si todos toman un tenedor al mismo tiempo, ninguno puede obtener el segundo.
+
+Esto puede provocar un interbloqueo.
+
+---
+
+## 21. Monitores
+
+Un monitor es una estructura de alto nivel que permite controlar el acceso a recursos compartidos.
+
+<div className="u3-card verde">
+
+  <h3>🖥️ Componentes de un Monitor</h3>
+
+  <div className="u3-grid-3">
+
+    <div className="u3-small-card">
+      <span>📦</span>
+      <strong>Datos</strong>
+      <small>Variables compartidas</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>⚙️</span>
+      <strong>Procedimientos</strong>
+      <small>Operaciones permitidas</small>
+    </div>
+
+    <div className="u3-small-card">
+      <span>🔐</span>
+      <strong>Control</strong>
+      <small>Sincronización automática</small>
+    </div>
+
+  </div>
+
+</div>
+
+Una de sus principales ventajas es que organiza mejor la sincronización.
+
+---
+
+## 22. Variables de Condición
+
+Los monitores pueden utilizar variables de condición.
+
+Sus operaciones más comunes son:
+
+| Operación | Función |
+| --- | --- |
+| wait() | Suspende un proceso |
+| signal() | Despierta un proceso |
+
+Estas operaciones permiten coordinar procesos dependiendo del estado de un recurso.
+
+---
+
+## 23. Comunicación entre Procesos
+
+La comunicación entre procesos se conoce como **IPC**.
+
+Significa:
+
+**Inter Process Communication**
+
+<div className="u3-resource-grid">
+
+  <div className="u3-resource">
+    <span>🧠</span>
+    <strong>Memoria Compartida</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>🔗</span>
+    <strong>Pipes</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>📨</span>
+    <strong>Mensajes</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>🌐</span>
+    <strong>Sockets</strong>
+  </div>
+
+  <div className="u3-resource">
+    <span>📡</span>
+    <strong>Señales</strong>
+  </div>
+
+</div>
+
+Estos mecanismos permiten intercambiar información entre procesos.
+
+---
+
+## 24. Memoria Compartida
+
+La memoria compartida permite que varios procesos accedan a una misma región de memoria.
+
+<div className="u3-shared-memory">
+
+  <div className="u3-node">
+    <strong>Proceso A</strong>
+  </div>
+
+  <div className="u3-arrow">→</div>
+
+  <div className="u3-memory-center">
+    🧠
+    <strong>Memoria Compartida</strong>
+  </div>
+
+  <div className="u3-arrow">←</div>
+
+  <div className="u3-node">
+    <strong>Proceso B</strong>
+  </div>
+
+</div>
+
+Es un método rápido, pero necesita sincronización.
+
+---
+
+## 25. Paso de Mensajes
+
+Los procesos también pueden comunicarse enviando mensajes.
+
+<div className="u3-message-flow">
+
+  <div className="u3-node">
+    <strong>Proceso A</strong>
+  </div>
+
+  <div className="u3-message">
+    📨 send()
+  </div>
+
+  <div className="u3-arrow">→</div>
+
+  <div className="u3-message">
+    receive()
+  </div>
+
+  <div className="u3-node">
+    <strong>Proceso B</strong>
+  </div>
+
+</div>
+
+Esta técnica evita que los procesos tengan que compartir directamente la memoria.
+
+---
+
+## 26. Pipes
+
+Un pipe es un canal utilizado para comunicar procesos.
+
+<div className="u3-inline-flow">
+  <span>Proceso A</span>
+  <b>→</b>
+  <span className="pipe">PIPE</span>
+  <b>→</b>
+  <span>Proceso B</span>
+</div>
+
+Un proceso escribe información y otro proceso la recibe.
+
+---
+
+## 27. Sockets
+
+Los sockets permiten comunicación entre procesos incluso cuando se encuentran en computadoras diferentes.
+
+<div className="u3-inline-flow">
+  <span>💻 Cliente</span>
+  <b>→</b>
+  <span>Socket</span>
+  <b>→</b>
+  <span>🌐 Red</span>
+  <b>→</b>
+  <span>Socket</span>
+  <b>→</b>
+  <span>🖥️ Servidor</span>
+</div>
+
+Los sockets son utilizados ampliamente en aplicaciones de red.
+
+---
+
+## 28. Sincronización
+
+La sincronización permite controlar el orden de ejecución de varios procesos o hilos.
+
+Su objetivo es evitar:
+
+- Condiciones de carrera.
+- Pérdida de datos.
+- Acceso simultáneo no controlado.
+- Resultados incorrectos.
+- Comportamientos impredecibles.
+
+---
+
+## 29. Inanición
+
+La inanición o **Starvation** ocurre cuando un proceso espera demasiado tiempo por un recurso.
+
+<div className="u3-card naranja">
+
+  <h3>⏳ Ejemplo de Starvation</h3>
+
+  <div className="u3-starvation">
+
+    <span>Proceso A obtiene recurso</span>
+    <b>→</b>
+    <span>Proceso B espera</span>
+    <b>→</b>
+    <span>Proceso C obtiene recurso</span>
+    <b>→</b>
+    <span>Proceso B sigue esperando</span>
+
+  </div>
+
+</div>
+
+Esto puede ocurrir cuando existen prioridades mal administradas.
+
+---
+
+## 30. Interbloqueo
+
+Un interbloqueo o **Deadlock** ocurre cuando varios procesos quedan esperando recursos que están retenidos por otros procesos.
+
+<div className="u3-deadlock">
+
+  <div className="u3-deadlock-process">
+    <strong>Proceso A</strong>
+    <span>Tiene Recurso 1</span>
+    <span>Espera Recurso 2</span>
+  </div>
+
+  <div className="u3-deadlock-center">🔒</div>
+
+  <div className="u3-deadlock-process">
+    <strong>Proceso B</strong>
+    <span>Tiene Recurso 2</span>
+    <span>Espera Recurso 1</span>
+  </div>
+
+</div>
+
+Ninguno puede continuar.
+
+Este tema se estudia con mayor profundidad en la Unidad 4.
+
+---
+
+## 31. Deadlock vs Starvation
+
+| Deadlock | Starvation |
+| --- | --- |
+| Varios procesos quedan bloqueados | Un proceso espera demasiado |
+| Ninguno puede continuar | Otros procesos sí continúan |
+| Existe dependencia circular | Puede ocurrir por prioridades |
+| Puede detener parte del sistema | Afecta principalmente a un proceso |
+
+---
+
+## 32. Operaciones Atómicas
+
+Una operación atómica se ejecuta completamente sin que otra operación pueda interrumpirla.
+
+<div className="u3-inline-flow">
+  <span>Leer</span>
+  <b>→</b>
+  <span>Modificar</span>
+  <b>→</b>
+  <span>Guardar</span>
+</div>
+
+El objetivo es tratar estas acciones como una sola operación indivisible.
+
+---
+
+## 33. Spinlock
+
+Un Spinlock es un mecanismo donde un proceso permanece comprobando si un recurso está disponible.
+
+<div className="u3-card naranja">
+
+  <h3>🔄 Funcionamiento</h3>
+
+  <div className="u3-inline-flow">
+    <span>Proceso</span>
+    <b>→</b>
+    <span>¿Recurso libre?</span>
+    <b>→</b>
+    <span>No</span>
+    <b>↺</b>
+    <span>Seguir comprobando</span>
+  </div>
+
+</div>
+
+Puede ser útil cuando el tiempo de espera es muy corto.
+
+---
+
+## 34. Concurrencia en Sistemas Multinúcleo
+
+Los procesadores modernos pueden contener varios núcleos.
+
+<div className="u3-core-grid">
+
+  <div className="u3-core">
+    <strong>Núcleo 1</strong>
+    <span>Proceso A</span>
+  </div>
+
+  <div className="u3-core">
+    <strong>Núcleo 2</strong>
+    <span>Proceso B</span>
+  </div>
+
+  <div className="u3-core">
+    <strong>Núcleo 3</strong>
+    <span>Proceso C</span>
+  </div>
+
+  <div className="u3-core">
+    <strong>Núcleo 4</strong>
+    <span>Proceso D</span>
+  </div>
+
+</div>
+
+Esto permite ejecutar diferentes tareas realmente en paralelo.
+
+---
+
+## 35. Concurrencia en Aplicaciones Modernas
+
+La concurrencia se utiliza en muchas aplicaciones.
+
+<div className="u3-grid">
+
+  <div className="u3-card azul">
+    <div className="u3-big-icon">🌐</div>
+    <h3>Navegadores</h3>
+    <p>Interfaz, red, audio, video y JavaScript.</p>
+  </div>
+
+  <div className="u3-card verde">
+    <div className="u3-big-icon">🖥️</div>
+    <h3>Servidores</h3>
+    <p>Pueden atender múltiples usuarios y solicitudes.</p>
+  </div>
+
+  <div className="u3-card morado">
+    <div className="u3-big-icon">🎮</div>
+    <h3>Videojuegos</h3>
+    <p>Gráficos, sonido, física, red e inteligencia artificial.</p>
+  </div>
+
+</div>
+
+---
+
+## 36. Ventajas de la Concurrencia
+
+<div className="u3-grid">
+
+  <div className="u3-card verde">
+    <h3>⚡ Rendimiento</h3>
+    <p>Permite aprovechar mejor el procesador.</p>
+  </div>
+
+  <div className="u3-card azul">
+    <h3>🚀 Respuesta</h3>
+    <p>Las aplicaciones pueden responder mientras realizan otras tareas.</p>
+  </div>
+
+  <div className="u3-card morado">
+    <h3>🧠 Multinúcleo</h3>
+    <p>Permite aprovechar varios núcleos del procesador.</p>
+  </div>
+
+</div>
+
+---
+
+## 37. Desventajas de la Concurrencia
+
+<div className="u3-grid">
+
+  <div className="u3-card rojo">
+    <h3>⚠️ Complejidad</h3>
+    <p>Los programas son más difíciles de diseñar y depurar.</p>
+  </div>
+
+  <div className="u3-card naranja">
+    <h3>🔐 Sincronización</h3>
+    <p>Es necesario controlar correctamente los recursos compartidos.</p>
+  </div>
+
+  <div className="u3-card morado">
+    <h3>🔒 Bloqueos</h3>
+    <p>Pueden aparecer deadlocks o starvation.</p>
+  </div>
+
+</div>
+
+---
+
+## 38. Ejemplo de la Vida Cotidiana
+
+Podemos comparar la concurrencia con una cocina.
+
+<div className="u3-kitchen">
+
+  <div className="u3-kitchen-worker">
+    👨‍🍳
+    <strong>Cocinero A</strong>
+    <span>Prepara carne</span>
+  </div>
+
+  <div className="u3-kitchen-worker">
+    👩‍🍳
+    <strong>Cocinero B</strong>
+    <span>Prepara ensalada</span>
+  </div>
+
+  <div className="u3-kitchen-worker">
+    👨‍🍳
+    <strong>Cocinero C</strong>
+    <span>Prepara bebida</span>
+  </div>
+
+</div>
+
+Todos trabajan durante el mismo periodo.
+
+Sin embargo, algunos recursos deben compartirse:
+
+- Horno.
+- Cuchillos.
+- Licuadora.
+- Estufa.
+
+Esto es similar a los procesos que comparten recursos dentro de un sistema operativo.
+
+---
+
+## 39. Tabla General de Conceptos
+
+| Concepto | Descripción |
+| --- | --- |
+| Concurrencia | Varias tareas avanzan durante el mismo periodo |
+| Paralelismo | Varias tareas se ejecutan simultáneamente |
+| Sección Crítica | Parte donde se utiliza un recurso compartido |
+| Exclusión Mutua | Solo un proceso utiliza el recurso |
+| Mutex | Bloqueo utilizado para proteger recursos |
+| Semáforo | Controla acceso a recursos |
+| Monitor | Estructura de sincronización |
+| Condición de Carrera | Resultado depende del orden de ejecución |
+| Deadlock | Procesos bloqueados esperando recursos |
+| Starvation | Proceso esperando indefinidamente |
+| IPC | Comunicación entre procesos |
+
+---
+
+## 40. Mapa General de Concurrencia
+
+<div className="u3-map">
+
+  <div className="u3-map-main">
+    🔄 CONCURRENCIA
+  </div>
+
+  <div className="u3-map-row">
+
+    <div className="u3-map-node azul">
+      ⚙️ Procesos
+    </div>
+
+    <div className="u3-map-node morado">
+      🧵 Hilos
+    </div>
+
+  </div>
+
+  <div className="u3-map-arrow">↓</div>
+
+  <div className="u3-map-node verde">
+    📦 Recursos Compartidos
+  </div>
+
+  <div className="u3-map-arrow">↓</div>
+
+  <div className="u3-map-node naranja">
+    🔐 Sección Crítica
+  </div>
+
+  <div className="u3-map-row">
+
+    <div className="u3-map-node verde">
+      Mutex
+    </div>
+
+    <div className="u3-map-node azul">
+      Semáforos
+    </div>
+
+    <div className="u3-map-node morado">
+      Monitores
+    </div>
+
+  </div>
+
+  <div className="u3-map-row">
+
+    <div className="u3-map-node rojo">
+      Condición de Carrera
+    </div>
+
+    <div className="u3-map-node rojo">
+      Deadlock
+    </div>
+
+    <div className="u3-map-node naranja">
+      Starvation
+    </div>
+
+  </div>
+
+</div>
+
+---
+
+## 41. Preguntas de Repaso
+
+### 1. ¿Qué es la concurrencia?
+
+Es la capacidad de administrar varias tareas que avanzan durante un mismo periodo.
+
+### 2. ¿Qué diferencia existe entre concurrencia y paralelismo?
+
+La concurrencia permite que varias tareas progresen durante el mismo periodo, mientras que el paralelismo permite que varias tareas se ejecuten realmente al mismo tiempo.
+
+### 3. ¿Qué es una sección crítica?
+
+Es una parte del programa donde se utiliza un recurso compartido.
+
+### 4. ¿Qué es exclusión mutua?
+
+Es el mecanismo que permite que solamente un proceso pueda utilizar un recurso crítico en determinado momento.
+
+### 5. ¿Qué es una condición de carrera?
+
+Es un problema donde el resultado depende del orden en que se ejecutan varios procesos.
+
+### 6. ¿Qué es un mutex?
+
+Es un mecanismo utilizado para bloquear y proteger un recurso compartido.
+
+### 7. ¿Qué es un semáforo?
+
+Es una estructura utilizada para controlar el acceso a uno o varios recursos.
+
+### 8. ¿Qué es un monitor?
+
+Es una estructura que organiza datos compartidos y mecanismos de sincronización.
+
+### 9. ¿Qué es IPC?
+
+Es un conjunto de mecanismos que permiten comunicación entre procesos.
+
+### 10. ¿Qué es Deadlock?
+
+Es una situación donde varios procesos quedan bloqueados esperando recursos entre ellos.
+
+### 11. ¿Qué es Starvation?
+
+Es una situación donde un proceso espera durante demasiado tiempo por un recurso.
+
+---
+
+## 42. Conclusión
+
+La concurrencia permite que los sistemas operativos administren varias tareas durante un mismo periodo de tiempo.
+
+Esta capacidad mejora el rendimiento y permite aprovechar mejor los recursos del sistema.
+
+Sin embargo, cuando varios procesos o hilos utilizan recursos compartidos pueden aparecer problemas como condiciones de carrera, interbloqueos e inanición.
+
+Para evitar estos problemas se utilizan mecanismos de sincronización como:
+
+- Mutex.
+- Semáforos.
+- Monitores.
+- Algoritmos de exclusión mutua.
+- Operaciones atómicas.
+
+Comprender estos conceptos es fundamental para estudiar sistemas operativos modernos y preparar el estudio de los interbloqueos.
+
+---
+
+<div className="u3-resumen">
+
+  <div className="u3-resumen-titulo">
+
+    <span className="u3-resumen-icono">🧑‍🎓</span>
+
+    <strong>Resumen de la Unidad</strong>
+
+  </div>
+
+  <p>
+    Después de estudiar esta unidad podemos comprender cómo varios procesos
+    e hilos pueden trabajar durante un mismo periodo de tiempo y cómo el
+    sistema operativo controla los recursos compartidos.
+  </p>
+
+  <p>
+    <strong>En esta unidad aprendimos:</strong>
+  </p>
+
+  <ul>
+    <li>Concurrencia.</li>
+    <li>Paralelismo.</li>
+    <li>Sección crítica.</li>
+    <li>Exclusión mutua.</li>
+    <li>Condiciones de carrera.</li>
+    <li>Algoritmo de Dekker.</li>
+    <li>Algoritmo de Peterson.</li>
+    <li>Mutex.</li>
+    <li>Semáforos.</li>
+    <li>Monitores.</li>
+    <li>Comunicación entre procesos.</li>
+    <li>Starvation.</li>
+    <li>Deadlock.</li>
+  </ul>
+
+</div>
