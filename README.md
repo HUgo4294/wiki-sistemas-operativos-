@@ -1,137 +1,155 @@
+<div align="center">
 
-README_actualizado.md
-<img width="2172" height="724" alt="readme-portada" src="https://github.com/user-attachments/assets/3c429e21-c1b5-4ec8-9d43-ecea2cb645a6" />
+<img width="2172" height="724" alt="Wiki de Sistemas Operativos 1" src="https://github.com/user-attachments/assets/3c429e21-c1b5-4ec8-9d43-ecea2cb645a6" />
 
+<br>
 
-💻 Wiki de Sistemas Operativos 1
-Wiki educativa desarrollada para el curso de Sistemas Operativos 1.
+# 💻 Wiki de Sistemas Operativos 1
 
-Este proyecto presenta de manera clara, organizada y visual los principales conceptos relacionados con los sistemas operativos, combinando contenido teórico, ejemplos, diagramas y simulaciones.
+### Plataforma educativa sobre procesos, memoria, concurrencia y planificación de CPU
 
-🌐 Acceso directo a la Wiki
-👉 Abrir Wiki de Sistemas Operativos 1
-📚 Contenido de la Wiki
-📘 Unidad 1: Introducción a los Sistemas Operativos
-Concepto de sistema operativo.
+[![Astro](https://img.shields.io/badge/Astro-5C2D91?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
+[![Starlight](https://img.shields.io/badge/Starlight-111827?style=for-the-badge&logo=astro&logoColor=white)](https://starlight.astro.build/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=for-the-badge&logo=github&logoColor=white)](https://hugo4294.github.io/wiki-sistemas-operativos-/)
+![Estado](https://img.shields.io/badge/Estado-Publicado-16A34A?style=for-the-badge)
 
-Historia y evolución.
+<br>
 
-Funciones principales.
+## [🚀 Abrir Wiki de Sistemas Operativos](https://hugo4294.github.io/wiki-sistemas-operativos-/)
 
-Kernel.
+</div>
 
-Gestión de procesos y memoria.
+---
 
-Sistemas de archivos.
+## 📖 Descripción
 
-Dispositivos de entrada y salida.
+**Wiki de Sistemas Operativos 1** es una plataforma educativa desarrollada para presentar los principales fundamentos de los sistemas operativos de forma clara, visual y organizada.
 
-Llamadas al sistema e interrupciones.
+El proyecto combina contenido teórico, ejemplos, diagramas, tablas comparativas y un simulador interactivo para facilitar el aprendizaje.
 
-Modos usuario y kernel.
+---
 
-Arquitectura de los sistemas operativos.
+## 📚 Contenido
 
-⚙️ Unidad 2: Definición y Control de Procesos
-Programa y proceso.
+| Unidad | Tema | Contenido principal |
+|:---:|---|---|
+| **01** | Introducción a los Sistemas Operativos | Historia, funciones, kernel, memoria, llamadas al sistema e interrupciones. |
+| **02** | Definición y Control de Procesos | Estados, PCB, PID, hilos, cambio de contexto y planificación de CPU. |
+| **03** | Concurrencia | Sección crítica, exclusión mutua, Peterson, Dekker, mutex, semáforos y monitores. |
 
-Ciclo de vida y estados de los procesos.
+### 📘 Unidad 1: Introducción
 
-PCB y PID.
+- Concepto de sistema operativo.
+- Historia y evolución.
+- Funciones principales.
+- Kernel.
+- Gestión de procesos y memoria.
+- Sistemas de archivos.
+- Dispositivos de entrada y salida.
+- Llamadas al sistema.
+- Interrupciones.
+- Modos usuario y kernel.
+- Arquitectura de los sistemas operativos.
 
-Planificador o scheduler.
+### ⚙️ Unidad 2: Procesos y Control
 
-Cambio de contexto.
+- Diferencia entre programa y proceso.
+- Ciclo de vida de los procesos.
+- Estados de los procesos.
+- PCB y PID.
+- Planificador o scheduler.
+- Cambio de contexto.
+- Hilos y colas de procesos.
+- FCFS, SJF, SRTF y Round Robin.
+- Planificación por prioridades.
+- Aging.
 
-Hilos y colas de procesos.
+### 🔄 Unidad 3: Concurrencia
 
-Planificación de CPU.
+- Concurrencia y paralelismo.
+- Procesos e hilos concurrentes.
+- Recursos compartidos.
+- Condiciones de carrera.
+- Sección crítica.
+- Exclusión mutua.
+- Algoritmos de Dekker y Peterson.
+- Mutex, semáforos y monitores.
+- Productor-consumidor.
+- Lectores y escritores.
+- Comunicación entre procesos.
+- Inanición e interbloqueo.
 
-FCFS, SJF, SRTF y Round Robin.
+---
 
-Prioridades y aging.
+## 🧠 Funcionamiento de un Sistema Operativo
 
-🔄 Unidad 3: Concurrencia
-Concurrencia y paralelismo.
+<div align="center">
 
-Procesos e hilos concurrentes.
+<img width="1942" height="809" alt="Procesos, CPU, memoria y archivos" src="https://github.com/user-attachments/assets/6560eab3-5da5-4dbc-a37f-e4f85c38d8dc" />
 
-Recursos compartidos.
+</div>
 
-Condiciones de carrera.
+El sistema operativo coordina los procesos, la memoria RAM, los archivos, los dispositivos y el tiempo de CPU. La Wiki utiliza representaciones visuales para explicar cómo se relacionan estos componentes.
 
-Sección crítica y exclusión mutua.
+---
 
-Algoritmos de Dekker y Peterson.
+## 🖥️ Simulador de Procesos
 
-Mutex, semáforos y monitores.
+La Unidad 2 incluye un simulador interactivo para observar cómo el sistema operativo administra los procesos y los recursos disponibles.
 
-Productor-consumidor.
+### Funciones del simulador
 
-Lectores y escritores.
+- Creación y visualización de procesos.
+- Administración de memoria RAM.
+- Representación de estados.
+- Ejecución y seguimiento del progreso.
+- Simulación de planificación de CPU.
+- Visualización de colas de procesos.
 
-Comunicación entre procesos.
+<div align="center">
 
-Inanición e interbloqueo.
+### [▶️ Abrir el simulador](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html)
 
-🧠 Funcionamiento de un Sistema Operativo
-<img width="1942" height="809" alt="readme-sistemas-operativos" src="https://github.com/user-attachments/assets/6560eab3-5da5-4dbc-a37f-e4f85c38d8dc" />
+</div>
 
+---
 
-El sistema operativo coordina los procesos, la memoria RAM, los archivos, los dispositivos y el tiempo de CPU. Esta Wiki utiliza ejemplos visuales para explicar cómo se relacionan todos estos componentes.
+## ✨ Características
 
-🖥️ Simulador de Procesos
-La Wiki incluye un simulador interactivo de procesos que permite visualizar cómo el sistema operativo administra los procesos y los recursos disponibles.
+- Interfaz moderna y adaptable.
+- Navegación organizada por unidades.
+- Buscador integrado.
+- Modo claro y modo oscuro.
+- Diagramas y recursos gráficos.
+- Contenido desarrollado con MDX.
+- Simulador interactivo.
+- Publicación automática con GitHub Actions.
+- Alojamiento público mediante GitHub Pages.
 
-Entre sus funciones se encuentran:
+---
 
-Creación y visualización de procesos.
+## 🛠️ Tecnologías
 
-Administración de memoria RAM.
+| Tecnología | Función |
+|---|---|
+| **Astro** | Construcción y generación del sitio. |
+| **Starlight** | Documentación, navegación y buscador. |
+| **Markdown / MDX** | Creación del contenido educativo. |
+| **HTML** | Estructura del simulador. |
+| **CSS** | Diseño visual personalizado. |
+| **JavaScript** | Funcionamiento interactivo. |
+| **Git y GitHub** | Control de versiones y repositorio. |
+| **GitHub Actions** | Publicación automática. |
+| **GitHub Pages** | Alojamiento de la Wiki. |
 
-Estados de los procesos.
+---
 
-Ejecución y seguimiento del progreso.
+## 📂 Estructura del proyecto
 
-Simulación de planificación de CPU.
+<details>
+<summary><strong>Ver estructura de carpetas</strong></summary>
 
-El simulador se puede abrir desde la Unidad 2.
-
-🖼️ Recursos Visuales
-Diagramas.
-
-Mapas conceptuales.
-
-Esquemas de memoria.
-
-Ciclos de vida de los procesos.
-
-Mapas generales de procesos.
-
-Tablas comparativas.
-
-Tarjetas informativas.
-
-🛠️ Tecnologías utilizadas
-Astro
-
-Starlight
-
-HTML
-
-CSS
-
-JavaScript
-
-Markdown / MDX
-
-Git y GitHub
-
-GitHub Pages
-
-Visual Studio Code
-
-📂 Estructura principal del proyecto
+```text
 wiki-sistemas-operativos/
 │
 ├── .github/
@@ -153,6 +171,7 @@ wiki-sistemas-operativos/
 │   ├── assets/
 │   │   └── styles/
 │   │       └── custom.css
+│   │
 │   └── content/
 │       └── docs/
 │           ├── index.mdx
@@ -166,10 +185,64 @@ wiki-sistemas-operativos/
 ├── astro.config.mjs
 ├── package.json
 └── README.md
-🚀 Ejecución local
+```
+
+</details>
+
+---
+
+## 🚀 Instalación y ejecución local
+
+### Requisitos
+
+- Node.js 18 o una versión posterior.
+- npm.
+- Git.
+
+### Descargar el proyecto
+
+```bash
+git clone https://github.com/HUgo4294/wiki-sistemas-operativos-.git
+```
+
+### Entrar en la carpeta
+
+```bash
+cd wiki-sistemas-operativos-
+```
+
+### Instalar las dependencias
+
+```bash
 npm install
+```
+
+### Ejecutar el servidor local
+
+```bash
 npm run dev
-🌍 Página publicada
-🔗 https://hugo4294.github.io/wiki-sistemas-operativos-/
-👨‍💻 Autor
-Proyecto educativo desarrollado por Hugo4294 para el curso de Sistemas Operativos 1.
+```
+
+---
+
+## 🌐 Página publicada
+
+La Wiki está disponible públicamente mediante GitHub Pages:
+
+<div align="center">
+
+### 🔗 [hugo4294.github.io/wiki-sistemas-operativos-](https://hugo4294.github.io/wiki-sistemas-operativos-/)
+
+</div>
+
+---
+
+## 👨‍💻 Autor
+
+Desarrollado por **Hugo4294** como proyecto educativo para el curso de **Sistemas Operativos 1**.
+
+<div align="center">
+
+Si este proyecto te resulta útil, puedes apoyar el repositorio con una ⭐
+
+</div>
