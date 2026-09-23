@@ -1,8 +1,7 @@
 
 README_actualizado.md
+<img width="2172" height="724" alt="readme-portada" src="https://github.com/user-attachments/assets/3c429e21-c1b5-4ec8-9d43-ecea2cb645a6" />
 
-
-<p align="center"> <img src="public/readme-portada.png" alt="Wiki de Sistemas Operativos 1" width="100%"> </p>
 
 💻 Wiki de Sistemas Operativos 1
 Wiki educativa desarrollada para el curso de Sistemas Operativos 1.
@@ -76,7 +75,8 @@ Comunicación entre procesos.
 Inanición e interbloqueo.
 
 🧠 Funcionamiento de un Sistema Operativo
-<p align="center"> <img src="public/readme-sistemas-operativos.png" alt="Procesos, CPU, memoria y recursos del sistema operativo" width="100%"> </p>
+<img width="1942" height="809" alt="readme-sistemas-operativos" src="https://github.com/user-attachments/assets/6560eab3-5da5-4dbc-a37f-e4f85c38d8dc" />
+
 
 El sistema operativo coordina los procesos, la memoria RAM, los archivos, los dispositivos y el tiempo de CPU. Esta Wiki utiliza ejemplos visuales para explicar cómo se relacionan todos estos componentes.
 
