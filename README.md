@@ -1,115 +1,150 @@
-# 💻 Wiki de Sistemas Operativos 1
 
-Wiki educativa desarrollada para el curso de **Sistemas Operativos 1**.
+README_actualizado.md
 
-Este proyecto tiene como objetivo presentar de una manera clara, organizada y visual los principales conceptos relacionados con los sistemas operativos, combinando contenido teórico, ejemplos, diagramas y simulaciones.
 
----
+<p align="center"> <img src="public/readme-portada.png" alt="Wiki de Sistemas Operativos 1" width="100%"> </p>
 
-## 📚 Contenido de la Wiki
+💻 Wiki de Sistemas Operativos 1
+Wiki educativa desarrollada para el curso de Sistemas Operativos 1.
 
-El proyecto está organizado por unidades para facilitar el estudio de cada tema.
+Este proyecto presenta de manera clara, organizada y visual los principales conceptos relacionados con los sistemas operativos, combinando contenido teórico, ejemplos, diagramas y simulaciones.
 
-### 📘 Unidad 1: Introducción a los Sistemas Operativos
+🌐 Acceso directo a la Wiki
+👉 Abrir Wiki de Sistemas Operativos 1
+📚 Contenido de la Wiki
+📘 Unidad 1: Introducción a los Sistemas Operativos
+Concepto de sistema operativo.
 
-En esta unidad se estudian los fundamentos de los sistemas operativos, entre ellos:
+Historia y evolución.
 
-- Concepto de Sistema Operativo.
-- Historia y evolución.
-- Funciones principales.
-- Kernel.
-- Gestión de procesos.
-- Gestión de memoria.
-- Sistema de archivos.
-- Dispositivos de entrada y salida.
-- Llamadas al sistema.
-- Interrupciones.
-- Modos Usuario y Kernel.
-- Arquitectura de los Sistemas Operativos.
+Funciones principales.
 
-### ⚙️ Unidad 2: Definición y Control de Procesos
+Kernel.
 
-Esta unidad explica cómo un Sistema Operativo crea, administra y controla los procesos.
+Gestión de procesos y memoria.
 
-Entre los temas incluidos se encuentran:
+Sistemas de archivos.
 
-- Programa y proceso.
-- Ciclo de vida de un proceso.
-- Estados de los procesos.
-- PCB (Process Control Block).
-- PID.
-- Scheduler.
-- Cambio de contexto.
-- Hilos.
-- Colas de procesos.
-- Planificación de CPU.
-- FCFS.
-- SJF.
-- SRTF.
-- Round Robin.
-- Prioridades.
-- Aging.
+Dispositivos de entrada y salida.
 
-También se incluyen imágenes y diagramas para facilitar la comprensión de los diferentes conceptos.
+Llamadas al sistema e interrupciones.
 
----
+Modos usuario y kernel.
 
-##  Simulador de Procesos
+Arquitectura de los sistemas operativos.
 
-La Wiki incluye un **simulador interactivo de procesos** que permite poner en práctica algunos de los conceptos estudiados.
+⚙️ Unidad 2: Definición y Control de Procesos
+Programa y proceso.
 
-El simulador permite visualizar de una forma más sencilla cómo el Sistema Operativo administra los procesos y los recursos disponibles.
+Ciclo de vida y estados de los procesos.
+
+PCB y PID.
+
+Planificador o scheduler.
+
+Cambio de contexto.
+
+Hilos y colas de procesos.
+
+Planificación de CPU.
+
+FCFS, SJF, SRTF y Round Robin.
+
+Prioridades y aging.
+
+🔄 Unidad 3: Concurrencia
+Concurrencia y paralelismo.
+
+Procesos e hilos concurrentes.
+
+Recursos compartidos.
+
+Condiciones de carrera.
+
+Sección crítica y exclusión mutua.
+
+Algoritmos de Dekker y Peterson.
+
+Mutex, semáforos y monitores.
+
+Productor-consumidor.
+
+Lectores y escritores.
+
+Comunicación entre procesos.
+
+Inanición e interbloqueo.
+
+🧠 Funcionamiento de un Sistema Operativo
+<p align="center"> <img src="public/readme-sistemas-operativos.png" alt="Procesos, CPU, memoria y recursos del sistema operativo" width="100%"> </p>
+
+El sistema operativo coordina los procesos, la memoria RAM, los archivos, los dispositivos y el tiempo de CPU. Esta Wiki utiliza ejemplos visuales para explicar cómo se relacionan todos estos componentes.
+
+🖥️ Simulador de Procesos
+La Wiki incluye un simulador interactivo de procesos que permite visualizar cómo el sistema operativo administra los procesos y los recursos disponibles.
 
 Entre sus funciones se encuentran:
 
-- Creación de procesos.
-- Visualización de procesos.
-- Administración de memoria RAM.
-- Estados de los procesos.
-- Ejecución de procesos.
-- Seguimiento del progreso.
-- Simulación de planificación de CPU.
+Creación y visualización de procesos.
 
----
+Administración de memoria RAM.
 
-## 🖼️ Recursos Visuales
+Estados de los procesos.
 
-Para facilitar el aprendizaje se utilizan diferentes recursos gráficos como:
+Ejecución y seguimiento del progreso.
 
-- Diagramas.
-- Mapas conceptuales.
-- Esquemas de memoria.
-- Representaciones del ciclo de vida de los procesos.
-- Mapas generales de procesos.
-- Ejemplos visuales.
-- Tablas comparativas.
+Simulación de planificación de CPU.
 
----
+El simulador se puede abrir desde la Unidad 2.
 
-## 🛠️ Tecnologías utilizadas
+🖼️ Recursos Visuales
+Diagramas.
 
-El proyecto fue desarrollado utilizando:
+Mapas conceptuales.
 
-- **Astro**
-- **Starlight**
-- **HTML**
-- **CSS**
-- **JavaScript**
-- **Markdown / MDX**
-- **Git**
-- **GitHub**
-- **Visual Studio Code**
+Esquemas de memoria.
 
----
+Ciclos de vida de los procesos.
 
-## 📂 Estructura principal del proyecto
+Mapas generales de procesos.
 
-```text
+Tablas comparativas.
+
+Tarjetas informativas.
+
+🛠️ Tecnologías utilizadas
+Astro
+
+Starlight
+
+HTML
+
+CSS
+
+JavaScript
+
+Markdown / MDX
+
+Git y GitHub
+
+GitHub Pages
+
+Visual Studio Code
+
+📂 Estructura principal del proyecto
 wiki-sistemas-operativos/
 │
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+│
 ├── public/
+│   ├── fondo.jpg
+│   ├── readme-portada.png
+│   ├── readme-sistemas-operativos.png
 │   ├── imagen-simulador.png
 │   ├── estructura-memoria.png
+│   ├── cola-procesos.png
 │   ├── mapa-general-procesos.png
 │   ├── programa-proceso.png
 │   └── simulador.html
@@ -118,15 +153,23 @@ wiki-sistemas-operativos/
 │   ├── assets/
 │   │   └── styles/
 │   │       └── custom.css
-│   │
 │   └── content/
 │       └── docs/
+│           ├── index.mdx
 │           ├── unidad-1/
 │           │   └── introduccion.mdx
-│           │
-│           └── unidad-2/
-│               └── procesos-y-control.mdx
+│           ├── unidad-2/
+│           │   └── procesos-y-control.mdx
+│           └── unidad-3/
+│               └── concurrencia.mdx
 │
 ├── astro.config.mjs
 ├── package.json
 └── README.md
+🚀 Ejecución local
+npm install
+npm run dev
+🌍 Página publicada
+🔗 https://hugo4294.github.io/wiki-sistemas-operativos-/
+👨‍💻 Autor
+Proyecto educativo desarrollado por Hugo4294 para el curso de Sistemas Operativos 1.
