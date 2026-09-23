@@ -41,7 +41,7 @@ body {
       rgba(8, 17, 31, 0.55),
       rgba(8, 17, 31, 0.60)
     ),
-    url('/fondo.jpg') center center / cover fixed no-repeat !important;
+    url('/wiki-sistemas-operativos-/fondo.jpg') center center / cover fixed no-repeat !important;
 }
 
 
@@ -949,7 +949,7 @@ header.header {
       rgba(241, 245, 249, 0.42),
       rgba(241, 245, 249, 0.46)
     ),
-    url('/fondo.jpg') center center / cover fixed no-repeat !important;
+    url('/wiki-sistemas-operativos-/fondo.jpg') center center / cover fixed no-repeat !important;
 }
 
 
