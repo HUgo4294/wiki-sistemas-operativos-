@@ -15,7 +15,7 @@
 
 <br>
 
-## [🚀 Abrir Wiki de Sistemas Operativos](https://hugo4294.github.io/wiki-sistemas-operativos-/)
+## [      Abrir Wiki de Sistemas Operativos](https://hugo4294.github.io/wiki-sistemas-operativos-/)
 
 </div>
 
@@ -191,7 +191,7 @@ wiki-sistemas-operativos/
 
 ---
 
-## 🚀 Instalación y ejecución local
+##   Instalación y ejecución local
 
 ### Requisitos
 
