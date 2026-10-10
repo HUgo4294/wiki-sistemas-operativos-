@@ -10,6 +10,10 @@ description: Documentación del motor transaccional concurrente y detector de in
 
 ---
 
+> 🚀 **Simulador en Vivo:** Si ya iniciaste el programa en tu terminal WSL (`./ejecutar.sh`), puedes abrir el panel interactivo en vivo haciendo clic aquí: **[Abrir Dashboard Interactivo (http://localhost:8000)](http://localhost:8000)**
+
+---
+
 ## 1. Descripción General del Proyecto
 
 Este proyecto implementa un **motor transaccional concurrente** que simula la gestión de un estacionamiento inteligente utilizando **hilos reales del sistema operativo Linux** (`threading`). Cada espacio de estacionamiento actúa como un recurso crítico protegido por un candado de memoria (`Lock`).
@@ -22,11 +26,11 @@ Como extensión (Unidad 4), el sistema incluye un módulo **detector de interblo
 
 El proyecto se compone de los siguientes módulos desarrollados en Python nativo:
 
-* **`motor.py`**: Define la clase `LockConRAG` (wrappers sobre los locks del SO para registrar quién posee y quién espera cada recurso) y los hilos `Valet` que compiten por los espacios.
-* **`guardian.py`**: Hilo en segundo plano que inspecciona el estado del RAG y ejecuta el algoritmo DFS para detectar interbloqueos.
-* **`web.py`**: Servidor HTTP integrado que sirve la API de estado en formato JSON y gestiona la velocidad y recuperación.
-* **`index.html`**: Dashboard interactivo animado desarrollado con **Vis.js** para visualizar los cajones, hilos activos y el Grafo RAG en tiempo real.
-* **`app.py` / `ejecutar.sh`**: Punto de entrada principal para iniciar el motor y la interfaz integrada.
+- **`motor.py`**: Define la clase `LockConRAG` (wrappers sobre los locks del SO para registrar quién posee y quién espera cada recurso) y los hilos `Valet` que compiten por los espacios.
+- **`guardian.py`**: Hilo en segundo plano que inspecciona el estado del RAG y ejecuta el algoritmo DFS para detectar interbloqueos.
+- **`web.py`**: Servidor HTTP integrado que sirve la API de estado en formato JSON y gestiona la velocidad y recuperación.
+- **`index.html`**: Dashboard interactivo animado desarrollado con **Vis.js** para visualizar los cajones, hilos activos y el Grafo RAG en tiempo real.
+- **`app.py` / `ejecutar.sh`**: Punto de entrada principal para iniciar el motor y la interfaz integrada.
 
 ---
 
