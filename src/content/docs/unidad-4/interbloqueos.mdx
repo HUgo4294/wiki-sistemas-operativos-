@@ -1,0 +1,39 @@
+---
+title: Proyecto 2 - Motor Concurrente y Detector RAG
+description: Documentación del motor transaccional concurrente y detector de interbloqueos en Linux.
+---
+
+# Proyecto 2: Motor Concurrente & Detector de Interbloqueos (RAG)
+
+**Curso:** Sistemas Operativos  
+**Entorno de Ejecución:** WSL2 (Ubuntu Linux)  
+
+---
+
+## 1. Descripción General del Proyecto
+
+Este proyecto implementa un **motor transaccional concurrente** que simula la gestión de un estacionamiento inteligente utilizando **hilos reales del sistema operativo Linux** (`threading`). Cada espacio de estacionamiento actúa como un recurso crítico protegido por un candado de memoria (`Lock`).
+
+Como extensión (Unidad 4), el sistema incluye un módulo **detector de interbloqueos (Deadlocks)** basado en un **Grafo de Asignación de Recursos (RAG)** en tiempo real y un algoritmo de **Búsqueda en Profundidad (DFS)** para la detección y recuperación de ciclos.
+
+---
+
+## 2. Arquitectura y Componentes
+
+El proyecto se compone de los siguientes módulos desarrollados en Python nativo:
+
+* **`motor.py`**: Define la clase `LockConRAG` (wrappers sobre los locks del SO para registrar quién posee y quién espera cada recurso) y los hilos `Valet` que compiten por los espacios.
+* **`guardian.py`**: Hilo en segundo plano que inspecciona el estado del RAG y ejecuta el algoritmo DFS para detectar interbloqueos.
+* **`web.py`**: Servidor HTTP integrado que sirve la API de estado en formato JSON y gestiona la velocidad y recuperación.
+* **`index.html`**: Dashboard interactivo animado desarrollado con **Vis.js** para visualizar los cajones, hilos activos y el Grafo RAG en tiempo real.
+* **`app.py` / `ejecutar.sh`**: Punto de entrada principal para iniciar el motor y la interfaz integrada.
+
+---
+
+## 3. Evidencia de Hilos Reales del Sistema Operativo
+
+El motor **no simula la concurrencia**, sino que crea procesos e hilos nativos en el kernel de Linux. Durante la ejecución del proceso, se verificaron los hilos activos mediante herramientas nativas del SO:
+
+1. **Inspección de Hilos (`ps -eLf`):**
+   ```bash
+   ps -eLf | grep <PID>

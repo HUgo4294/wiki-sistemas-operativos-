@@ -44,6 +44,16 @@ export default defineConfig({
             },
           ],
         },
+        {
+          label: 'Unidad 4',
+          items: [
+            {
+              autogenerate: {
+                directory: 'unidad-4',
+              },
+            },
+          ],
+        },
       ],
     }),
   ],
