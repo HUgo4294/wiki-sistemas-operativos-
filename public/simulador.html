@@ -129,8 +129,15 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 </div>
             </div>
 
+            <!-- Table Header with Clear Button -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 10px;">
+                <h3 style="font-size: 1rem; color: var(--muted); margin: 0;">Procesos en Sistema</h3>
+                <button type="button" onclick="limpiarFinalizados()" class="btn" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); margin: 0;">
+                    🗑️ Limpiar Finalizados
+                </button>
+            </div>
+
             <!-- Table of Active Processes -->
-            <h3 style="font-size: 1rem; margin-top: 15px; margin-bottom: 10px; color: var(--muted);">Procesos en Sistema</h3>
             <div class="table-container">
                 <table>
                     <thead>
@@ -229,6 +236,12 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 
             batchQueue = [];
             evaluarCola();
+            renderUI();
+        }
+
+        // 4. Eliminar solo los procesos completados
+        function limpiarFinalizados() {
+            processes = processes.filter(p => p.estado !== 'finalizado');
             renderUI();
         }
 
