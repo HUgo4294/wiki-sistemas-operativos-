@@ -14,11 +14,10 @@
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
 body{
   min-height:100vh;color:var(--text);padding:28px 18px 40px;
-  background:
-    radial-gradient(circle at 15% 15%,rgba(59,130,246,.14),transparent 28%),
-    radial-gradient(circle at 85% 20%,rgba(139,92,246,.12),transparent 25%),
-    radial-gradient(circle at 50% 100%,rgba(16,185,129,.08),transparent 28%),
-    linear-gradient(180deg,#08111f 0%,#0a1424 55%,#08111f 100%);
+  background: 
+    linear-gradient(180deg, rgba(8, 17, 31, 0.85) 0%, rgba(8, 17, 31, 0.95) 100%),
+    url('fondo-simulador.jpg') no-repeat center center fixed;
+  background-size: cover;
   max-width:1280px;margin:0 auto;
 }
 header{
@@ -46,6 +45,56 @@ header p{margin-top:7px;color:var(--muted);font-size:.93rem}
 .btn-secondary:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 14px 28px rgba(99,102,241,.32)}
 .btn-success{background:linear-gradient(90deg,#059669,#10b981);color:#fff;box-shadow:0 10px 24px rgba(16,185,129,.24)}
 .btn-success:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 14px 28px rgba(16,185,129,.32)}
+
+/* Botón Dinámico para Limpiar Historial */
+.btn-clear-dynamic {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  border-radius: 10px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-clear-dynamic.has-items {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(220, 38, 38, 0.95));
+  color: #ffffff;
+  border-color: rgba(248, 113, 113, 0.6);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  animation: pulseClear 2s infinite;
+}
+
+.btn-clear-dynamic.has-items:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+.btn-clear-dynamic:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  animation: none !important;
+  transform: none !important;
+}
+
+@keyframes pulseClear {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+tr.row-fade-out {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.35s ease;
+}
+
 .metrics-bar{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-bottom:22px}
 .metric-card{position:relative;overflow:hidden;min-height:126px;padding:16px;border-radius:15px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(8,17,31,.94),rgba(12,22,40,.86));box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .metric-card:after{content:'';position:absolute;width:90px;height:90px;border-radius:50%;right:-30px;bottom:-30px;background:rgba(59,130,246,.06)}
@@ -57,7 +106,7 @@ header p{margin-top:7px;color:var(--muted);font-size:.93rem}
 .table-container{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:rgba(7,15,30,.42)}
 table{width:100%;border-collapse:collapse;min-width:720px;font-size:.88rem;text-align:left}thead{background:rgba(59,130,246,.07)}
 th{padding:13px 14px;color:#cbd5e1;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)}
-td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0}tbody tr{transition:background .18s ease}tbody tr:hover{background:rgba(59,130,246,.05)}tbody tr:last-child td{border-bottom:none}
+td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0}tbody tr{transition:all .25s ease}tbody tr:hover{background:rgba(59,130,246,.05)}tbody tr:last-child td{border-bottom:none}
 .badge{padding:5px 9px;border-radius:999px;font-size:.72rem;font-weight:700;display:inline-block}
 .badge-running{background:rgba(16,185,129,.10);color:#34d399;border:1px solid rgba(16,185,129,.28)}
 .badge-waiting{background:rgba(245,158,11,.10);color:#fbbf24;border:1px solid rgba(245,158,11,.28)}
@@ -100,8 +149,8 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">+ Ejecutar Inmediatamente</button>
-                    <button type="button" onclick="agregarACola()" class="btn btn-secondary">+ Añadir a Lote de Espera</button>
-                    <button type="button" onclick="ejecutarLote()" class="btn btn-success">▶ Ejecutar Lote Guardado (<span id="countBatch">0</span>)</button>
+                    <button type="button" onclick="agregarACola()" class="btn btn-secondary">+ Guardar Proceso</button>
+                    <button type="button" onclick="ejecutarLote()" class="btn btn-success">▶ Ejecutar Procesos Guardados (<span id="countBatch">0</span>)</button>
                 </div>
             </form>
         </div>
@@ -129,11 +178,12 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 </div>
             </div>
 
-            <!-- Table Header with Clear Button -->
+            <!-- Header de la tabla con el botón dinámico de limpieza -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 10px;">
                 <h3 style="font-size: 1rem; color: var(--muted); margin: 0;">Procesos en Sistema</h3>
-                <button type="button" onclick="limpiarFinalizados()" class="btn" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); margin: 0;">
-                    🗑️ Limpiar Finalizados
+                <button type="button" id="btnClearFinished" onclick="limpiarFinalizadosConAnimacion()" class="btn-clear-dynamic" disabled>
+                    <span>🗑️ Limpiar Finalizados</span>
+                    <span id="countFinishedBadge" style="background: rgba(0,0,0,0.25); padding: 2px 7px; border-radius: 999px; font-size: 0.75rem;">0</span>
                 </button>
             </div>
 
@@ -199,7 +249,7 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
             document.getElementById('duracion').value = '';
         }
 
-        // 1. Ejecución Directa al enviar el formulario
+        // 1. Ejecución Directa
         document.getElementById('processForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const newProcess = capturarDatosFormulario();
@@ -211,7 +261,7 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
             renderUI();
         });
 
-        // 2. Guardar proceso en el Lote de Espera
+        // 2. Guardar Proceso
         function agregarACola() {
             const newProcess = capturarDatosFormulario();
             if (!newProcess) return;
@@ -222,10 +272,10 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
             renderUI();
         }
 
-        // 3. Lanzar todos los procesos guardados en el lote
+        // 3. Ejecutar Procesos Guardados
         function ejecutarLote() {
             if (batchQueue.length === 0) {
-                alert("No hay procesos en la cola de lote para ejecutar.");
+                alert("No hay procesos guardados para ejecutar.");
                 return;
             }
 
@@ -239,10 +289,18 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
             renderUI();
         }
 
-        // 4. Eliminar solo los procesos completados
-        function limpiarFinalizados() {
-            processes = processes.filter(p => p.estado !== 'finalizado');
-            renderUI();
+        // 4. Limpieza dinámica con animación
+        function limpiarFinalizadosConAnimacion() {
+            const filasFinalizadas = document.querySelectorAll('tr[data-estado="finalizado"]');
+            
+            if (filasFinalizadas.length === 0) return;
+
+            filasFinalizadas.forEach(row => row.classList.add('row-fade-out'));
+
+            setTimeout(() => {
+                processes = processes.filter(p => p.estado !== 'finalizado');
+                renderUI();
+            }, 350);
         }
 
         function evaluarCola() {
@@ -278,10 +336,23 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 
             let running = processes.filter(p => p.estado === 'ejecucion').length;
             let waiting = processes.filter(p => p.estado === 'espera').length;
+            let finishedCount = processes.filter(p => p.estado === 'finalizado').length;
 
             document.getElementById('countRunning').innerText = running;
             document.getElementById('countWaiting').innerText = waiting;
             document.getElementById('countBatch').innerText = batchQueue.length;
+
+            const btnClear = document.getElementById('btnClearFinished');
+            const badgeFinished = document.getElementById('countFinishedBadge');
+            badgeFinished.innerText = finishedCount;
+
+            if (finishedCount > 0) {
+                btnClear.disabled = false;
+                btnClear.classList.add('has-items');
+            } else {
+                btnClear.disabled = true;
+                btnClear.classList.remove('has-items');
+            }
 
             const tbody = document.getElementById('processTableBody');
             tbody.innerHTML = '';
@@ -295,6 +366,7 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 
             todosLosProcesos.forEach(p => {
                 let tr = document.createElement('tr');
+                tr.setAttribute('data-estado', p.estado);
                 
                 let badgeClass = 'badge-waiting';
                 let estadoText = 'En Cola de Espera';
@@ -307,7 +379,7 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                     estadoText = 'Finalizado';
                 } else if (p.estado === 'preparado_lote') {
                     badgeClass = 'badge-batch';
-                    estadoText = 'Guardado en Lote';
+                    estadoText = 'Guardado';
                 }
 
                 let progPercent = Math.round(((p.duracion - p.restante) / p.duracion) * 100);
