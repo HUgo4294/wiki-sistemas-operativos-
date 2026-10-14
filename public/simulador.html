@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -38,9 +38,14 @@ header p{margin-top:7px;color:var(--muted);font-size:.93rem}
 .form-group{margin-bottom:15px}.form-group label{display:block;font-size:.82rem;color:#cbd5e1;margin-bottom:7px;font-weight:600}
 .form-group input{width:100%;height:46px;padding:0 13px;border-radius:11px;border:1px solid var(--border);background:rgba(7,15,30,.72);color:white;font-size:.93rem;outline:none;transition:.2s ease}
 .form-group input::placeholder{color:#64748b}.form-group input:focus{border-color:rgba(59,130,246,.75);box-shadow:0 0 0 4px rgba(59,130,246,.09);background:rgba(9,19,37,.94)}
-.btn{width:100%;padding:13px 18px;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:.18s ease;margin-top:6px}
+.btn-group{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.btn{width:100%;padding:13px 18px;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:.18s ease}
 .btn-primary{background:linear-gradient(90deg,var(--blue2),var(--violet));color:#fff;box-shadow:0 10px 24px rgba(59,130,246,.24)}
 .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 14px 28px rgba(59,130,246,.32)}
+.btn-secondary{background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;box-shadow:0 10px 24px rgba(99,102,241,.24)}
+.btn-secondary:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 14px 28px rgba(99,102,241,.32)}
+.btn-success{background:linear-gradient(90deg,#059669,#10b981);color:#fff;box-shadow:0 10px 24px rgba(16,185,129,.24)}
+.btn-success:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 14px 28px rgba(16,185,129,.32)}
 .metrics-bar{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-bottom:22px}
 .metric-card{position:relative;overflow:hidden;min-height:126px;padding:16px;border-radius:15px;border:1px solid var(--border);background:linear-gradient(180deg,rgba(8,17,31,.94),rgba(12,22,40,.86));box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .metric-card:after{content:'';position:absolute;width:90px;height:90px;border-radius:50%;right:-30px;bottom:-30px;background:rgba(59,130,246,.06)}
@@ -57,11 +62,12 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 .badge-running{background:rgba(16,185,129,.10);color:#34d399;border:1px solid rgba(16,185,129,.28)}
 .badge-waiting{background:rgba(245,158,11,.10);color:#fbbf24;border:1px solid rgba(245,158,11,.28)}
 .badge-finished{background:rgba(148,163,184,.08);color:#94a3b8;border:1px solid rgba(148,163,184,.20)}
+.badge-batch{background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.28)}
 .progress-mini{width:100px;height:8px;background:rgba(2,8,23,.78);border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:7px;border:1px solid rgba(148,163,184,.10)}
 .progress-mini-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));width:0%}
 @media(max-width:980px){.dashboard-grid{grid-template-columns:1fr}.metrics-bar{grid-template-columns:1fr 1fr}.metric-card:first-child{grid-column:1/-1}}
 @media(max-width:620px){body{padding:14px 10px 26px}header{padding:20px 16px;border-radius:16px}header:before{display:none}header h1{padding-right:0}.panel{padding:16px}.metrics-bar{grid-template-columns:1fr}.metric-card:first-child{grid-column:auto}.metric-card{min-height:auto}}
-</style>
+    </style>
 </head>
 <body>
 
@@ -85,13 +91,18 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 </div>
                 <div class="form-group">
                     <label for="memoria">RAM Requerida (MB):</label>
-                    <input type="number" id="memoria" placeholder="Ej: 256" min="1" max="1024" required>
+                    <input type="number" id="memoria" placeholder="Ej: 256" min="1" max="1024">
                 </div>
                 <div class="form-group">
                     <label for="duracion">Duración (segundos):</label>
-                    <input type="number" id="duracion" placeholder="Ej: 10" min="1" required>
+                    <input type="number" id="duracion" placeholder="Ej: 10" min="1">
                 </div>
-                <button type="submit" class="btn btn-primary">+ Agregar Proceso</button>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">+ Ejecutar Inmediatamente</button>
+                    <button type="button" onclick="agregarACola()" class="btn btn-secondary">+ Añadir a Lote de Espera</button>
+                    <button type="button" onclick="ejecutarLote()" class="btn btn-success">▶ Ejecutar Lote Guardado (<span id="countBatch">0</span>)</button>
+                </div>
             </form>
         </div>
 
@@ -110,16 +121,16 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 </div>
                 <div class="metric-card">
                     <div class="title">Procesos en Ejecución</div>
-                    <div class="value" id="countRunning" style="color: var(--accent-green);">0</div>
+                    <div class="value" id="countRunning" style="color: var(--green);">0</div>
                 </div>
                 <div class="metric-card">
                     <div class="title">Cola de Espera</div>
-                    <div class="value" id="countWaiting" style="color: var(--accent-amber);">0</div>
+                    <div class="value" id="countWaiting" style="color: var(--amber);">0</div>
                 </div>
             </div>
 
             <!-- Table of Active Processes -->
-            <h3 style="font-size: 1rem; margin-top: 15px; margin-bottom: 10px; color: var(--text-muted);">Procesos en Sistema</h3>
+            <h3 style="font-size: 1rem; margin-top: 15px; margin-bottom: 10px; color: var(--muted);">Procesos en Sistema</h3>
             <div class="table-container">
                 <table>
                     <thead>
@@ -142,17 +153,16 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
     <script>
         const TOTAL_RAM = 1024; // 1 GB in MB
         let currentRAM = 0;
-        let autoPID = 1;
+        let autoPID = 101;
 
         let processes = [];
+        let batchQueue = [];
 
-        document.getElementById('processForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+        function capturarDatosFormulario() {
             let pidInput = document.getElementById('pid').value;
             let nombreInput = document.getElementById('nombre').value.trim();
-            let memoriaInput = parseInt(document.getElementById('memoria').value);
-            let duracionInput = parseInt(document.getElementById('duracion').value);
+            let memoriaInput = parseInt(document.getElementById('memoria').value) || 256;
+            let duracionInput = parseInt(document.getElementById('duracion').value) || 10;
 
             let pid = pidInput ? parseInt(pidInput) : autoPID++;
             if (!nombreInput) {
@@ -161,10 +171,10 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 
             if (memoriaInput > TOTAL_RAM) {
                 alert(`Error: La RAM requerida (${memoriaInput} MB) supera el total del sistema (${TOTAL_RAM} MB).`);
-                return;
+                return null;
             }
 
-            const newProcess = {
+            return {
                 pid: pid,
                 nombre: nombreInput,
                 memoria: memoriaInput,
@@ -173,17 +183,54 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
                 estado: 'espera',
                 timer: null
             };
+        }
 
-            processes.push(newProcess);
-            
+        function limpiarFormulario() {
             document.getElementById('pid').value = '';
             document.getElementById('nombre').value = '';
             document.getElementById('memoria').value = '';
             document.getElementById('duracion').value = '';
+        }
 
+        // 1. Ejecución Directa al enviar el formulario
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newProcess = capturarDatosFormulario();
+            if (!newProcess) return;
+
+            processes.push(newProcess);
+            limpiarFormulario();
             evaluarCola();
             renderUI();
         });
+
+        // 2. Guardar proceso en el Lote de Espera
+        function agregarACola() {
+            const newProcess = capturarDatosFormulario();
+            if (!newProcess) return;
+
+            newProcess.estado = 'preparado_lote';
+            batchQueue.push(newProcess);
+            limpiarFormulario();
+            renderUI();
+        }
+
+        // 3. Lanzar todos los procesos guardados en el lote
+        function ejecutarLote() {
+            if (batchQueue.length === 0) {
+                alert("No hay procesos en la cola de lote para ejecutar.");
+                return;
+            }
+
+            batchQueue.forEach(p => {
+                p.estado = 'espera';
+                processes.push(p);
+            });
+
+            batchQueue = [];
+            evaluarCola();
+            renderUI();
+        }
 
         function evaluarCola() {
             for (let p of processes) {
@@ -221,26 +268,33 @@ td{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.10);color:#e2e8f0
 
             document.getElementById('countRunning').innerText = running;
             document.getElementById('countWaiting').innerText = waiting;
+            document.getElementById('countBatch').innerText = batchQueue.length;
 
             const tbody = document.getElementById('processTableBody');
             tbody.innerHTML = '';
 
-            if (processes.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No hay procesos agregados.</td></tr>`;
+            const todosLosProcesos = [...processes, ...batchQueue];
+
+            if (todosLosProcesos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--muted);">No hay procesos agregados.</td></tr>`;
                 return;
             }
 
-            processes.forEach(p => {
+            todosLosProcesos.forEach(p => {
                 let tr = document.createElement('tr');
                 
                 let badgeClass = 'badge-waiting';
                 let estadoText = 'En Cola de Espera';
+
                 if (p.estado === 'ejecucion') {
                     badgeClass = 'badge-running';
                     estadoText = 'Ejecutando';
                 } else if (p.estado === 'finalizado') {
                     badgeClass = 'badge-finished';
                     estadoText = 'Finalizado';
+                } else if (p.estado === 'preparado_lote') {
+                    badgeClass = 'badge-batch';
+                    estadoText = 'Guardado en Lote';
                 }
 
                 let progPercent = Math.round(((p.duracion - p.restante) / p.duracion) * 100);
