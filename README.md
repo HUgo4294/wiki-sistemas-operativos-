@@ -31,7 +31,7 @@ El proyecto integra un compendio teórico detallado estructurado bajo el framewo
 
 ---
 
-## 📊 Módulos Educativos
+##  Módulos Educativos
 
 | Unidad | Título | Temas Clave & Enfoque Teórico |
 | :---: | :--- | :--- |
@@ -67,7 +67,7 @@ El simulador incorporado en el proyecto permite experimentar en tiempo real con 
 
 </div>
 
-### 🌟 Capacidades Técnicas del Simulador:
+###  Capacidades Técnicas del Simulador:
 * **Creación Dinámica de Procesos:** Definición de PID, tiempo de ráfaga (*burst time*), prioridad y memoria requerida.
 * **Visualización de Memoria RAM:** Representación del espacio mapeado y asignación de bloques.
 * **Monitoreo de Colas en Tiempo Real:** Seguimiento de estados (*Nuevo, Listo, Ejecución, Bloqueado, Terminado*).
@@ -75,7 +75,7 @@ El simulador incorporado en el proyecto permite experimentar en tiempo real con 
 
 ---
 
-## 🛠️ Stack Tecnológico
+##  Stack Tecnológico
 
 * **Frontend & SSG:** [Astro v5](https://astro.build/) (Static Site Generation de ultra alta velocidad).
 * **UI Documentation Framework:** [Starlight](https://starlight.astro.build/) (Interfaz clara, i18n ready, búsqueda integrada y modo oscuro/claro automático).
