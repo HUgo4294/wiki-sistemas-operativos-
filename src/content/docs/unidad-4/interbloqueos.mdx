@@ -1,43 +1,548 @@
 ---
-title: Proyecto 2 - Motor Concurrente y Detector RAG
-description: Documentación del motor transaccional concurrente y detector de interbloqueos en Linux.
+title: Unidad 4 · Interbloqueos (Deadlocks)
+description: Definición, condiciones de Coffman, prevención, evitación con el algoritmo del Banquero, detección con grafos RAG, recuperación y el enfoque del avestruz.
 ---
 
-# Proyecto 2: Motor Concurrente & Detector de Interbloqueos (RAG)
+import { Aside, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
-**Curso:** Sistemas Operativos  
-**Entorno de Ejecución:** WSL2 (Ubuntu Linux)  
-
----
-
-> 🚀 **Simulador en Vivo:** Si ya iniciaste el programa en tu terminal WSL (`./ejecutar.sh`), puedes abrir el panel interactivo en vivo haciendo clic aquí: **[Abrir Dashboard Interactivo (http://localhost:8000)](http://localhost:8000)**
+En la Unidad 3 vimos cómo sincronizar procesos con mutex, semáforos y monitores. Esa sincronización resuelve las condiciones de carrera, pero introduce un riesgo nuevo: que los procesos queden **esperándose unos a otros para siempre**. A ese fenómeno se le llama **interbloqueo** (*deadlock*).
 
 ---
 
-## 1. Descripción General del Proyecto
+## 1. Definición y casos de interbloqueo
 
-Este proyecto implementa un **motor transaccional concurrente** que simula la gestión de un estacionamiento inteligente utilizando **hilos reales del sistema operativo Linux** (`threading`). Cada espacio de estacionamiento actúa como un recurso crítico protegido por un candado de memoria (`Lock`).
+Un conjunto de procesos está en **interbloqueo** cuando **cada proceso del conjunto espera un evento que solo puede ser provocado por otro proceso del mismo conjunto**. Como todos esperan, ninguno avanza y ninguno libera lo que otros necesitan.
 
-Como extensión (Unidad 4), el sistema incluye un módulo **detector de interbloqueos (Deadlocks)** basado en un **Grafo de Asignación de Recursos (RAG)** en tiempo real y un algoritmo de **Búsqueda en Profundidad (DFS)** para la detección y recuperación de ciclos.
+<Aside type="note" title="Interbloqueo vs. inanición">
+En la **inanición** (*starvation*) un proceso espera indefinidamente, pero el resto del sistema sigue avanzando (por ejemplo, un proceso de baja prioridad que nunca recibe CPU). En el **interbloqueo** todos los procesos involucrados están detenidos y ninguno podrá avanzar sin intervención externa.
+</Aside>
+
+### 1.1 Ejemplos cotidianos
+
+| Situación | Recurso retenido | Recurso solicitado |
+| --- | --- | --- |
+| Dos autos en un puente de un solo carril, uno frente al otro | Su mitad del puente | La mitad del puente del otro auto |
+| Cruce de cuatro calles donde cada auto bloquea al de al lado | La esquina que ocupa | La esquina siguiente |
+| Dos personas con un solo cuchillo y un solo tenedor, cada una con uno y necesitando ambos | Un cubierto | El cubierto de la otra persona |
+
+### 1.2 Ejemplos informáticos
+
+1. **Dos hilos y dos mutex.** El hilo A toma el candado 1 y pide el 2. El hilo B toma el candado 2 y pide el 1.
+2. **Base de datos.** La transacción T1 bloquea la fila X y quiere la fila Y. La transacción T2 bloquea la fila Y y quiere la fila X.
+3. **Dispositivos.** El proceso P1 tiene la impresora y pide el escáner. El proceso P2 tiene el escáner y pide la impresora.
+4. **Memoria.** Dos procesos han reservado parte de la memoria y ambos piden más, pero no queda memoria libre.
+
+### 1.3 Un interbloqueo en código (Python)
+
+```python
+import threading
+import time
+
+candado_a = threading.Lock()
+candado_b = threading.Lock()
+
+def hilo_1():
+    with candado_a:                 # retiene A
+        time.sleep(0.1)             # da tiempo a que el otro hilo tome B
+        with candado_b:             # espera B (nunca llegará)
+            print("Hilo 1 terminó")
+
+def hilo_2():
+    with candado_b:                 # retiene B
+        time.sleep(0.1)
+        with candado_a:             # espera A (nunca llegará)
+            print("Hilo 2 terminó")
+
+t1 = threading.Thread(target=hilo_1)
+t2 = threading.Thread(target=hilo_2)
+t1.start(); t2.start()
+t1.join();  t2.join()               # el programa se queda colgado aquí
+```
+
+Al ejecutar este programa nunca aparece ningún mensaje: ambos hilos quedan bloqueados para siempre.
 
 ---
 
-## 2. Arquitectura y Componentes
+## 2. Las cuatro condiciones de Coffman
 
-El proyecto se compone de los siguientes módulos desarrollados en Python nativo:
+En 1971, Coffman, Elphick y Shoshani demostraron que un interbloqueo solo puede ocurrir si se cumplen **simultáneamente** estas cuatro condiciones. Son **necesarias**: si una falta, no hay interbloqueo.
 
-- **`motor.py`**: Define la clase `LockConRAG` (wrappers sobre los locks del SO para registrar quién posee y quién espera cada recurso) y los hilos `Valet` que compiten por los espacios.
-- **`guardian.py`**: Hilo en segundo plano que inspecciona el estado del RAG y ejecuta el algoritmo DFS para detectar interbloqueos.
-- **`web.py`**: Servidor HTTP integrado que sirve la API de estado en formato JSON y gestiona la velocidad y recuperación.
-- **`index.html`**: Dashboard interactivo animado desarrollado con **Vis.js** para visualizar los cajones, hilos activos y el Grafo RAG en tiempo real.
-- **`app.py` / `ejecutar.sh`**: Punto de entrada principal para iniciar el motor y la interfaz integrada.
+| # | Condición | Significado | Ejemplo |
+| --- | --- | --- | --- |
+| 1 | **Exclusión mutua** | Al menos un recurso es no compartible: solo un proceso a la vez puede usarlo. | Un mutex, una impresora. |
+| 2 | **Retención y espera** (*hold and wait*) | Un proceso que ya retiene recursos puede solicitar otros adicionales y esperar por ellos. | El hilo 1 tiene A y espera B. |
+| 3 | **No expropiación** (*no preemption*) | Un recurso solo puede ser liberado voluntariamente por el proceso que lo retiene. | El SO no le quita el mutex al hilo. |
+| 4 | **Espera circular** | Existe una cadena cerrada de procesos P0, P1, ..., Pn donde cada uno espera un recurso retenido por el siguiente, y Pn espera uno retenido por P0. | P1 espera a P2, P2 espera a P1. |
+
+<Aside type="caution" title="Necesarias, no suficientes">
+Que se cumplan las cuatro condiciones **no siempre** implica un interbloqueo (por ejemplo, si hay varias instancias de un recurso, un ciclo puede romperse solo). Pero si se cumple un interbloqueo, **siempre** estaban presentes las cuatro. Por eso las estrategias de prevención atacan una de ellas.
+</Aside>
 
 ---
 
-## 3. Evidencia de Hilos Reales del Sistema Operativo
+## 3. Estrategias para tratar los interbloqueos
 
-El motor **no simula la concurrencia**, sino que crea procesos e hilos nativos en el kernel de Linux. Durante la ejecución del proceso, se verificaron los hilos activos mediante herramientas nativas del SO:
+Un sistema operativo puede reaccionar de cuatro maneras:
 
-1. **Inspección de Hilos (`ps -eLf`):**
-   ```bash
-   ps -eLf | grep <PID>
+| Estrategia | Idea | Costo |
+| --- | --- | --- |
+| **Prevención** | Diseñar el sistema para que al menos una condición de Coffman sea imposible. | Reduce el paralelismo y el uso de recursos. |
+| **Evitación** | Decidir en tiempo de ejecución si conceder o no un recurso, según el estado del sistema. | Requiere información previa (necesidades máximas). |
+| **Detección y recuperación** | Permitir el interbloqueo, detectarlo y deshacerlo. | Costo del algoritmo de detección y de la recuperación. |
+| **Ignorar (avestruz)** | Asumir que el interbloqueo es poco frecuente y no hacer nada. | Riesgo de que el sistema se cuelgue. |
+
+---
+
+## 4. Prevención de interbloqueos
+
+Consiste en **negar al menos una de las cuatro condiciones** mediante reglas fijas de diseño.
+
+### 4.1 Negar la exclusión mutua
+
+Hacer que los recursos sean compartibles. Es posible para recursos de solo lectura (archivos de solo lectura), pero **no para recursos intrínsecamente no compartibles** (un mutex, una impresora). Por eso esta condición casi nunca puede eliminarse. Una técnica parcial es el *spooling*: los procesos no usan la impresora directamente, sino que envían trabajos a una cola atendida por un único demonio.
+
+### 4.2 Negar la retención y espera
+
+Hay dos enfoques:
+
+- **Solicitar todo al inicio:** el proceso pide todos los recursos que necesitará antes de empezar y no arranca hasta tenerlos todos.
+- **Liberar antes de pedir más:** un proceso solo puede pedir recursos nuevos si no retiene ninguno.
+
+**Desventajas:** bajo aprovechamiento de recursos (se retienen recursos que se usarán mucho después) y posible inanición de procesos que necesitan muchos recursos populares.
+
+### 4.3 Negar la no expropiación
+
+Si un proceso retiene recursos y su siguiente solicitud no puede atenderse, **se le quitan** (expropian) los recursos que tiene y se reinicia cuando pueda conseguir todo junto. Funciona bien con recursos cuyo estado se puede guardar y restaurar (registros de CPU, memoria con *swap*), pero **no con recursos como impresoras o escrituras a mitad de una transacción**.
+
+### 4.4 Negar la espera circular (orden total de recursos)
+
+Se asigna un **número único a cada tipo de recurso** y se obliga a los procesos a solicitarlos **siempre en orden creciente**. Así es imposible formar un ciclo, porque para esperar en círculo alguien tendría que pedir un recurso de numeración menor al que ya retiene.
+
+Es la técnica **más utilizada en la práctica**. Corregimos el ejemplo anterior:
+
+```python
+import threading
+
+candado_a = threading.Lock()   # recurso número 1
+candado_b = threading.Lock()   # recurso número 2
+
+def hilo_1():
+    with candado_a:            # siempre primero A...
+        with candado_b:        # ...y luego B
+            print("Hilo 1 terminó")
+
+def hilo_2():
+    with candado_a:            # mismo orden que el hilo 1
+        with candado_b:
+            print("Hilo 2 terminó")
+
+t1 = threading.Thread(target=hilo_1)
+t2 = threading.Thread(target=hilo_2)
+t1.start(); t2.start()
+t1.join();  t2.join()          # ahora termina correctamente
+```
+
+<Aside type="tip" title="Caso clásico: la cena de los filósofos">
+En el problema de los cinco filósofos, el interbloqueo ocurre si todos toman primero el tenedor izquierdo. Se previene numerando los tenedores y haciendo que cada filósofo tome siempre primero el de número menor, o permitiendo como máximo cuatro filósofos en la mesa a la vez.
+</Aside>
+
+### 4.5 Resumen de la prevención
+
+| Condición negada | Técnica | Principal inconveniente |
+| --- | --- | --- |
+| Exclusión mutua | Recursos compartibles, *spooling* | No aplica a muchos recursos |
+| Retención y espera | Pedir todo al inicio | Desperdicio de recursos, inanición |
+| No expropiación | Quitar recursos al proceso | Solo para recursos con estado recuperable |
+| Espera circular | Orden total de recursos | Obliga al programador a respetar el orden |
+
+---
+
+## 5. Evitación de interbloqueos
+
+A diferencia de la prevención (reglas fijas), la **evitación** analiza **cada solicitud** y solo la concede si el sistema permanece en un **estado seguro**. Para ello el sistema necesita conocer de antemano el **máximo** de recursos que cada proceso podría llegar a pedir.
+
+### 5.1 Estado seguro e inseguro
+
+- **Estado seguro:** existe al menos una **secuencia segura** de procesos `⟨P1, P2, ..., Pn⟩` tal que las necesidades de cada Pi pueden satisfacerse con los recursos disponibles más los que liberen los procesos anteriores de la secuencia.
+- **Estado inseguro:** no existe tal secuencia.
+
+```text
+        ┌──────────────────────────────────────────┐
+        │              TODOS LOS ESTADOS           │
+        │   ┌─────────────────────────────────┐    │
+        │   │         ESTADO INSEGURO         │    │
+        │   │   ┌─────────────────────┐       │    │
+        │   │   │    ESTADO SEGURO    │  ┌──┐ │    │
+        │   │   │  (sin interbloqueo) │  │DL│ │    │
+        │   │   └─────────────────────┘  └──┘ │    │
+        │   └─────────────────────────────────┘    │
+        └──────────────────────────────────────────┘
+          DL = interbloqueo (siempre dentro de los inseguros)
+```
+
+- Un estado **seguro** garantiza que **no habrá interbloqueo**.
+- Un estado **inseguro** **no implica** interbloqueo, pero **puede conducir** a él.
+
+La evitación consiste en no pasar nunca de un estado seguro a uno inseguro.
+
+### 5.2 Algoritmo del Banquero (Dijkstra)
+
+Se llama así porque imita a un banquero que nunca presta tanto dinero como para no poder atender a todos sus clientes. Para **n procesos** y **m tipos de recursos** se usan estas estructuras:
+
+| Estructura | Tamaño | Significado |
+| --- | --- | --- |
+| `Available` | vector de m | Instancias libres de cada recurso. |
+| `Max` | matriz n × m | Máximo que cada proceso puede llegar a necesitar. |
+| `Allocation` | matriz n × m | Lo que cada proceso tiene asignado ahora. |
+| `Need` | matriz n × m | Lo que aún puede pedir: `Need = Max - Allocation`. |
+
+#### Algoritmo de seguridad
+
+<Steps>
+
+1. Inicializar `Work = Available` y `Finish[i] = false` para todo proceso i.
+2. Buscar un proceso i con `Finish[i] = false` y `Need[i] ≤ Work`. Si no existe, ir al paso 4.
+3. Asumir que el proceso i termina y devuelve sus recursos: `Work = Work + Allocation[i]`, `Finish[i] = true`. Volver al paso 2.
+4. Si todos los `Finish[i]` son `true`, el estado es **seguro**; de lo contrario, es **inseguro**.
+
+</Steps>
+
+#### Algoritmo de solicitud de recursos
+
+Cuando el proceso i pide el vector `Request[i]`:
+
+<Steps>
+
+1. Si `Request[i] ≤ Need[i]`, continuar. Si no, **error**: el proceso excede su máximo declarado.
+2. Si `Request[i] ≤ Available`, continuar. Si no, el proceso **debe esperar**.
+3. Simular la asignación: `Available -= Request[i]`, `Allocation[i] += Request[i]`, `Need[i] -= Request[i]`.
+4. Ejecutar el algoritmo de seguridad. Si el estado resultante es **seguro**, se concede. Si es **inseguro**, se **revierte** la simulación y el proceso espera.
+
+</Steps>
+
+### 5.3 Ejemplo resuelto
+
+Sistema con 5 procesos (P0 a P4) y 3 tipos de recurso (A, B, C), con 10, 5 y 7 instancias totales.
+
+| Proceso | Allocation (A B C) | Max (A B C) | Need = Max - Alloc (A B C) |
+| --- | --- | --- | --- |
+| P0 | 0 1 0 | 7 5 3 | 7 4 3 |
+| P1 | 2 0 0 | 3 2 2 | 1 2 2 |
+| P2 | 3 0 2 | 9 0 2 | 6 0 0 |
+| P3 | 2 1 1 | 2 2 2 | 0 1 1 |
+| P4 | 0 0 2 | 4 3 3 | 4 3 1 |
+
+`Available = (3, 3, 2)`. Es la resta del total (10, 5, 7) menos la suma de Allocation (7, 2, 5).
+
+**¿Es seguro el estado?**
+
+| Paso | Work antes | Proceso elegido | Condición Need ≤ Work | Work después (Work + Allocation) |
+| --- | --- | --- | --- | --- |
+| 1 | (3, 3, 2) | P1 | (1, 2, 2) ≤ (3, 3, 2) ✔ | (5, 3, 2) |
+| 2 | (5, 3, 2) | P3 | (0, 1, 1) ≤ (5, 3, 2) ✔ | (7, 4, 3) |
+| 3 | (7, 4, 3) | P4 | (4, 3, 1) ≤ (7, 4, 3) ✔ | (7, 4, 5) |
+| 4 | (7, 4, 5) | P0 | (7, 4, 3) ≤ (7, 4, 5) ✔ | (7, 5, 5) |
+| 5 | (7, 5, 5) | P2 | (6, 0, 0) ≤ (7, 5, 5) ✔ | (10, 5, 7) |
+
+**Secuencia segura: ⟨P1, P3, P4, P0, P2⟩.** El estado es seguro.
+
+**Solicitud:** P1 pide `Request = (1, 0, 2)`.
+
+1. `(1, 0, 2) ≤ Need[P1] = (1, 2, 2)` ✔
+2. `(1, 0, 2) ≤ Available = (3, 3, 2)` ✔
+3. Estado simulado: `Available = (2, 3, 0)`, `Allocation[P1] = (3, 0, 2)`, `Need[P1] = (0, 2, 0)`.
+4. Se ejecuta de nuevo el algoritmo de seguridad y se encuentra de nuevo la secuencia ⟨P1, P3, P4, P0, P2⟩. **Se concede la solicitud.**
+
+**Otra solicitud:** estando en el estado original, P4 pide `(3, 3, 0)`. Cumple `≤ Need[P4] = (4, 3, 1)` y también `≤ Available = (3, 3, 2)`, así que pasa las dos primeras verificaciones; pero al simular, `Available = (0, 0, 2)` y ningún proceso puede completar con ese valor, así que el estado sería **inseguro**: **se rechaza** (P4 espera).
+
+<Aside type="tip" title="Pruébalo tú mismo">
+Más abajo hay un simulador interactivo del algoritmo del Banquero donde puedes editar las matrices y probar solicitudes.
+</Aside>
+
+### 5.4 Implementación en Python
+
+```python
+def es_seguro(available, allocation, need):
+    n, m = len(allocation), len(available)
+    work = available[:]
+    finish = [False] * n
+    secuencia = []
+
+    while len(secuencia) < n:
+        encontrado = False
+        for i in range(n):
+            if not finish[i] and all(need[i][j] <= work[j] for j in range(m)):
+                for j in range(m):
+                    work[j] += allocation[i][j]   # el proceso termina y devuelve todo
+                finish[i] = True
+                secuencia.append(f"P{i}")
+                encontrado = True
+        if not encontrado:
+            return False, []                      # ningún proceso puede terminar
+    return True, secuencia
+
+
+def solicitar(i, request, available, allocation, need):
+    m = len(available)
+    if any(request[j] > need[i][j] for j in range(m)):
+        return "ERROR: excede su máximo declarado"
+    if any(request[j] > available[j] for j in range(m)):
+        return "ESPERAR: no hay recursos suficientes"
+
+    # Simulación de la asignación
+    for j in range(m):
+        available[j]     -= request[j]
+        allocation[i][j] += request[j]
+        need[i][j]       -= request[j]
+
+    seguro, seq = es_seguro(available, allocation, need)
+    if seguro:
+        return f"CONCEDIDA. Secuencia segura: {seq}"
+
+    # Revertir: el estado resultante sería inseguro
+    for j in range(m):
+        available[j]     += request[j]
+        allocation[i][j] -= request[j]
+        need[i][j]       += request[j]
+    return "ESPERAR: la asignación llevaría a un estado inseguro"
+
+
+available  = [3, 3, 2]
+allocation = [[0,1,0], [2,0,0], [3,0,2], [2,1,1], [0,0,2]]
+maximo     = [[7,5,3], [3,2,2], [9,0,2], [2,2,2], [4,3,3]]
+need = [[maximo[i][j] - allocation[i][j] for j in range(3)] for i in range(5)]
+
+print(es_seguro(available, allocation, need))
+print(solicitar(1, [1, 0, 2], available, allocation, need))
+```
+
+### 5.5 Limitaciones del Banquero
+
+- Exige conocer de antemano el **máximo** de recursos de cada proceso (poco realista en sistemas de propósito general).
+- Supone un **número fijo de procesos** y de recursos.
+- Los procesos deben **liberar** los recursos en tiempo finito.
+- Su costo es del orden de **O(m × n²)** cada vez que se evalúa una solicitud.
+
+Por estas razones se usa poco en sistemas operativos comerciales, aunque es la base teórica de la evitación.
+
+---
+
+## 6. Detección y recuperación
+
+Aquí el sistema **permite** que ocurra el interbloqueo, lo **detecta** periódicamente y luego lo **resuelve**.
+
+### 6.1 Grafo de asignación de recursos (RAG)
+
+El **Resource Allocation Graph** es un grafo dirigido con dos tipos de nodos y dos tipos de aristas:
+
+| Elemento | Notación | Significado |
+| --- | --- | --- |
+| Proceso | círculo Pi | Un proceso. |
+| Recurso | rectángulo Rj (con puntos = instancias) | Un tipo de recurso y sus instancias. |
+| Arista de solicitud | Pi → Rj | Pi está esperando una instancia de Rj. |
+| Arista de asignación | Rj → Pi | Una instancia de Rj está asignada a Pi. |
+
+Ejemplo de un **interbloqueo** con una instancia por recurso:
+
+```text
+  R1 ───asignado a───▶ P1
+  ▲                     │
+  │solicita             │solicita
+  │                     ▼
+  P2 ◀───asignado a─── R2
+```
+
+Lectura: R1 está asignado a P1, P1 solicita R2, R2 está asignado a P2 y P2 solicita R1. Se forma el ciclo **R1 → P1 → R2 → P2 → R1**.
+
+**Regla de interpretación:**
+
+| Situación en el grafo | Conclusión |
+| --- | --- |
+| No hay ciclos | **No hay interbloqueo.** |
+| Hay un ciclo y cada recurso tiene **una sola instancia** | **Hay interbloqueo** (el ciclo es necesario y suficiente). |
+| Hay un ciclo y algún recurso tiene **varias instancias** | **Puede haber** interbloqueo (el ciclo es necesario, pero no suficiente). |
+
+### 6.2 Detección con una instancia por recurso: grafo de espera
+
+Se simplifica el RAG eliminando los nodos de recursos: si Pi espera un recurso que tiene Pj, se dibuja la arista **Pi → Pj**. Hay interbloqueo **si y solo si existe un ciclo** en el grafo de espera (*wait-for graph*). Detectar un ciclo cuesta O(n²) en el peor caso.
+
+```python
+def hay_ciclo(grafo):
+    """grafo: dict {proceso: [procesos que espera]}. Búsqueda en profundidad."""
+    visitando, visitado = set(), set()
+
+    def dfs(nodo, camino):
+        visitando.add(nodo)
+        camino.append(nodo)
+        for vecino in grafo.get(nodo, []):
+            if vecino in visitando:                       # arista de retorno = ciclo
+                return camino[camino.index(vecino):] + [vecino]
+            if vecino not in visitado:
+                ciclo = dfs(vecino, camino)
+                if ciclo:
+                    return ciclo
+        visitando.remove(nodo)
+        visitado.add(nodo)
+        camino.pop()
+        return None
+
+    for nodo in grafo:
+        if nodo not in visitado:
+            ciclo = dfs(nodo, [])
+            if ciclo:
+                return ciclo
+    return None
+
+espera = {"P1": ["P2"], "P2": ["P3"], "P3": ["P1"], "P4": ["P1"]}
+print(hay_ciclo(espera))      # ['P1', 'P2', 'P3', 'P1'] -> interbloqueo
+```
+
+### 6.3 Detección con varias instancias por recurso
+
+Se usa un algoritmo parecido al del Banquero, pero comparando contra lo que los procesos **están solicitando ahora** (`Request`), no contra lo que podrían llegar a pedir.
+
+<Steps>
+
+1. `Work = Available`. Para cada proceso i: `Finish[i] = true` si `Allocation[i]` es todo ceros; en otro caso, `false`.
+2. Buscar un i con `Finish[i] = false` y `Request[i] ≤ Work`. Si no existe, ir al paso 4.
+3. `Work = Work + Allocation[i]`, `Finish[i] = true`. Volver al paso 2.
+4. Todo proceso con `Finish[i] = false` está **en interbloqueo**.
+
+</Steps>
+
+```python
+def detectar_interbloqueo(available, allocation, request):
+    n, m = len(allocation), len(available)
+    work = available[:]
+    finish = [all(x == 0 for x in allocation[i]) for i in range(n)]
+
+    cambio = True
+    while cambio:
+        cambio = False
+        for i in range(n):
+            if not finish[i] and all(request[i][j] <= work[j] for j in range(m)):
+                for j in range(m):
+                    work[j] += allocation[i][j]
+                finish[i] = True
+                cambio = True
+
+    return [f"P{i}" for i in range(n) if not finish[i]]   # procesos interbloqueados
+```
+
+### 6.4 ¿Cuándo ejecutar la detección?
+
+- **En cada solicitud rechazada:** detecta el interbloqueo apenas aparece, pero es muy costoso.
+- **Periódicamente** (por ejemplo, cada cierto tiempo).
+- **Cuando baja el uso de CPU** (señal indirecta de que muchos procesos están bloqueados).
+
+### 6.5 Recuperación
+
+Una vez detectado el interbloqueo hay dos grandes caminos.
+
+#### a) Terminación de procesos
+
+| Opción | Ventaja | Desventaja |
+| --- | --- | --- |
+| **Abortar todos** los procesos interbloqueados | Rompe el ciclo con seguridad. | Se pierde mucho trabajo ya realizado. |
+| **Abortar uno a uno** hasta romper el ciclo | Se pierde menos trabajo. | Hay que volver a ejecutar la detección tras cada aborto. |
+
+Criterios para elegir la **víctima**: prioridad del proceso, tiempo de cómputo ya consumido, recursos que retiene, recursos que aún necesita, si es interactivo o por lotes, y cuántos procesos habría que terminar.
+
+#### b) Expropiación de recursos
+
+Se quita un recurso a un proceso para dárselo a otro. Hay que resolver tres problemas:
+
+1. **Selección de la víctima:** minimizar el costo (similar a los criterios anteriores).
+2. **Retroceso (*rollback*):** devolver el proceso a un estado seguro anterior, mediante *checkpoints*, o reiniciarlo desde cero.
+3. **Inanición:** evitar que siempre se elija al mismo proceso como víctima. Se suele contar el número de retrocesos como factor del costo.
+
+---
+
+## 7. El enfoque del avestruz
+
+El **algoritmo del avestruz** (*ostrich algorithm*, término popularizado por Tanenbaum) consiste en **ignorar el problema**, como el avestruz que esconde la cabeza en la arena. Es la estrategia usada por **UNIX, Linux y, en la práctica, Windows** para los recursos de nivel de aplicación.
+
+### 7.1 ¿Por qué es razonable?
+
+| Argumento | Explicación |
+| --- | --- |
+| **Frecuencia baja** | Si los interbloqueos ocurren, por ejemplo, una vez al año, pero el sistema falla por otras causas (errores de software, hardware) más seguido, no vale la pena pagar por evitarlos. |
+| **Costo de las alternativas** | Prevención restringe el uso de recursos; evitación necesita información que casi nunca se conoce; detección consume CPU. |
+| **Compromiso conveniencia vs. corrección** | Un SO de propósito general prefiere **rendimiento y flexibilidad** a garantizar matemáticamente la ausencia de interbloqueos. |
+| **Fácil solución manual** | Si un programa se cuelga, el usuario o el administrador puede terminarlo (`kill`, Administrador de tareas) o reiniciar el servicio. |
+| **Responsabilidad del programador** | El kernel ofrece mutex y semáforos; usarlos en el orden correcto es tarea de quien programa la aplicación. |
+
+### 7.2 Matices importantes
+
+- El **kernel de Linux no ignora el problema internamente:** sus propios *spinlocks* y mutex siguen una jerarquía de orden estricta y existe la herramienta **lockdep**, que detecta durante el desarrollo órdenes de adquisición que podrían causar interbloqueos.
+- Los **gestores de bases de datos** (por ejemplo MySQL/InnoDB, PostgreSQL) **sí detectan** interbloqueos entre transacciones y abortan una de ellas como víctima (detección + recuperación).
+- En sistemas críticos (aviónica, automotriz, tiempo real) **no se puede ignorar** y se usa prevención con orden de recursos y análisis estático.
+
+### 7.3 Herramientas de diagnóstico en Linux
+
+```bash
+# Ver procesos en estado D (espera ininterrumpible, típico de E/S bloqueada)
+ps -eo pid,stat,wchan:32,cmd | awk '$2 ~ /D/'
+
+# Ver qué archivos tiene abiertos un proceso
+lsof -p <PID>
+
+# Pila de ejecución de un hilo bloqueado
+sudo cat /proc/<PID>/stack
+
+# Evitar esperar para siempre al tomar un candado de archivo (espera máx. 5 s)
+flock -w 5 /tmp/mi.lock -c "echo tengo el candado"
+```
+
+---
+
+## 8. Comparación final de estrategias
+
+| Estrategia | Cuándo actúa | Información necesaria | Uso de recursos | Dónde se ve |
+| --- | --- | --- | --- | --- |
+| Prevención | Diseño | Ninguna | Bajo | Orden de candados en aplicaciones |
+| Evitación | Cada solicitud | Máximo por proceso | Medio | Teórico, sistemas especializados |
+| Detección y recuperación | Periódicamente | Estado actual | Alto | Bases de datos, sistemas por lotes |
+| Avestruz | Nunca | Ninguna | Máximo | Linux, UNIX, Windows (aplicaciones) |
+
+---
+
+## 9. Simulador del algoritmo del Banquero
+
+Edita las matrices (un proceso por línea, valores separados por espacios), calcula el estado seguro y prueba solicitudes.
+
+<iframe
+  src="/wiki-sistemas-operativos-/simulador-interbloqueos.html"
+  title="Simulador del algoritmo del Banquero"
+  width="100%"
+  height="820"
+  loading="lazy"
+  style={{ border: '1px solid var(--sl-color-gray-5)', borderRadius: '8px' }}
+></iframe>
+
+[Abrir el simulador en pantalla completa](/wiki-sistemas-operativos-/simulador-interbloqueos.html)
+
+---
+
+## 10. Resumen de la unidad
+
+- El **interbloqueo** es una espera circular permanente entre procesos que retienen y solicitan recursos.
+- Requiere las **4 condiciones de Coffman**: exclusión mutua, retención y espera, no expropiación y espera circular.
+- **Prevención:** negar una condición (lo más práctico es el orden total de recursos).
+- **Evitación:** mantener el sistema en **estado seguro** con el **algoritmo del Banquero**.
+- **Detección:** buscar ciclos en el **RAG** o grafo de espera; **recuperación** terminando procesos o expropiando recursos.
+- **Avestruz:** ignorar el problema; es lo que hacen Linux y la mayoría de SO por costo-beneficio.
+
+## 11. Preguntas de repaso
+
+1. ¿Qué diferencia hay entre interbloqueo e inanición?
+2. Si un sistema tiene un solo recurso de cada tipo y el RAG tiene un ciclo, ¿hay interbloqueo? ¿Y si hay varias instancias?
+3. ¿Qué condición de Coffman se niega al numerar los recursos y exigir un orden de solicitud?
+4. ¿Por qué un estado inseguro no necesariamente es un interbloqueo?
+5. En el ejemplo del Banquero, ¿qué ocurre si P0 solicita `(0, 2, 0)` en el estado original? Compruébalo con el simulador.
+6. Menciona dos criterios para elegir la víctima al recuperarse de un interbloqueo.
+7. ¿Por qué Linux usa el enfoque del avestruz para las aplicaciones pero usa *lockdep* en su kernel?
+
+<Aside type="note" title="Fuentes recomendadas">
+Silberschatz, Galvin y Gagne, *Fundamentos de Sistemas Operativos* (capítulo de Interbloqueos). Tanenbaum y Bos, *Sistemas Operativos Modernos* (capítulo de Interbloqueos). Coffman, Elphick y Shoshani, *System Deadlocks* (1971).
+</Aside>

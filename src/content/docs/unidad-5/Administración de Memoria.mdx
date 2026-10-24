@@ -1,0 +1,509 @@
+---
+title: Unidad 5 · Administración de Memoria
+description: Monoprogramación y multiprogramación, asignación contigua (particiones, first-fit, best-fit, worst-fit), fragmentación, paginación con TLB y segmentación.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+La memoria principal (RAM) es uno de los recursos más importantes que administra el sistema operativo. Un programa solo puede ejecutarse si sus instrucciones y datos están en memoria, y como la RAM es limitada y compartida por muchos procesos, el SO debe decidir **dónde** colocar cada uno, **cuánta** memoria darle y **cómo protegerlo** de los demás.
+
+---
+
+## 1. Monoprogramación vs. multiprogramación
+
+### 1.1 Sistemas monoprogramados
+
+Solo **un programa de usuario** está en memoria a la vez, además del sistema operativo.
+
+```text
+  Dirección alta  ┌───────────────────┐
+                  │  Sistema Operativo │
+                  ├───────────────────┤
+                  │                   │
+                  │   Programa del    │
+                  │     usuario       │
+                  │                   │
+  Dirección 0     └───────────────────┘
+```
+
+- **Ventaja:** muy simple. No hay que reubicar ni proteger entre procesos.
+- **Desventaja:** cuando el programa espera una operación de E/S, **la CPU queda ociosa**. Tampoco se aprovecha la memoria si el programa es pequeño.
+- **Protección:** solo hace falta proteger al SO del programa de usuario (por ejemplo, con un registro de frontera).
+
+### 1.2 Sistemas multiprogramados
+
+**Varios procesos residen en memoria simultáneamente**. Mientras uno espera E/S, la CPU ejecuta otro. Esto eleva la **utilización de la CPU**.
+
+Un modelo probabilístico sencillo: si cada proceso pasa una fracción *p* de su tiempo esperando E/S y hay *n* procesos en memoria, la utilización de CPU es aproximadamente:
+
+**Utilización = 1 − p^n**
+
+Ejemplo: con p = 0.8 (80 % del tiempo en E/S), un solo proceso da 20 % de utilización; con 4 procesos, 1 − 0.8⁴ = 1 − 0.4096 ≈ **59 %**; con 10 procesos, ≈ **89 %**.
+
+### 1.3 Problemas nuevos en multiprogramación
+
+| Problema | Descripción | Solución |
+| --- | --- | --- |
+| **Reubicación** | No se sabe en qué dirección física se cargará un programa. Las direcciones del código no pueden ser absolutas. | Direcciones **lógicas** traducidas en ejecución por la **MMU**. |
+| **Protección** | Un proceso no debe leer ni escribir la memoria de otro ni la del SO. | Registros **base y límite**, o tablas de páginas/segmentos con bits de permiso. |
+| **Compartición** | A veces se desea compartir código (bibliotecas) o datos. | Páginas o segmentos compartidos. |
+| **Organización lógica y física** | El programador ve un espacio lineal o por módulos; la RAM es una tabla de bytes. | Segmentación, paginación. |
+
+### 1.4 Direcciones lógicas y físicas, y la MMU
+
+- **Dirección lógica (virtual):** la que genera la CPU al ejecutar el programa.
+- **Dirección física:** la que realmente llega al hardware de memoria.
+- **MMU** (*Memory Management Unit*): circuito que **traduce** direcciones lógicas a físicas en tiempo de ejecución.
+
+### 1.5 Reubicación y protección con registros base y límite
+
+La forma más simple: cada proceso tiene un **registro base** (dónde empieza en la RAM) y un **registro límite** (cuánto mide).
+
+```text
+  CPU genera dirección lógica  d
+            │
+            ▼
+      ¿ d < límite ?  ── no ──▶ TRAP (error de direccionamiento)
+            │ sí
+            ▼
+   dirección física = base + d
+```
+
+Ejemplo: base = 30 000, límite = 12 000. La dirección lógica 450 se traduce a 30 450. La dirección lógica 13 000 provoca una **excepción** porque supera el límite. Solo el kernel (modo privilegiado) puede modificar estos registros.
+
+### 1.6 Intercambio (*swapping*)
+
+Cuando no caben todos los procesos, el SO puede **sacar** temporalmente un proceso de la RAM al disco (*swap out*) y traerlo de vuelta después (*swap in*). Es la base de la memoria virtual, que es un tema posterior del curso.
+
+---
+
+## 2. Asignación contigua de memoria
+
+Cada proceso ocupa **un único bloque continuo** de direcciones físicas.
+
+### 2.1 Particiones fijas (estáticas)
+
+La memoria se divide al arrancar el sistema en **particiones de tamaño predefinido**. Cada partición aloja como máximo un proceso.
+
+```text
+  ┌──────────────┐
+  │      SO      │  100 KB
+  ├──────────────┤
+  │ Partición 1  │  200 KB
+  ├──────────────┤
+  │ Partición 2  │  300 KB
+  ├──────────────┤
+  │ Partición 3  │  500 KB
+  └──────────────┘
+```
+
+- **Tamaños iguales:** muy simple, pero desperdicia memoria con procesos pequeños y no admite procesos mayores que la partición.
+- **Tamaños distintos:** mejor ajuste, con una o varias colas de espera.
+- **Grado de multiprogramación:** limitado por el número de particiones.
+- **Problema principal:** **fragmentación interna**.
+
+### 2.2 Particiones variables (dinámicas)
+
+Las particiones se crean **en el momento de cargar el proceso**, con exactamente el tamaño que este necesita. El SO mantiene una lista de **huecos** (bloques libres) y bloques ocupados.
+
+```text
+  t0           t1               t2               t3
+  ┌────┐     ┌────┐          ┌────┐           ┌────┐
+  │ SO │     │ SO │          │ SO │           │ SO │
+  ├────┤     ├────┤          ├────┤           ├────┤
+  │ P1 │     │ P1 │          │ P1 │           │ P1 │
+  ├────┤     ├────┤          ├────┤           ├────┤
+  │ P2 │     │ P2 │          │hueco│  P2 sale │ P4 │
+  ├────┤     ├────┤          ├────┤           ├────┤
+  │ P3 │     │ P3 │          │ P3 │           │hueco│
+  └────┘     └────┘          └────┘           ├────┤
+                                              │ P3 │
+                                              └────┘
+```
+
+- **Ventaja:** no hay fragmentación interna. No hay límite fijo en el número de procesos (salvo la RAM).
+- **Problema principal:** **fragmentación externa**, porque al terminar los procesos quedan huecos dispersos.
+
+### 2.3 Algoritmos de ajuste
+
+Cuando llega un proceso y hay varios huecos donde cabe, el SO elige uno:
+
+| Algoritmo | Criterio | Ventaja | Desventaja |
+| --- | --- | --- | --- |
+| **First-fit** (primer ajuste) | El **primer** hueco suficientemente grande, recorriendo desde el inicio. | Rápido. | Fragmenta el inicio de la memoria con huecos pequeños. |
+| **Next-fit** | Como first-fit, pero empezando donde terminó la última búsqueda. | Reparte mejor la búsqueda. | Suele fragmentar el final. |
+| **Best-fit** (mejor ajuste) | El **hueco más pequeño** que sea suficiente. | Aprovecha bien el espacio. | Lento (revisa toda la lista) y deja huecos diminutos inútiles. |
+| **Worst-fit** (peor ajuste) | El **hueco más grande**. | Deja un sobrante grande y utilizable. | En la práctica rinde peor; agota los huecos grandes. |
+
+#### Ejemplo resuelto
+
+Huecos libres en orden de memoria: **100 KB, 500 KB, 200 KB, 300 KB, 600 KB**. Llegan en orden los procesos **P1 = 212 KB, P2 = 417 KB, P3 = 112 KB, P4 = 426 KB**.
+
+**First-fit**
+
+| Proceso | Hueco elegido | Sobrante | Huecos después |
+| --- | --- | --- | --- |
+| P1 (212) | 500 | 288 | 100, 288, 200, 300, 600 |
+| P2 (417) | 600 | 183 | 100, 288, 200, 300, 183 |
+| P3 (112) | 288 | 176 | 100, 176, 200, 300, 183 |
+| P4 (426) | ninguno | — | **Debe esperar** |
+
+**Best-fit**
+
+| Proceso | Hueco elegido | Sobrante | Huecos después |
+| --- | --- | --- | --- |
+| P1 (212) | 300 | 88 | 100, 500, 200, 88, 600 |
+| P2 (417) | 500 | 83 | 100, 83, 200, 88, 600 |
+| P3 (112) | 200 | 88 | 100, 83, 88, 88, 600 |
+| P4 (426) | 600 | 174 | 100, 83, 88, 88, 174 |
+
+**Worst-fit**
+
+| Proceso | Hueco elegido | Sobrante | Huecos después |
+| --- | --- | --- | --- |
+| P1 (212) | 600 | 388 | 100, 500, 200, 300, 388 |
+| P2 (417) | 500 | 83 | 100, 83, 200, 300, 388 |
+| P3 (112) | 388 | 276 | 100, 83, 200, 300, 276 |
+| P4 (426) | ninguno | — | **Debe esperar** |
+
+En este caso concreto **best-fit** es el único que logra colocar los cuatro procesos. No es una regla general: según la secuencia de llegada, cualquiera de los algoritmos puede ser el mejor.
+
+#### Implementación en Python
+
+```python
+def asignar(huecos, procesos, algoritmo="first"):
+    """huecos: lista de tamaños (en orden de memoria). procesos: lista de (nombre, tamaño)."""
+    huecos = huecos[:]
+    resultado = []
+    for nombre, tam in procesos:
+        candidatos = [i for i, h in enumerate(huecos) if h >= tam]
+        if not candidatos:
+            resultado.append((nombre, tam, None, "debe esperar"))
+            continue
+        if algoritmo == "first":
+            i = candidatos[0]
+        elif algoritmo == "best":
+            i = min(candidatos, key=lambda k: huecos[k])
+        elif algoritmo == "worst":
+            i = max(candidatos, key=lambda k: huecos[k])
+        resultado.append((nombre, tam, huecos[i], f"sobran {huecos[i] - tam}"))
+        huecos[i] -= tam
+    return resultado, huecos
+
+procesos = [("P1", 212), ("P2", 417), ("P3", 112), ("P4", 426)]
+for alg in ("first", "best", "worst"):
+    res, restantes = asignar([100, 500, 200, 300, 600], procesos, alg)
+    print(alg, res, "huecos finales:", restantes)
+```
+
+### 2.4 Fragmentación
+
+| | Fragmentación interna | Fragmentación externa |
+| --- | --- | --- |
+| **Dónde está** | **Dentro** de un bloque asignado. | **Entre** bloques asignados, en los huecos. |
+| **Causa** | El bloque asignado es mayor que lo solicitado. | Los huecos libres son pequeños y están dispersos. |
+| **Aparece en** | Particiones fijas y paginación (última página). | Particiones variables y segmentación. |
+| **Ejemplo** | Proceso de 180 KB en una partición de 200 KB: se pierden 20 KB que nadie más puede usar. | Hay 150 KB libres en total, pero repartidos en huecos de 50 KB; un proceso de 100 KB no cabe. |
+| **Solución** | Mejor ajuste de tamaños de partición; páginas más pequeñas. | **Compactación** o asignación no contigua (paginación). |
+
+**Compactación:** mover los procesos para juntar todos los huecos en uno solo. Solo es posible si la reubicación es dinámica (se hace en tiempo de ejecución con registros base) y es **costosa** porque implica copiar mucha memoria.
+
+<Aside type="note" title="Regla del 50 %">
+En un sistema con first-fit, por cada N bloques asignados se pierden en promedio alrededor de 0.5 N bloques por fragmentación externa; es decir, cerca de **un tercio** de la memoria puede quedar inutilizable.
+</Aside>
+
+---
+
+## 3. Asignación no contigua de memoria
+
+Para eliminar la fragmentación externa, el espacio de direcciones de un proceso se divide en trozos que pueden colocarse en **zonas separadas** de la RAM.
+
+### 3.1 Paginación
+
+### Concepto
+
+- La **memoria física** se divide en bloques de tamaño fijo llamados **marcos** (*frames*).
+- La **memoria lógica** del proceso se divide en bloques del **mismo tamaño** llamados **páginas** (*pages*).
+- Para ejecutar un proceso de *n* páginas hacen falta *n* marcos libres, **no necesariamente contiguos**.
+- Una **tabla de páginas** (*page table*) por proceso indica en qué marco está cada página.
+
+```text
+   Memoria lógica        Tabla de páginas        Memoria física
+  ┌──────────────┐     ┌─────────┬───────┐     ┌──────────────┐
+  │  Página 0    │     │ Página  │ Marco │     │ Marco 0      │
+  ├──────────────┤     ├─────────┼───────┤     ├──────────────┤
+  │  Página 1    │     │    0    │   1   │     │ Marco 1  ◀── P0
+  ├──────────────┤     │    1    │   4   │     ├──────────────┤
+  │  Página 2    │     │    2    │   3   │     │ Marco 2      │
+  ├──────────────┤     │    3    │   7   │     ├──────────────┤
+  │  Página 3    │     └─────────┴───────┘     │ Marco 3  ◀── P2
+  └──────────────┘                             ├──────────────┤
+                                               │ Marco 4  ◀── P1
+                                               ├──────────────┤
+                                               │ Marco 5      │
+                                               ├──────────────┤
+                                               │ Marco 6      │
+                                               ├──────────────┤
+                                               │ Marco 7  ◀── P3
+                                               └──────────────┘
+```
+
+### Traducción de direcciones
+
+El tamaño de página es siempre una **potencia de 2**, lo que permite separar la dirección con operaciones de bits. Si el espacio lógico es de 2^m bytes y la página es de 2^n bytes:
+
+```text
+   Dirección lógica de m bits
+  ┌───────────────────────┬───────────────┐
+  │   Número de página p  │ Desplazamiento│
+  │      (m − n bits)     │   d (n bits)  │
+  └───────────────────────┴───────────────┘
+```
+
+<Steps>
+
+1. Extraer el **número de página** `p` y el **desplazamiento** `d` de la dirección lógica.
+2. Consultar la **tabla de páginas** en la posición `p` para obtener el **número de marco** `f`.
+3. Formar la dirección física: `dirección física = f × tamaño_de_página + d`.
+
+</Steps>
+
+Fórmulas equivalentes con división entera: `p = dirección_lógica // tamaño_página` y `d = dirección_lógica % tamaño_página`.
+
+#### Ejemplo resuelto 1
+
+Tamaño de página = **1 024 bytes**. Tabla de páginas: página 0 → marco 5, página 1 → marco 2, página 2 → marco 9, página 3 → marco 7. Traducir la dirección lógica **3 500**.
+
+1. `p = 3500 // 1024 = 3`.
+2. `d = 3500 % 1024 = 3500 − 3072 = 428`.
+3. Marco de la página 3: `f = 7`.
+4. Dirección física = `7 × 1024 + 428 = 7168 + 428 = 7596`.
+
+#### Ejemplo resuelto 2 (con bits)
+
+Dirección lógica de 32 bits y páginas de 4 KB (2¹² bytes):
+
+- Desplazamiento: **12 bits**. Número de página: **20 bits**.
+- Cantidad máxima de páginas: 2²⁰ = 1 048 576 entradas.
+- Si cada entrada de la tabla ocupa 4 bytes, la tabla ocupa 4 MB **por proceso**.
+
+Esto muestra por qué en la práctica se usan **tablas de páginas multinivel** o **invertidas**: una tabla plana puede ser demasiado grande.
+
+#### Implementación en Python
+
+```python
+def traducir(direccion_logica, tam_pagina, tabla_paginas):
+    p, d = divmod(direccion_logica, tam_pagina)
+    if p >= len(tabla_paginas) or tabla_paginas[p] is None:
+        return f"FALLO DE PÁGINA en la página {p}"
+    marco = tabla_paginas[p]
+    return marco * tam_pagina + d
+
+tabla = [5, 2, 9, 7]
+print(traducir(3500, 1024, tabla))   # 7596
+print(traducir(100, 1024, tabla))    # 5220  (página 0, marco 5)
+print(traducir(5000, 1024, tabla))   # fallo: la página 4 no existe
+```
+
+### Fragmentación en la paginación
+
+- **No hay fragmentación externa**: cualquier marco libre sirve.
+- **Sí hay fragmentación interna**: la última página del proceso casi nunca se llena.
+- En promedio se desperdicia **media página por proceso**.
+
+Ejemplo: proceso de 72 766 bytes, páginas de 2 048 bytes. 72 766 / 2 048 ≈ 35.53, así que se necesitan **36 páginas** (73 728 bytes). Fragmentación interna = 73 728 − 72 766 = **962 bytes**.
+
+**Compromiso del tamaño de página:** páginas pequeñas reducen la fragmentación interna pero aumentan el tamaño de la tabla; páginas grandes hacen lo contrario, pero la transferencia de disco es más eficiente.
+
+### Protección y compartición
+
+Cada entrada de la tabla de páginas incluye **bits de control**:
+
+| Bit | Función |
+| --- | --- |
+| **Válido / presente** | Indica si la página está en memoria o es una dirección ilegal. |
+| **Lectura / escritura** | Permisos de acceso. |
+| **Ejecución** | Si se puede ejecutar código de esa página. |
+| **Modificado (dirty)** y **referenciado** | Los usa la memoria virtual para decidir reemplazos. |
+
+Varios procesos pueden **compartir** el código de una biblioteca haciendo que sus tablas apunten a los mismos marcos.
+
+### TLB (*Translation Lookaside Buffer*)
+
+Con paginación simple, cada acceso a memoria cuesta **dos accesos**: uno a la tabla de páginas y otro al dato. Para evitarlo se usa la **TLB**, una caché muy rápida (memoria asociativa en hardware) que guarda las traducciones **página → marco** más recientes.
+
+```text
+  Dirección lógica (p, d)
+          │
+          ▼
+   ┌─────────────┐   acierto (hit)     ┌────────────────────┐
+   │     TLB     │ ──────────────────▶ │ marco f  → memoria  │
+   └──────┬──────┘                     └────────────────────┘
+          │ fallo (miss)
+          ▼
+   Tabla de páginas en RAM ──▶ marco f (se guarda en la TLB)
+```
+
+**Tiempo efectivo de acceso (EAT)**, con *α* = tasa de aciertos, *t_tlb* = tiempo de búsqueda en TLB y *t_mem* = tiempo de acceso a memoria:
+
+**EAT = α × (t_tlb + t_mem) + (1 − α) × (t_tlb + 2 × t_mem)**
+
+Ejemplo con *t_tlb* = 10 ns y *t_mem* = 100 ns:
+
+| Tasa de aciertos α | Cálculo | EAT |
+| --- | --- | --- |
+| 80 % | 0.80 × 110 + 0.20 × 210 = 88 + 42 | **130 ns** (30 % más lento que 100 ns) |
+| 99 % | 0.99 × 110 + 0.01 × 210 = 108.9 + 2.1 | **111 ns** (solo 11 % más lento) |
+
+Gracias a la **localidad de referencia**, las tasas de acierto reales superan el 99 %. En un cambio de contexto la TLB se vacía, o se usan identificadores de espacio de direcciones (ASID) para no vaciarla.
+
+---
+
+### 3.2 Segmentación
+
+### Concepto
+
+La paginación divide el espacio **sin importar su significado**. La **segmentación** respeta la **visión lógica del programador**: un programa es una colección de **segmentos**, cada uno con un propósito y un tamaño distinto.
+
+- Segmento de **código** (instrucciones).
+- Segmento de **datos** (variables globales).
+- Segmento de **pila** (*stack*).
+- Segmento de **heap** (memoria dinámica).
+- Segmentos de bibliotecas.
+
+```text
+   Espacio lógico (segmentos)            Memoria física
+  ┌──────────────┐                     ┌─────────────────┐
+  │ Seg 0: Código│ ──────────┐         │                 │
+  ├──────────────┤           │         ├─────────────────┤
+  │ Seg 1: Datos │ ───────┐  └───────▶ │  Código         │
+  ├──────────────┤        │            ├─────────────────┤
+  │ Seg 2: Pila  │ ──┐    └──────────▶ │  Datos          │
+  └──────────────┘   │                 ├─────────────────┤
+                     └───────────────▶ │  Pila           │
+                                       └─────────────────┘
+```
+
+### Traducción de direcciones
+
+La dirección lógica es un par **(s, d)**: número de segmento y desplazamiento dentro del segmento. La **tabla de segmentos** guarda por cada segmento su **base** (dirección física de inicio) y su **límite** (longitud).
+
+```text
+   (s, d)
+     │
+     ▼
+   Tabla de segmentos[s] = (base, límite)
+     │
+     ├── d ≥ límite ?  ── sí ──▶ TRAP (violación de segmento)
+     │
+     └── no ──▶ dirección física = base + d
+```
+
+#### Ejemplo resuelto
+
+| Segmento | Base | Límite |
+| --- | --- | --- |
+| 0 | 1400 | 1000 |
+| 1 | 6300 | 400 |
+| 2 | 4300 | 400 |
+| 3 | 3200 | 1100 |
+| 4 | 4700 | 1000 |
+
+| Dirección lógica (s, d) | Verificación | Resultado |
+| --- | --- | --- |
+| (2, 53) | 53 < 400 ✔ | 4300 + 53 = **4353** |
+| (3, 852) | 852 < 1100 ✔ | 3200 + 852 = **4052** |
+| (0, 1222) | 1222 ≥ 1000 ✘ | **TRAP**: fuera del límite |
+| (1, 399) | 399 < 400 ✔ | 6300 + 399 = **6699** |
+
+```python
+tabla_segmentos = {0: (1400, 1000), 1: (6300, 400), 2: (4300, 400), 3: (3200, 1100), 4: (4700, 1000)}
+
+def traducir_segmento(s, d):
+    if s not in tabla_segmentos:
+        return "TRAP: segmento inexistente"
+    base, limite = tabla_segmentos[s]
+    if d >= limite:
+        return f"TRAP: desplazamiento {d} fuera del límite {limite}"
+    return base + d
+
+print(traducir_segmento(2, 53))     # 4353
+print(traducir_segmento(3, 852))    # 4052
+print(traducir_segmento(0, 1222))   # TRAP
+```
+
+### Ventajas y desventajas
+
+- **Ventajas:** refleja la estructura del programa; la protección es natural (el segmento de código solo se ejecuta, el de datos se lee y escribe); es fácil compartir segmentos completos (una biblioteca); los segmentos pueden crecer (pila, heap).
+- **Desventajas:** los segmentos tienen **tamaño variable**, por lo que reaparece la **fragmentación externa** y hace falta compactar; la gestión de huecos es más compleja.
+
+### Segmentación paginada
+
+Para combinar lo mejor de ambas técnicas, cada **segmento se divide en páginas** (estrategia usada, por ejemplo, en la arquitectura Intel x86 original). Así se conserva la visión lógica del segmento y se evita la fragmentación externa.
+
+---
+
+## 4. Paginación vs. segmentación
+
+| Característica | Paginación | Segmentación |
+| --- | --- | --- |
+| **Unidad** | Página (tamaño **fijo**) | Segmento (tamaño **variable**) |
+| **Visible al programador** | No (transparente) | Sí (código, datos, pila) |
+| **Dirección lógica** | (número de página, desplazamiento) | (número de segmento, desplazamiento) |
+| **Tabla** | Tabla de páginas: número de marco | Tabla de segmentos: base y límite |
+| **Fragmentación externa** | **No** | **Sí** |
+| **Fragmentación interna** | **Sí** (última página) | No |
+| **Protección y compartición** | Por página, menos natural | Por segmento, muy natural |
+| **Optimización de hardware** | TLB | TLB / registros de segmento |
+| **Motivo principal de uso** | Aprovechar la RAM sin fragmentación externa | Reflejar la estructura lógica del programa |
+
+### Comparación de todas las técnicas de la unidad
+
+| Técnica | Contigua | Fragmentación interna | Fragmentación externa | Reubicación |
+| --- | --- | --- | --- | --- |
+| Partición fija | Sí | **Sí** | No | Sencilla |
+| Partición variable | Sí | No | **Sí** | Con registro base (y compactación) |
+| Paginación | No | **Sí** (poca) | No | Tabla de páginas |
+| Segmentación | No | No | **Sí** | Tabla de segmentos |
+
+---
+
+## 5. Simulador de memoria
+
+Incluye cuatro herramientas: **traductor de direcciones con paginación**, **simulador de first-fit / best-fit / worst-fit**, **traductor con segmentación** y **calculadora del tiempo efectivo de acceso con TLB**.
+
+<iframe
+  src="/wiki-sistemas-operativos-/simulador-memoria.html"
+  title="Simulador de administración de memoria"
+  width="100%"
+  height="980"
+  loading="lazy"
+  style={{ border: '1px solid var(--sl-color-gray-5)', borderRadius: '8px' }}
+></iframe>
+
+[Abrir el simulador en pantalla completa](/wiki-sistemas-operativos-/simulador-memoria.html)
+
+---
+
+## 6. Resumen de la unidad
+
+- En **monoprogramación** la memoria es simple pero la CPU se desaprovecha. En **multiprogramación** hay que resolver **reubicación y protección**, normalmente con la **MMU**.
+- **Asignación contigua:** particiones fijas (fragmentación interna) y variables (fragmentación externa). Se elige el hueco con **first-fit, best-fit o worst-fit**.
+- **Paginación:** páginas y marcos del mismo tamaño, **tabla de páginas** y **TLB**; elimina la fragmentación externa.
+- **Segmentación:** segmentos lógicos con **base y límite**; mejor protección y compartición, pero con fragmentación externa.
+
+## 7. Preguntas de repaso
+
+1. ¿Qué problemas aparecen al pasar de monoprogramación a multiprogramación?
+2. ¿Qué diferencia hay entre fragmentación interna y externa? ¿Qué técnica sufre cada una?
+3. Con huecos de 300, 150, 400 y 250 KB (en ese orden), ¿dónde coloca cada algoritmo un proceso de 200 KB?
+4. Una dirección lógica de 16 bits con páginas de 512 bytes: ¿cuántos bits usan el número de página y el desplazamiento?
+5. Con páginas de 2 KB y la tabla página 0 → marco 3, página 1 → marco 6, traduce la dirección lógica 2 600.
+6. Calcula el EAT si α = 90 %, t_tlb = 5 ns y t_mem = 80 ns.
+7. ¿Por qué la segmentación facilita la protección y compartición de bibliotecas?
+
+**Respuestas rápidas:** (3) first-fit y worst-fit: 300 y 400 respectivamente; best-fit: 250. (4) 7 bits de página y 9 de desplazamiento. (5) p = 1, d = 552, marco 6, dirección física = 6 × 2048 + 552 = 12 840. (6) 0.9 × 85 + 0.1 × 165 = 76.5 + 16.5 = 93 ns.
+
+<Aside type="note" title="Fuentes recomendadas">
+Silberschatz, Galvin y Gagne, *Fundamentos de Sistemas Operativos* (capítulos de Memoria Principal). Tanenbaum y Bos, *Sistemas Operativos Modernos* (capítulo de Administración de Memoria). Stallings, *Sistemas Operativos* (capítulo de Gestión de Memoria).
+</Aside>
