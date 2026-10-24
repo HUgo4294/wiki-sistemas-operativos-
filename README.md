@@ -17,13 +17,13 @@
 
 <br>
 
-[🚀 Explora la Wiki Online](https://hugo4294.github.io/wiki-sistemas-operativos-/) • [🎮 Probar Simulador Interactivo](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html) • [📌 Reportar Issue](https://github.com/HUgo4294/wiki-sistemas-operativos-/issues)
+[ Explora la Wiki Online](https://hugo4294.github.io/wiki-sistemas-operativos-/) • [🎮 Probar Simulador Interactivo](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html) • [📌 Reportar Issue](https://github.com/HUgo4294/wiki-sistemas-operativos-/issues)
 
 </div>
 
 ---
 
-## 🎯 Visión General
+## Visión General
 
 **Wiki de Sistemas Operativos 1** es una suite educativa integral diseñada para salvar la brecha entre la teoría abstracta de los sistemas operativos y su aplicación práctica. 
 
