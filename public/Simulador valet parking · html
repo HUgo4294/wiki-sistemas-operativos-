@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulación Concurrente de Estacionamiento</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --panel: #151b2b; --panel2: #1c2438; --border: #2b3550; --text: #e8ecf5; --muted: #8a94ad;
+    --green: #22c55e; --amber: #f59e0b; --red: #ef4444; --blue: #38bdf8; --purple: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+         font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+           padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  h1 { margin: 0; font-size: 24px; line-height: 1.2; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+           padding: 11px 10px; font-weight: 700; font-size: 13px; }
+  .spd { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+  .spd input { width: 90px; }
+  button { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 800; font-size: 13px; cursor: pointer; color: #07130b; min-width: 120px; }
+  button:hover { filter: brightness(1.1); }
+  #bStart { background: var(--green); } #bInject { background: var(--amber); } #bRecover { background: var(--red); color: #fff; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+  .stat .k { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 26px; font-weight: 800; font-family: ui-monospace, Menlo, Consolas, monospace; margin-top: 4px; }
+  .banner { border: 1px solid var(--green); background: rgba(34,197,94,.1); color: var(--green); border-radius: 12px;
+            padding: 14px 16px; font-weight: 700; margin-bottom: 14px; }
+  .banner.bad { border-color: var(--red); background: rgba(239,68,68,.12); color: var(--red); }
+  .banner.warn { border-color: var(--amber); background: rgba(245,158,11,.12); color: var(--amber); }
+  .main { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+  h3 { margin: 0 0 10px; font-size: 16px; }
+
+  /* ===== Escenario animado ===== */
+  .stage { position: relative; height: 340px; border-radius: 14px; overflow: hidden; border: 2px solid var(--border);
+           background: #1b2233; }
+  .lane { position: absolute; left: 0; right: 0; top: 106px; height: 128px; background: #11161f;
+          border-top: 3px dashed #3a4666; border-bottom: 3px dashed #3a4666; }
+  .lane::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 3px dashed #2b3550; }
+  .lane .lt { position: absolute; font-size: 10px; font-weight: 800; letter-spacing: .08em; color: #55627f; }
+  .space { position: absolute; border: 2px dashed #3a4666; border-radius: 10px; background: #202a40; z-index: 1;
+           transition: border-color .3s, background .3s; }
+  .space .lbl { position: absolute; top: 4px; left: 8px; font-size: 10px; font-weight: 800; color: var(--muted); }
+  .space .st { position: absolute; bottom: 4px; right: 8px; font-size: 10px; font-weight: 800; color: var(--muted); }
+  .space.work { border: 2px solid var(--green); background: rgba(34,197,94,.10); } .space.work .st { color: var(--green); }
+  .space.hold { border: 2px solid var(--amber); background: rgba(245,158,11,.10); } .space.hold .st { color: var(--amber); }
+  .space.dead { border: 2px solid var(--red); background: rgba(239,68,68,.16); animation: pulse 1s infinite; } .space.dead .st { color: var(--red); }
+  @keyframes pulse { 50% { box-shadow: 0 0 14px rgba(239,68,68,.7); } }
+
+  .car { position: absolute; left: 0; top: 0; width: 52px; height: 26px; z-index: 2; will-change: transform; pointer-events: none; }
+  .car svg { display: block; filter: drop-shadow(0 3px 2px rgba(0,0,0,.45)); }
+  .valet { position: absolute; left: 0; top: 0; width: 34px; height: 62px; z-index: 3; will-change: transform; text-align: center; }
+  .valet .fig { height: 48px; animation: bob 2.4s ease-in-out infinite; }
+  .valet svg.man { display: block; margin: 0 auto; transition: transform .2s; }
+  .valet .chip { margin: 1px auto 0; width: 28px; font-size: 10px; font-weight: 800; border-radius: 6px; color: #fff; line-height: 13px; background: #64748b; }
+  .valet .bubble { position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%); background: #0b0f1a; border: 1px solid var(--border);
+                   border-radius: 8px; padding: 1px 6px; font-size: 10px; font-weight: 800; white-space: nowrap; color: var(--text); display: none; }
+  .valet .bubble.on { display: block; }
+  .valet.dead svg.man { animation: shake .35s infinite; }
+  @keyframes bob { 50% { transform: translateY(-2px); } }
+  @keyframes shake { 25% { transform: translateX(-2px) scaleX(var(--f,1)); } 75% { transform: translateX(2px) scaleX(var(--f,1)); } }
+  .man g { transform-box: view-box; }
+  .valet.walk .legL { animation: swingA .3s linear infinite alternate; }
+  .valet.walk .legR { animation: swingB .3s linear infinite alternate; }
+  .valet.walk .armL { animation: swingB .3s linear infinite alternate; }
+  .valet.walk .armR { animation: swingA .3s linear infinite alternate; }
+  .valet.walk .fig { animation: hop .3s ease-in-out infinite; }
+  @keyframes swingA { from { transform: rotate(-30deg); } to { transform: rotate(30deg); } }
+  @keyframes swingB { from { transform: rotate(30deg); } to { transform: rotate(-30deg); } }
+  @keyframes hop { 50% { transform: translateY(-3px); } }
+
+  .graph { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 8px; }
+  svg.rag { width: 100%; height: auto; display: block; }
+  svg.rag text { fill: #e8ecf5; text-anchor: middle; font-family: inherit; pointer-events: none; }
+  svg.rag .cap { fill: #8a94ad; font-size: 11px; text-anchor: start; }
+  svg.rag .ghost { fill: none; stroke: #3a4666; stroke-dasharray: 4 4; opacity: 0; transition: opacity .4s; }
+  svg.rag .vn, svg.rag .sn { cursor: pointer; transition: opacity .35s; }
+  svg.rag .vn .body { fill: #151b2b; stroke: #64748b; stroke-width: 3; transition: stroke .3s; }
+  svg.rag .vn .glow { fill: none; stroke: transparent; stroke-width: 4; }
+  svg.rag .vn .em { font-size: 14px; } svg.rag .vn .lb { font-size: 10px; font-weight: 800; } svg.rag .vn .bd { font-size: 14px; }
+  svg.rag .vn.v-acq .body { stroke: #38bdf8; } svg.rag .vn.v-work .body { stroke: #22c55e; }
+  svg.rag .vn.v-wait .body { stroke: #f59e0b; } svg.rag .vn.v-dead .body { stroke: #ef4444; }
+  svg.rag .vn.v-work .glow { stroke: rgba(34,197,94,.45); animation: gpulse 1.4s ease-in-out infinite; }
+  svg.rag .vn.v-wait .glow { stroke: rgba(245,158,11,.4); animation: gpulse 1.8s ease-in-out infinite; }
+  svg.rag .vn.v-dead .glow { stroke: rgba(239,68,68,.7); animation: gpulse .7s ease-in-out infinite; }
+  @keyframes gpulse { 50% { stroke-width: 10; opacity: .35; } }
+  svg.rag .sn .body { fill: #151b2b; stroke: #475569; stroke-width: 2.5; transition: stroke .3s; }
+  svg.rag .sn.s-own .body { stroke: #38bdf8; } svg.rag .sn.s-dead .body { stroke: #ef4444; }
+  svg.rag .sn .lb { font-size: 12px; font-weight: 800; } svg.rag .sn .em { font-size: 10px; }
+  svg.rag .edge { fill: none; stroke-linecap: round; opacity: 0; transition: opacity .35s; }
+  svg.rag .edge.on { opacity: 1; }
+  svg.rag .edge.as { stroke: #38bdf8; stroke-width: 2; }
+  svg.rag .edge.rq { stroke: #f59e0b; stroke-width: 2; stroke-dasharray: 7 5; animation: flow .6s linear infinite; }
+  svg.rag .edge.cyc { stroke: #ef4444; stroke-width: 3.2; }
+  svg.rag .edge.rq.cyc { animation-duration: .3s; }
+  @keyframes flow { to { stroke-dashoffset: -12; } }
+  svg.rag .dim { opacity: .14 !important; } svg.rag .faded { opacity: .3; }
+  svg.rag #gBack { fill: #2a0d12; stroke: #7f1d1d; stroke-width: 2; opacity: 0; transition: opacity .5s; pointer-events: none; }
+  svg.rag #gBack.on { opacity: .88; }
+  svg.rag #gSpin { fill: none; stroke: #ef4444; stroke-width: 2; stroke-dasharray: 6 9; opacity: 0; transition: opacity .5s;
+                   transform-box: view-box; transform-origin: 320px 215px; animation: spin 14s linear infinite; pointer-events: none; }
+  svg.rag #gSpin.on { opacity: .7; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  svg.rag #gTitle { font-size: 20px; font-weight: 900; fill: #ef4444; opacity: 0; transition: opacity .4s; }
+  svg.rag #gTitle.on { opacity: 1; animation: blink 1s ease-in-out infinite; }
+  svg.rag #gSub { font-size: 11px; fill: #fca5a5; opacity: 0; transition: opacity .4s; }
+  svg.rag #gSub.on { opacity: 1; }
+  @keyframes blink { 50% { opacity: .45; } }
+  #ragInfo { font-size: 12px; color: var(--muted); padding: 6px 6px 2px; min-height: 30px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--muted); padding: 6px 4px 2px; }
+  .legend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid; vertical-align: middle; margin-right: 4px; }
+  #log { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-top: 16px;
+         max-height: 150px; overflow-y: auto; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+  #log div { padding: 1px 0; color: var(--muted); } #log div.r { color: var(--red); } #log div.g { color: var(--green); } #log div.a { color: var(--amber); }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🅿️ Simulación Concurrente de Estacionamiento</h1>
+    <div class="sub">Hilos Nativos Linux (Valets 🚶) | Locks (Espacios 🚗) | Grafo RAG Interactivo</div>
+  </div>
+  <div class="actions">
+    <select id="mode">
+      <option value="normal">⚡ Modo Normal</option>
+      <option value="prev">🛡️ Prevención (orden de recursos)</option>
+      <option value="det">🔍 Detección y recuperación automática</option>
+    </select>
+    <label class="spd">🐢<input id="speed" type="range" min="1" max="9" value="5">🐇</label>
+    <button id="bStart">▶️ Iniciar Simulación</button>
+    <button id="bInject">⚠️ Inyectar Deadlock</button>
+    <button id="bRecover">⚡ Activar Recuperación</button>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="k">Estado del motor</div><div class="v" id="stEngine">PAUSADO</div></div>
+  <div class="stat"><div class="k">Espacios ocupados</div><div class="v" id="stOcc" style="color:var(--blue)">0 / 10</div></div>
+  <div class="stat"><div class="k">Valets esperando</div><div class="v" id="stWait" style="color:var(--amber)">0</div></div>
+  <div class="stat"><div class="k">Diagnóstico RAG</div><div class="v" id="stRag" style="color:var(--green)">OK</div></div>
+</div>
+
+<div class="banner" id="banner"></div>
+
+<div class="main">
+  <div>
+    <h3>🚗 Cajones de Estacionamiento (Locks de Memoria)</h3>
+    <div class="stage" id="stage">
+      <div class="lane">
+        <span class="lt" style="left:8px;bottom:4px">CASETA DE VALETS</span>
+        <span class="lt" style="right:8px;top:6px">SALIDA ➜</span>
+        <span class="lt" style="left:8px;top:6px">➜ ENTRADA</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3>📊 Grafo RAG Visual (Valets 🚶 &amp; Locks 🚗)</h3>
+    <div class="graph">
+      <svg class="rag" id="rag" viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="ragInfo">💡 Pasa el mouse (o toca) un valet o un espacio para resaltar sus conexiones.</div>
+      <div class="legend">
+        <span><i style="border-color:#38bdf8"></i>Asignado (espacio → valet)</span>
+        <span><i style="border-color:#f59e0b;border-top-style:dashed"></i>Solicita (valet → espacio)</span>
+        <span><i style="border-color:#ef4444"></i>Ciclo (deadlock)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+(function () {
+  var NS = 10, NV = 6, STAGE_H = 340, SP_H = 92, MAN_H = 62;
+  var CAR_COL = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#a855f7", "#14b8a6"];
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $("stage");
+  var spaces, valets, tick, running = false, timer = null, autoCount = 0, recoveryMsg = "";
+  var spEls = [], vEls = [], cEls = [];
+
+  function tickMs() { return 1400 - parseInt($("speed").value, 10) * 120; }
+  function dur() { return Math.round(tickMs() * 0.85); }
+
+  /* ---------- Dibujos SVG ---------- */
+  function carSVG(c) {
+    return '<svg viewBox="0 0 56 28" width="52" height="26">' +
+      '<path d="M13 11 L19 3 H37 L44 11 Z" fill="' + c + '"/><rect x="2" y="10" width="52" height="13" rx="5" fill="' + c + '"/>' +
+      '<path d="M18 10 L22 5 H35 L40 10 Z" fill="#bfe8ff"/><rect x="50" y="13" width="4" height="4" rx="1" fill="#fde047"/>' +
+      '<circle cx="14" cy="23" r="4.5" fill="#111" stroke="#9ca3af" stroke-width="1.5"/>' +
+      '<circle cx="42" cy="23" r="4.5" fill="#111" stroke="#9ca3af" stroke-width="1.5"/></svg>';
+  }
+  function manSVG() {
+    return '<svg class="man" viewBox="0 0 30 48" width="30" height="48">' +
+      '<g class="armL" style="transform-origin:8px 19px"><line x1="8" y1="19" x2="4" y2="30" stroke="#f1c27d" stroke-width="3" stroke-linecap="round"/></g>' +
+      '<g class="armR" style="transform-origin:22px 19px"><line x1="22" y1="19" x2="26" y2="30" stroke="#f1c27d" stroke-width="3" stroke-linecap="round"/></g>' +
+      '<g class="legL" style="transform-origin:12px 33px"><line x1="12" y1="33" x2="11" y2="46" stroke="#1f2937" stroke-width="4" stroke-linecap="round"/></g>' +
+      '<g class="legR" style="transform-origin:18px 33px"><line x1="18" y1="33" x2="19" y2="46" stroke="#1f2937" stroke-width="4" stroke-linecap="round"/></g>' +
+      '<rect class="vest" x="8" y="16" width="14" height="18" rx="3" fill="#64748b"/>' +
+      '<circle cx="15" cy="10" r="6" fill="#f1c27d"/>' +
+      '<rect x="8.5" y="2" width="13" height="4.5" rx="2" fill="#111827"/><rect x="14" y="5" width="12" height="2" rx="1" fill="#111827"/></svg>';
+  }
+
+  /* ---------- Construcción del escenario ---------- */
+  function build() {
+    var i, d;
+    for (i = 0; i < NS; i++) {
+      d = document.createElement("div"); d.className = "space";
+      d.innerHTML = "<div class='lbl'>ESPACIO " + (i + 1) + "</div><div class='st'>libre</div>";
+      stage.appendChild(d); spEls.push(d);
+    }
+    for (i = 0; i < NV; i++) {
+      d = document.createElement("div"); d.className = "car"; d.innerHTML = carSVG(CAR_COL[i]);
+      d.style.opacity = 0; stage.appendChild(d); cEls.push(d);
+    }
+    for (i = 0; i < NV; i++) {
+      d = document.createElement("div"); d.className = "valet";
+      d.innerHTML = "<div class='bubble'></div><div class='fig'>" + manSVG() + "</div><div class='chip'>V" + (i + 1) + "</div>";
+      stage.appendChild(d); vEls.push(d);
+    }
+  }
+
+  function geo() {
+    var W = Math.max(stage.clientWidth, 360), pad = 8, colW = (W - 2 * pad) / 5, rects = [];
+    for (var i = 0; i < NS; i++) {
+      var row = i < 5 ? 0 : 1, col = i % 5;
+      rects.push({ x: pad + col * colW + 4, y: row ? STAGE_H - SP_H - 8 : 8, w: colW - 8, h: SP_H, row: row });
+    }
+    return { W: W, rects: rects, laneC: 170 };
+  }
+
+  /* ---------- Lógica ---------- */
+  function init() {
+    spaces = []; valets = []; tick = 0; autoCount = 0; recoveryMsg = "";
+    for (var i = 0; i < NS; i++) spaces.push(-1);
+    for (i = 0; i < NV; i++) valets.push({ id: i, held: [], needs: [], state: "idle", work: 0, waitFor: -1, prev: "idle", px: null, py: null, dir: 1, flash: false });
+    addLog("Simulación lista: " + NV + " valets y " + NS + " espacios.", "g");
+    render();
+  }
+
+  function addLog(msg, cls) {
+    var d = document.createElement("div"); if (cls) d.className = cls;
+    d.textContent = "[t" + tick + "] " + msg; var L = $("log"); L.appendChild(d);
+    while (L.children.length > 80) L.removeChild(L.firstChild);
+    L.scrollTop = L.scrollHeight;
+  }
+  function freeSpaces() { var r = []; spaces.forEach(function (o, i) { if (o === -1) r.push(i); }); return r; }
+  function rnd(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  function release(v) {
+    v.held.forEach(function (s) { if (spaces[s] === v.id) spaces[s] = -1; });
+    var h = v.held.slice(); v.held = []; v.needs = []; v.state = "idle"; v.work = 0; return h;
+  }
+
+  function step() {
+    tick++; recoveryMsg = "";
+    valets.forEach(function (v) {
+      v.flash = false;
+      if (v.state === "idle" && Math.random() < 0.7) {
+        var f = freeSpaces();
+        if (f.length) { v.needs = [rnd(f)]; v.state = "acq"; }
+      }
+      if (v.state === "acq") {
+        if (v.needs.length) {
+          var s = v.needs[0];
+          if (spaces[s] === -1) { spaces[s] = v.id; v.held.push(s); v.needs.shift(); }
+        }
+        if (!v.needs.length && v.state === "acq") {
+          v.state = "work"; v.work = 2 + Math.floor(Math.random() * 3);
+          addLog("V" + (v.id + 1) + " estaciona en " + v.held.map(function (x) { return "E" + (x + 1); }).join(" + ") + ".", "");
+        }
+      } else if (v.state === "work") {
+        v.work--;
+        if (v.work <= 0) release(v);
+      }
+    });
+    computeWaits();
+    var cyc = findCycle();
+    if ($("mode").value === "det" && cyc.length) {
+      autoCount++;
+      if (autoCount >= 2) { recover(true); autoCount = 0; }
+    } else { autoCount = 0; }
+    render();
+  }
+
+  function computeWaits() {
+    valets.forEach(function (v) {
+      v.waitFor = -1;
+      if (v.state === "acq" && v.needs.length) {
+        var s = v.needs[0];
+        if (spaces[s] !== -1 && spaces[s] !== v.id) v.waitFor = s;
+      }
+    });
+  }
+
+  function findCycle() {
+    for (var i = 0; i < valets.length; i++) {
+      var seen = [], cur = i;
+      while (cur !== -1 && seen.indexOf(cur) < 0) {
+        seen.push(cur);
+        var w = valets[cur].waitFor;
+        cur = w >= 0 ? spaces[w] : -1;
+      }
+      if (cur !== -1) return seen.slice(seen.indexOf(cur));
+    }
+    return [];
+  }
+
+  function inject() {
+    var mode = $("mode").value, k = 4;
+    var chosen = valets.slice().sort(function () { return Math.random() - 0.5; }).slice(0, k);
+    chosen.forEach(release);
+    var f = freeSpaces().sort(function () { return Math.random() - 0.5; });
+    if (f.length < k) { addLog("No hay suficientes espacios libres para inyectar el escenario. Inténtalo de nuevo.", "a"); render(); return; }
+    var s = f.slice(0, k);
+    chosen.forEach(function (v, i) {
+      var a = s[i], b = s[(i + 1) % k];
+      v.state = "acq";
+      if (mode === "prev") { v.needs = [Math.min(a, b), Math.max(a, b)]; }
+      else { spaces[a] = v.id; v.held = [a]; v.needs = [b]; }
+    });
+    addLog("Inyección: V" + chosen.map(function (v) { return v.id + 1; }).join(", V") + " necesitan dos espacios en forma circular" +
+      (mode === "prev" ? " (la prevención los obliga a pedir en orden creciente)." : "."), "a");
+    computeWaits(); render();
+  }
+
+  function recover(auto) {
+    computeWaits();
+    var cyc = findCycle();
+    if (!cyc.length) { addLog("No hay deadlock que recuperar.", "g"); render(); return; }
+    var victim = cyc.slice().sort(function (a, b) { return valets[a].held.length - valets[b].held.length || a - b; })[0];
+    var freed = release(valets[victim]);
+    valets[victim].flash = true;
+    recoveryMsg = "⚡ Recuperación " + (auto ? "automática " : "") + "aplicada: se terminó a V" + (victim + 1) + " (víctima) y liberó " +
+      freed.map(function (x) { return "E" + (x + 1); }).join(", ") + ".";
+    addLog(recoveryMsg, "a");
+    computeWaits(); render();
+  }
+
+  /* ---------- Render ---------- */
+  function render() {
+    computeWaits();
+    var cyc = findCycle(), inCyc = {};
+    cyc.forEach(function (i) { inCyc[i] = true; });
+    var occ = spaces.filter(function (o) { return o !== -1; }).length;
+    var waiting = valets.filter(function (v) { return v.waitFor >= 0; }).length;
+
+    var eng = $("stEngine");
+    if (cyc.length) { eng.textContent = "BLOQUEADO"; eng.style.color = "var(--red)"; }
+    else if (running) { eng.textContent = "EJECUTANDO"; eng.style.color = "var(--green)"; }
+    else { eng.textContent = "PAUSADO"; eng.style.color = "var(--amber)"; }
+    $("stOcc").textContent = occ + " / " + NS;
+    $("stWait").textContent = waiting;
+    var rag = $("stRag");
+    rag.textContent = cyc.length ? "DEADLOCK" : "OK"; rag.style.color = cyc.length ? "var(--red)" : "var(--green)";
+
+    var b = $("banner"), mode = $("mode").value;
+    if (cyc.length) {
+      b.className = "banner bad";
+      b.textContent = "🔴 DEADLOCK detectado. Espera circular: " + cyc.concat(cyc[0]).map(function (i) { return "V" + (i + 1); }).join(" → ") +
+        ". Usa «Activar Recuperación» para terminar una víctima.";
+    } else if (recoveryMsg) {
+      b.className = "banner warn"; b.textContent = recoveryMsg;
+    } else if (mode === "prev") {
+      b.className = "banner"; b.textContent = "🛡️ Prevención activa: los Valets piden los espacios en orden creciente, por lo que no puede haber espera circular.";
+    } else if (mode === "det") {
+      b.className = "banner"; b.textContent = "🔍 Detección activa: el sistema busca ciclos en el RAG y termina una víctima automáticamente.";
+    } else {
+      b.className = "banner"; b.textContent = "✅ Estado: Los Valets 🚶 acomodan autos sin conflictos de bloqueo.";
+    }
+
+    layoutStage(inCyc);
+    updateGraph(inCyc);
+  }
+
+  function layoutStage(inCyc) {
+    var G = geo(), D = dur(), standCount = {};
+    // espacios
+    for (var i = 0; i < NS; i++) {
+      var r = G.rects[i], el = spEls[i], o = spaces[i], cls = "space", st = "libre";
+      if (o !== -1) {
+        if (inCyc[o]) { cls += " dead"; st = "🔒 V" + (o + 1) + " · bloqueado"; }
+        else if (valets[o].state === "work") { cls += " work"; st = "🔒 V" + (o + 1); }
+        else { cls += " hold"; st = "🔒 V" + (o + 1) + " retiene"; }
+      }
+      el.className = cls;
+      el.style.left = r.x + "px"; el.style.top = r.y + "px"; el.style.width = r.w + "px"; el.style.height = r.h + "px";
+      el.lastChild.textContent = st;
+    }
+    // valets y carros
+    valets.forEach(function (v, k) {
+      var tgt = -1;
+      if (v.state === "work" && v.held.length) tgt = v.held[0];
+      else if (v.state === "acq" && v.needs.length) tgt = v.needs[0];
+      var x, y;
+      if (tgt >= 0) {
+        var rr = G.rects[tgt], n = standCount[tgt] || 0; standCount[tgt] = n + 1;
+        x = rr.x + rr.w / 2 - 17 + (n ? (n % 2 ? 20 : -20) * Math.ceil(n / 2) : 0);
+        y = rr.row ? rr.y - MAN_H - 2 : rr.y + rr.h + 2;
+      } else { x = 10 + k * 38; y = 138; }
+
+      var el = vEls[k], fig = el.querySelector(".fig");
+      var dx = v.px === null ? 0 : x - v.px, dy = v.py === null ? 0 : y - v.py;
+      if (dx > 2) v.dir = 1; else if (dx < -2) v.dir = -1;
+      el.style.transition = "transform " + D + "ms ease-in-out";
+      el.style.transform = "translate(" + Math.round(x) + "px," + Math.round(y) + "px)";
+      var man = el.querySelector("svg.man");
+      man.style.transform = "scaleX(" + v.dir + ")"; el.style.setProperty("--f", v.dir);
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+        el.classList.add("walk");
+        clearTimeout(v.wt); v.wt = setTimeout(function () { el.classList.remove("walk"); }, D);
+      }
+      v.px = x; v.py = y;
+
+      // color del chaleco y burbuja
+      var col = "#64748b", bub = "";
+      if (inCyc[v.id]) { col = "#ef4444"; bub = "🛑 bloqueado · E" + (v.waitFor + 1); }
+      else if (v.flash) { col = "#f59e0b"; bub = "💥 terminado"; }
+      else if (v.waitFor >= 0) { col = "#f59e0b"; bub = "⏳ espera E" + (v.waitFor + 1); }
+      else if (v.state === "work") { col = "#22c55e"; bub = "🅿️ estacionando"; }
+      else if (v.state === "acq") { col = "#38bdf8"; bub = "🚗 → E" + (tgt + 1); }
+      el.querySelector(".vest").setAttribute("fill", col);
+      el.querySelector(".chip").style.background = col;
+      var bubEl = el.querySelector(".bubble"); bubEl.textContent = bub; bubEl.className = "bubble" + (bub ? " on" : "");
+      if (inCyc[v.id]) el.classList.add("dead"); else el.classList.remove("dead");
+      el.style.zIndex = 3 + Math.round(y / 10);
+
+      // carro
+      var cel = cEls[k], cx, cy, op = 1, tr = "transform " + D + "ms ease-in-out, opacity .2s";
+      var entX = -70, entY = G.laneC - 13;
+      if (v.prev === "idle" && v.state !== "idle") {
+        cel.style.transition = "none"; cel.style.transform = "translate(" + entX + "px," + entY + "px)"; cel.style.opacity = 1;
+        void cel.offsetWidth;
+      }
+      if (v.held.length) {
+        var hr = G.rects[v.held[0]]; cx = hr.x + hr.w / 2 - 26; cy = hr.y + hr.h / 2 - 13;
+      } else if (v.state === "acq") { cx = x + 26; cy = y + 34; }
+      else if (v.prev === "idle") { cx = entX; cy = entY; op = 0; }
+      else { cx = G.W + 70; cy = G.laneC - 13; op = 0; tr = "transform " + D + "ms ease-in-out, opacity .25s ease " + Math.round(D * 0.7) + "ms"; }
+      cel.style.transition = tr;
+      cel.style.transform = "translate(" + Math.round(cx) + "px," + Math.round(cy) + "px)";
+      cel.style.opacity = op;
+      cel.style.zIndex = 2;
+      v.prev = v.state;
+    });
+  }
+
+  /* ---------- Grafo RAG dinámico ---------- */
+  var SVGNS = "http://www.w3.org/2000/svg", CX = 320, CY = 215;
+  var gPos = {}, gTgt = {}, gNodes = {}, gPaths = {}, gEdges = [], gParts = [], hoverId = null, pinId = null, gGhost = [];
+
+  function svgEl(tag, attrs, parent) {
+    var e = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function dockXY(j) { return { x: 38 + j * (564 / 9), y: 362 }; }
+  function valetXY(i) { return { x: 60 + i * 104, y: 55 }; }
+
+  function buildGraph() {
+    var svg = $("rag"), i, j, g, p;
+    svg.innerHTML = "<defs>" + [["mB", "#38bdf8"], ["mA", "#f59e0b"], ["mR", "#ef4444"]].map(function (m) {
+      return "<marker id='" + m[0] + "' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='9' markerHeight='9' markerUnits='userSpaceOnUse' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='" + m[1] + "'/></marker>";
+    }).join("") + "</defs><g id='gGhost'></g><circle id='gBack' cx='320' cy='215' r='140'></circle><circle id='gSpin' cx='320' cy='215' r='128'></circle>" +
+      "<g id='gEdges'></g><g id='gParts'></g><g id='gNodes'></g>" +
+      "<text id='gTitle' x='320' y='212'>DEADLOCK</text><text id='gSub' x='320' y='232'>espera circular</text>" +
+      "<text x='8' y='16' class='cap'>Procesos (valets)</text><text x='8' y='392' class='cap'>Recursos (espacios / locks)</text>";
+    for (j = 0; j < NS; j++) { p = dockXY(j); gGhost.push(svgEl("rect", { x: p.x - 19, y: p.y - 15, width: 38, height: 30, rx: 6, "class": "ghost" }, $("gGhost"))); }
+    for (j = 0; j < NS; j++) gPaths["as" + j] = svgEl("path", { "class": "edge as" }, $("gEdges"));
+    for (i = 0; i < NV; i++) gPaths["rq" + i] = svgEl("path", { "class": "edge rq" }, $("gEdges"));
+    for (i = 0; i < 28; i++) gParts.push(svgEl("circle", { r: 3.2, opacity: 0, cx: 0, cy: 0 }, $("gParts")));
+    for (i = 0; i < NV; i++) {
+      g = svgEl("g", { "class": "vn v-idle" }, $("gNodes"));
+      g.innerHTML = "<circle class='glow' r='29'></circle><circle class='body' r='22'></circle><text class='em' y='-3'>🚶</text><text class='lb' y='14'>V" + (i + 1) + "</text><text class='bd' y='-32'></text>";
+      bindHover(g, "v" + i); gNodes["v" + i] = g; p = valetXY(i);
+      gPos["v" + i] = { x: p.x, y: p.y }; gTgt["v" + i] = { x: p.x, y: p.y };
+    }
+    for (j = 0; j < NS; j++) {
+      g = svgEl("g", { "class": "sn s-free" }, $("gNodes"));
+      g.innerHTML = "<rect class='body' x='-19' y='-15' width='38' height='30' rx='6'></rect><text class='lb' y='-1'>E" + (j + 1) + "</text><text class='em' y='11'>🅿️</text><circle class='od' cx='13' cy='-10' r='4' fill='transparent'></circle>";
+      bindHover(g, "s" + j); gNodes["s" + j] = g; p = dockXY(j);
+      gPos["s" + j] = { x: p.x, y: p.y }; gTgt["s" + j] = { x: p.x, y: p.y };
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function bindHover(g, id) {
+    g.addEventListener("mouseenter", function () { hoverId = id; applyHover(); });
+    g.addEventListener("mouseleave", function () { hoverId = null; applyHover(); });
+    g.addEventListener("click", function () { pinId = (pinId === id ? null : id); applyHover(); });
+  }
+
+  function computeTargets(cyc) {
+    var ringSet = {}, i, j, m = cyc.length, R = 88 + m * 3;
+    if (m) {
+      var seq = [];
+      cyc.forEach(function (v) { seq.push("v" + v); seq.push("s" + valets[v].waitFor); });
+      seq.forEach(function (id, k) {
+        var ang = -Math.PI / 2 + (2 * Math.PI * k) / seq.length;
+        gTgt[id] = { x: CX + R * Math.cos(ang), y: CY + R * Math.sin(ang) }; ringSet[id] = true;
+      });
+    }
+    for (i = 0; i < NV; i++) if (!ringSet["v" + i]) { var p = valetXY(i); gTgt["v" + i] = { x: p.x, y: p.y }; }
+    var count = {};
+    for (j = 0; j < NS; j++) {
+      if (ringSet["s" + j]) continue;
+      var o = spaces[j];
+      if (o === -1) { gTgt["s" + j] = dockXY(j); continue; }
+      var n = count[o] || 0; count[o] = n + 1;
+      var vt = gTgt["v" + o];
+      if (ringSet["v" + o]) {
+        var dx = vt.x - CX, dy = vt.y - CY, L = Math.sqrt(dx * dx + dy * dy) || 1;
+        gTgt["s" + j] = { x: vt.x + dx / L * (58 + n * 40), y: vt.y + dy / L * (58 + n * 40) };
+      } else {
+        var cnt = valets[o].held.length;
+        gTgt["s" + j] = { x: vt.x + (n - (cnt - 1) / 2) * 44, y: 150 };
+      }
+    }
+  }
+
+  function updateGraph(inCyc) {
+    var cyc = findCycle(), i, j, cycSp = {}, ringV = {};
+    cyc.forEach(function (v) { cycSp[valets[v].waitFor] = true; ringV[v] = true; });
+    computeTargets(cyc);
+
+    valets.forEach(function (v) {
+      var cls = inCyc[v.id] ? "v-dead" : v.waitFor >= 0 ? "v-wait" : v.state === "work" ? "v-work" : v.state === "acq" ? "v-acq" : "v-idle";
+      var g = gNodes["v" + v.id]; g.setAttribute("class", "vn " + cls);
+      g.querySelector(".bd").textContent = inCyc[v.id] ? "🛑" : v.waitFor >= 0 ? "⏳" : "";
+    });
+    spaces.forEach(function (o, j) {
+      var g = gNodes["s" + j];
+      g.setAttribute("class", "sn " + (o === -1 ? "s-free" : (inCyc[o] ? "s-dead" : "s-own")));
+      g.querySelector(".od").setAttribute("fill", o >= 0 ? CAR_COL[o] : "transparent");
+      g.querySelector(".em").textContent = o >= 0 ? "🚗" : "🅿️";
+      gGhost[j].style.opacity = o >= 0 ? 0.6 : 0;
+    });
+
+    gEdges = [];
+    spaces.forEach(function (o, j) {
+      if (o >= 0) gEdges.push({ id: "as" + j, from: "s" + j, to: "v" + o, type: "as", cyc: !!cycSp[j], phase: (j * 0.37) % 1 });
+    });
+    valets.forEach(function (v) {
+      if (v.waitFor >= 0) gEdges.push({ id: "rq" + v.id, from: "v" + v.id, to: "s" + v.waitFor, type: "rq", cyc: !!inCyc[v.id], phase: (v.id * 0.29) % 1 });
+    });
+    var on = {};
+    gEdges.forEach(function (e) { on[e.id] = e; });
+    for (var id in gPaths) {
+      var el = gPaths[id], e = on[id], base = id.indexOf("as") === 0 ? "edge as" : "edge rq";
+      el.setAttribute("class", base + (e && e.cyc ? " cyc" : "") + (e ? " on" : ""));
+      el.setAttribute("marker-end", e ? "url(#" + (e.cyc ? "mR" : base === "edge as" ? "mB" : "mA") + ")" : "");
+    }
+    var has = cyc.length > 0;
+    ["gBack", "gSpin", "gTitle", "gSub"].forEach(function (id) { $(id).setAttribute("class", has ? "on" : ""); });
+    for (i = 0; i < NV; i++) gNodes["v" + i].classList[has && !ringV[i] ? "add" : "remove"]("faded");
+    for (j = 0; j < NS; j++) gNodes["s" + j].classList[has && !cycSp[j] && !(spaces[j] >= 0 && ringV[spaces[j]]) ? "add" : "remove"]("faded");
+    applyHover();
+  }
+
+  function applyHover() {
+    var f = hoverId || pinId, keep = {}, e;
+    if (f) {
+      keep[f] = true;
+      gEdges.forEach(function (e) { if (e.from === f || e.to === f) { keep[e.from] = true; keep[e.to] = true; keep[e.id] = true; } });
+    }
+    for (var id in gNodes) gNodes[id].classList[f && !keep[id] ? "add" : "remove"]("dim");
+    for (var pid in gPaths) gPaths[pid].classList[f && !keep[pid] ? "add" : "remove"]("dim");
+    $("ragInfo").textContent = f ? infoFor(f) : "💡 Pasa el mouse (o toca) un valet o un espacio para resaltar sus conexiones.";
+  }
+
+  function infoFor(id) {
+    var n = parseInt(id.slice(1), 10);
+    if (id[0] === "v") {
+      var v = valets[n], t = { idle: "libre en la caseta", acq: "yendo a un espacio", work: "estacionando un auto" }[v.state];
+      var held = v.held.length ? "Retiene " + v.held.map(function (x) { return "E" + (x + 1); }).join(", ") : "No retiene espacios";
+      var w = v.waitFor >= 0 ? " · ESPERA E" + (v.waitFor + 1) + " (de V" + (spaces[v.waitFor] + 1) + ")" : "";
+      return "🚶 Valet V" + (n + 1) + " — " + t + ". " + held + w + ".";
+    }
+    var o = spaces[n];
+    var waiters = valets.filter(function (v) { return v.waitFor === n; }).map(function (v) { return "V" + (v.id + 1); });
+    return "🅿️ Espacio E" + (n + 1) + " — " + (o === -1 ? "libre" : "asignado a V" + (o + 1)) + (waiters.length ? ". En espera: " + waiters.join(", ") : "") + ".";
+  }
+
+  function borderDist(id, ux, uy) {
+    if (id[0] === "v") return 23;
+    return Math.min(19 / (Math.abs(ux) || 1e-6), 15 / (Math.abs(uy) || 1e-6)) + 1;
+  }
+
+  function frame() {
+    var t = performance.now() / 1000, id;
+    for (id in gPos) {
+      var p = gPos[id], q = gTgt[id];
+      p.x += (q.x - p.x) * 0.14; p.y += (q.y - p.y) * 0.14;
+      gNodes[id].setAttribute("transform", "translate(" + p.x.toFixed(1) + "," + p.y.toFixed(1) + ")");
+    }
+    var pi = 0;
+    gEdges.forEach(function (e) {
+      var a = gPos[e.from], b = gPos[e.to];
+      var dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L;
+      var ra = borderDist(e.from, ux, uy), rb = borderDist(e.to, ux, uy) + 4;
+      var sx = a.x + ux * ra, sy = a.y + uy * ra, ex = b.x - ux * rb, ey = b.y - uy * rb;
+      var sg = e.type === "as" ? 1 : -1, k = L * 0.14 * sg;
+      var cx = (sx + ex) / 2 - uy * k, cy = (sy + ey) / 2 + ux * k;
+      gPaths[e.id].setAttribute("d", "M" + sx.toFixed(1) + " " + sy.toFixed(1) + " Q" + cx.toFixed(1) + " " + cy.toFixed(1) + " " + ex.toFixed(1) + " " + ey.toFixed(1));
+      var n = e.cyc ? 3 : 1, col = e.cyc ? "#ef4444" : e.type === "as" ? "#38bdf8" : "#f59e0b";
+      for (var m = 0; m < n && pi < gParts.length; m++, pi++) {
+        var tt = (t * (e.cyc ? 0.9 : 0.5) + e.phase + m / n) % 1, u = 1 - tt;
+        var px = u * u * sx + 2 * u * tt * cx + tt * tt * ex, py = u * u * sy + 2 * u * tt * cy + tt * tt * ey;
+        var c = gParts[pi]; c.setAttribute("cx", px.toFixed(1)); c.setAttribute("cy", py.toFixed(1)); c.setAttribute("fill", col); c.setAttribute("opacity", 0.95);
+      }
+    });
+    for (; pi < gParts.length; pi++) gParts[pi].setAttribute("opacity", 0);
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- Controles ---------- */
+  function startTimer() { clearInterval(timer); timer = setInterval(step, tickMs()); }
+  function start() {
+    running = !running;
+    $("bStart").textContent = running ? "⏸️ Pausar Simulación" : "▶️ Iniciar Simulación";
+    if (running) { startTimer(); addLog("Simulación en ejecución.", "g"); }
+    else { clearInterval(timer); timer = null; addLog("Simulación en pausa.", ""); }
+    render();
+  }
+
+  $("bStart").onclick = start;
+  $("bInject").onclick = inject;
+  $("bRecover").onclick = function () { recover(false); };
+  $("mode").onchange = function () { addLog("Modo cambiado a: " + $("mode").options[$("mode").selectedIndex].text, ""); render(); };
+  $("speed").oninput = function () { if (running) startTimer(); };
+  window.addEventListener("resize", function () { render(); });
+  build(); buildGraph(); init();
+})();
+</script>
+</body>
+</html>
