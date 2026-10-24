@@ -1,0 +1,206 @@
+
+Simulador memoria · HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de Administración de Memoria</title>
+<style>
+  :root {
+    --bg: #ffffff; --card: #f4f5f8; --text: #1b1d24; --muted: #5b6070;
+    --border: #d3d6df; --accent: #5c2d91; --ok: #16a34a; --bad: #dc2626; --free: #cbd5e1; --used: #8b5cf6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181c; --card: #22242b; --text: #e8e9ee; --muted: #a0a4b3;
+      --border: #3a3d49; --accent: #a78bfa; --ok: #4ade80; --bad: #f87171; --free: #3b4252; --used: #7c5cdb;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 14px; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+  h2 { margin: 0 0 4px; font-size: 18px; }
+  p.sub { margin: 0 0 12px; color: var(--muted); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tabs button { background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 6px;
+                 padding: 7px 12px; font-weight: 600; cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: #fff; }
+  .panel { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .panel.on { display: block; }
+  label { display: block; font-weight: 600; margin: 8px 0 4px; }
+  input, select, textarea { width: 100%; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px; }
+  textarea { height: 90px; resize: vertical; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 150px; }
+  .go { margin-top: 10px; background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; font-weight: 700; cursor: pointer; }
+  .out { margin-top: 12px; line-height: 1.5; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 99px; font-weight: 700; color: #fff; }
+  .ok { background: var(--ok); } .bad { background: var(--bad); }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  table { border-collapse: collapse; width: 100%; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; margin-top: 6px; }
+  th, td { border: 1px solid var(--border); padding: 4px 8px; text-align: center; }
+  .bar { display: flex; height: 38px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 8px; }
+  .bar div { display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; min-width: 2px; border-right: 1px solid var(--bg); overflow: hidden; }
+  .bar .f { background: var(--free); color: var(--text); } .bar .u { background: var(--used); }
+  code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h2>Simulador de Administración de Memoria</h2>
+<p class="sub">Selecciona una herramienta.</p>
+ 
+<div class="tabs" id="tabs">
+  <button data-t="pag" class="on">Paginación</button>
+  <button data-t="frag">Fragmentación (fit)</button>
+  <button data-t="seg">Segmentación</button>
+  <button data-t="tlb">TLB / EAT</button>
+</div>
+ 
+<!-- PAGINACIÓN -->
+<div class="panel on" id="pag">
+  <div class="row">
+    <div><label for="pgSize">Tamaño de página (bytes)</label><input id="pgSize" type="number" min="1" value="1024"></div>
+    <div><label for="pgAddr">Dirección lógica</label><input id="pgAddr" type="number" min="0" value="3500"></div>
+  </div>
+  <label for="pgTable">Tabla de páginas (marco de cada página separado por coma; usa "-" si no está en memoria)</label>
+  <input id="pgTable" value="5, 2, 9, 7">
+  <button class="go" id="pgGo">Traducir</button>
+  <div class="out" id="pgOut"></div>
+</div>
+ 
+<!-- FRAGMENTACIÓN -->
+<div class="panel" id="frag">
+  <div class="row">
+    <div><label for="fgHoles">Huecos libres en orden de memoria (KB)</label><input id="fgHoles" value="100, 500, 200, 300, 600"></div>
+    <div><label for="fgProcs">Procesos en orden de llegada (KB)</label><input id="fgProcs" value="212, 417, 112, 426"></div>
+    <div><label for="fgAlg">Algoritmo</label>
+      <select id="fgAlg"><option value="first">First-fit</option><option value="best">Best-fit</option><option value="worst">Worst-fit</option></select></div>
+  </div>
+  <button class="go" id="fgGo">Simular</button>
+  <div class="out" id="fgOut"></div>
+</div>
+ 
+<!-- SEGMENTACIÓN -->
+<div class="panel" id="seg">
+  <label for="sgTable">Tabla de segmentos (una línea por segmento: base, límite)</label>
+  <textarea id="sgTable">1400, 1000
+6300, 400
+4300, 400
+3200, 1100
+4700, 1000</textarea>
+  <div class="row">
+    <div><label for="sgS">Segmento (s)</label><input id="sgS" type="number" min="0" value="2"></div>
+    <div><label for="sgD">Desplazamiento (d)</label><input id="sgD" type="number" min="0" value="53"></div>
+  </div>
+  <button class="go" id="sgGo">Traducir</button>
+  <div class="out" id="sgOut"></div>
+</div>
+ 
+<!-- TLB -->
+<div class="panel" id="tlb">
+  <div class="row">
+    <div><label for="tlA">Tasa de aciertos α (%)</label><input id="tlA" type="number" min="0" max="100" step="any" value="80"></div>
+    <div><label for="tlT">Tiempo de TLB (ns)</label><input id="tlT" type="number" min="0" step="any" value="10"></div>
+    <div><label for="tlM">Tiempo de memoria (ns)</label><input id="tlM" type="number" min="0" step="any" value="100"></div>
+  </div>
+  <button class="go" id="tlGo">Calcular EAT</button>
+  <div class="out" id="tlOut"></div>
+  <p class="hint">EAT = α·(t_tlb + t_mem) + (1 − α)·(t_tlb + 2·t_mem)</p>
+</div>
+ 
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function nums(t) { return t.split(/[,\s]+/).filter(Boolean).map(Number); }
+  function err(id, m) { $(id).innerHTML = "<span class='tag bad'>Error</span> " + m; }
+ 
+  // Pestañas
+  var btns = document.querySelectorAll("#tabs button");
+  btns.forEach(function (b) {
+    b.onclick = function () {
+      btns.forEach(function (x) { x.classList.remove("on"); });
+      document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
+      b.classList.add("on"); $(b.dataset.t).classList.add("on");
+    };
+  });
+ 
+  // Paginación
+  $("pgGo").onclick = function () {
+    var size = parseInt($("pgSize").value, 10), addr = parseInt($("pgAddr").value, 10);
+    if (!(size > 0) || isNaN(addr) || addr < 0) return err("pgOut", "Tamaño de página y dirección deben ser números válidos.");
+    var table = $("pgTable").value.split(",").map(function (t) { t = t.trim(); return (t === "-" || t === "") ? null : Number(t); });
+    if (table.some(function (x) { return x !== null && (isNaN(x) || x < 0); })) return err("pgOut", "La tabla de páginas tiene valores inválidos.");
+    var p = Math.floor(addr / size), d = addr % size;
+    var h = "Página <b>p = " + addr + " ÷ " + size + " = " + p + "</b><br>Desplazamiento <b>d = " + addr + " mod " + size + " = " + d + "</b><br>";
+    if (p >= table.length || table[p] === null) {
+      h += "<span class='tag bad'>FALLO DE PÁGINA</span> La página " + p + " no está en la tabla o no es válida.";
+    } else {
+      var f = table[p], phys = f * size + d;
+      h += "Marco de la página " + p + ": <b>f = " + f + "</b><br>Dirección física = " + f + " × " + size + " + " + d +
+           " = <span class='tag ok'>" + phys + "</span>";
+      if (size > 0 && (size & (size - 1)) !== 0) h += "<p class='hint'>Nota: en hardware real el tamaño de página es potencia de 2.</p>";
+    }
+    $("pgOut").innerHTML = h;
+  };
+ 
+  // Fragmentación
+  $("fgGo").onclick = function () {
+    var holes = nums($("fgHoles").value), procs = nums($("fgProcs").value), alg = $("fgAlg").value;
+    if (!holes.length || !procs.length || holes.concat(procs).some(function (x) { return isNaN(x) || x <= 0; }))
+      return err("fgOut", "Ingresa solo números positivos separados por comas.");
+    var cur = holes.slice(), rows = "", waiting = [];
+    procs.forEach(function (sz, k) {
+      var cand = [];
+      cur.forEach(function (h, i) { if (h >= sz) cand.push(i); });
+      if (!cand.length) { rows += "<tr><td>P" + (k + 1) + " (" + sz + ")</td><td>—</td><td>—</td><td>" + cur.join(", ") + "</td></tr>"; waiting.push("P" + (k + 1)); return; }
+      var i = cand[0];
+      if (alg === "best") i = cand.reduce(function (a, b) { return cur[b] < cur[a] ? b : a; });
+      if (alg === "worst") i = cand.reduce(function (a, b) { return cur[b] > cur[a] ? b : a; });
+      var hole = cur[i]; cur[i] -= sz;
+      rows += "<tr><td>P" + (k + 1) + " (" + sz + ")</td><td>" + hole + "</td><td>" + cur[i] + "</td><td>" + cur.join(", ") + "</td></tr>";
+    });
+    var total = cur.reduce(function (a, b) { return a + b; }, 0), biggest = Math.max.apply(null, cur);
+    var h = "<table><tr><th>Proceso (KB)</th><th>Hueco usado</th><th>Sobrante</th><th>Huecos después</th></tr>" + rows + "</table>";
+    h += "<p>" + (waiting.length ? "<span class='tag bad'>Esperan: " + waiting.join(", ") + "</span>" : "<span class='tag ok'>Todos los procesos fueron asignados</span>") + "</p>";
+    h += "<p>Memoria libre total: <b>" + total + " KB</b> · Hueco más grande: <b>" + biggest + " KB</b>";
+    if (waiting.length && total >= Math.min.apply(null, procs.filter(function (_, k) { return waiting.indexOf("P" + (k + 1)) >= 0; })))
+      h += "<br><b>Fragmentación externa:</b> hay memoria libre suficiente en total, pero no contigua.";
+    h += "</p>";
+    var sum = cur.reduce(function (a, b) { return a + b; }, 0) || 1;
+    h += "<div class='bar'>" + cur.map(function (x) { return "<div class='f' style='flex:" + Math.max(x, 1) + "'>" + (x > 0 ? x : "") + "</div>"; }).join("") + "</div>";
+    h += "<p class='hint'>Barra: huecos restantes (proporcional a su tamaño). Total " + sum + " KB.</p>";
+    $("fgOut").innerHTML = h;
+  };
+ 
+  // Segmentación
+  $("sgGo").onclick = function () {
+    var lines = $("sgTable").value.trim().split(/\n+/).filter(Boolean);
+    var tbl = lines.map(function (l) { return l.split(/[,\s]+/).filter(Boolean).map(Number); });
+    if (!tbl.length || tbl.some(function (r) { return r.length !== 2 || r.some(function (x) { return isNaN(x) || x < 0; }); }))
+      return err("sgOut", "Cada línea debe tener: base, límite.");
+    var s = parseInt($("sgS").value, 10), d = parseInt($("sgD").value, 10);
+    if (isNaN(s) || isNaN(d) || s < 0 || d < 0) return err("sgOut", "Segmento y desplazamiento deben ser números válidos.");
+    if (s >= tbl.length) return $("sgOut").innerHTML = "<span class='tag bad'>TRAP</span> El segmento " + s + " no existe.";
+    var base = tbl[s][0], lim = tbl[s][1];
+    $("sgOut").innerHTML = d >= lim
+      ? "<span class='tag bad'>TRAP</span> d = " + d + " ≥ límite (" + lim + "). Violación de segmento."
+      : "Verificación: " + d + " &lt; " + lim + " ✔<br>Dirección física = " + base + " + " + d + " = <span class='tag ok'>" + (base + d) + "</span>";
+  };
+ 
+  // TLB
+  $("tlGo").onclick = function () {
+    var a = parseFloat($("tlA").value), t = parseFloat($("tlT").value), m = parseFloat($("tlM").value);
+    if ([a, t, m].some(isNaN) || a < 0 || a > 100 || t < 0 || m < 0) return err("tlOut", "Revisa los valores (α entre 0 y 100).");
+    var al = a / 100, hit = t + m, miss = t + 2 * m, eat = al * hit + (1 - al) * miss, slow = (eat / m - 1) * 100;
+    $("tlOut").innerHTML = "Acierto: " + t + " + " + m + " = <b>" + hit + " ns</b><br>Fallo: " + t + " + 2×" + m + " = <b>" + miss + " ns</b><br>" +
+      "EAT = " + al.toFixed(2) + "×" + hit + " + " + (1 - al).toFixed(2) + "×" + miss + " = <span class='tag ok'>" + (Math.round(eat * 100) / 100) + " ns</span>" +
+      "<br>Respecto a un acceso directo de " + m + " ns, es " + (Math.round(slow * 10) / 10) + " % más lento.";
+  };
+ 
+  ["pgGo", "fgGo", "sgGo", "tlGo"].forEach(function (id) { $(id).click(); });
+})();
+</script>
+</body>
+</html>
