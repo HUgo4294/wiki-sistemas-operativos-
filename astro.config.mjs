@@ -44,12 +44,22 @@ export default defineConfig({
             },
           ],
         },
-        {
+                {
           label: 'Unidad 4',
           items: [
             {
               autogenerate: {
                 directory: 'unidad-4',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Unidad 5',
+          items: [
+            {
+              autogenerate: {
+                directory: 'unidad-5',
               },
             },
           ],
