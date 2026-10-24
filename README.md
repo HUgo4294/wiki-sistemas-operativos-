@@ -43,7 +43,6 @@ Documentación teórica y simuladores interactivos para comprender los fundament
 
 <br/><br/>
 
-[Ver código fuente](https://github.com/HUgo4294/wiki-sistemas-operativos-) · [Reportar un problema](https://github.com/HUgo4294/wiki-sistemas-operativos-/issues)
 
 </div>
 
@@ -236,12 +235,4 @@ Proyecto académico desarrollado para el estudio de Sistemas Operativos 1. Su pr
 
 ---
 
-<div align="center">
 
-**Wiki de Sistemas Operativos 1**
-
-Documentación, aprendizaje y simulación interactiva.
-
-[Visitar la wiki](https://hugo4294.github.io/wiki-sistemas-operativos-/) · [Consultar el repositorio](https://github.com/HUgo4294/wiki-sistemas-operativos-)
-
-</div>
