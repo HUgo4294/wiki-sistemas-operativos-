@@ -1,248 +1,112 @@
 <div align="center">
 
-<img width="2172" height="724" alt="Wiki de Sistemas Operativos 1" src="https://github.com/user-attachments/assets/3c429e21-c1b5-4ec8-9d43-ecea2cb645a6" />
+<img width="100%" alt="Wiki de Sistemas Operativos 1 Header" src="https://github.com/user-attachments/assets/3c429e21-c1b5-4ec8-9d43-ecea2cb645a6" />
 
 <br>
 
-# 💻 Wiki de Sistemas Operativos 1
+# 💻 Wiki Interactiva & Simulador de Sistemas Operativos I
 
-### Plataforma educativa sobre procesos, memoria, concurrencia y planificación de CPU
+### Plataforma web educativa de alto rendimiento sobre gestión de procesos, administración de memoria, concurrencia y planificación de CPU.
 
-[![Astro](https://img.shields.io/badge/Astro-5C2D91?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
-[![Starlight](https://img.shields.io/badge/Starlight-111827?style=for-the-badge&logo=astro&logoColor=white)](https://starlight.astro.build/)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=for-the-badge&logo=github&logoColor=white)](https://hugo4294.github.io/wiki-sistemas-operativos-/)
-![Estado](https://img.shields.io/badge/Estado-Publicado-16A34A?style=for-the-badge)
+[![Astro](https://img.shields.io/badge/Astro-v5.0-5C2D91?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
+[![Starlight](https://img.shields.io/badge/Starlight-Documentation-111827?style=for-the-badge&logo=astro&logoColor=white)](https://starlight.astro.build/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/es/docs/Web/JavaScript)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-222222?style=for-the-badge&logo=github&logoColor=white)](https://hugo4294.github.io/wiki-sistemas-operativos-/)
+[![CI/CD Status](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/HUgo4294/wiki-sistemas-operativos-/actions)
+![Estado](https://img.shields.io/badge/Estado-Publicado%20%26%20Funcional-16A34A?style=for-the-badge)
 
 <br>
 
-## [      Abrir Wiki de Sistemas Operativos](https://hugo4294.github.io/wiki-sistemas-operativos-/)
+[🚀 Explora la Wiki Online](https://hugo4294.github.io/wiki-sistemas-operativos-/) • [🎮 Probar Simulador Interactivo](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html) • [📌 Reportar Issue](https://github.com/HUgo4294/wiki-sistemas-operativos-/issues)
 
 </div>
 
 ---
 
-## 📖 Descripción
+## 🎯 Visión General
 
-**Wiki de Sistemas Operativos 1** es una plataforma educativa desarrollada para presentar los principales fundamentos de los sistemas operativos de forma clara, visual y organizada.
+**Wiki de Sistemas Operativos 1** es una suite educativa integral diseñada para salvar la brecha entre la teoría abstracta de los sistemas operativos y su aplicación práctica. 
 
-El proyecto combina contenido teórico, ejemplos, diagramas, tablas comparativas y un simulador interactivo para facilitar el aprendizaje.
-
----
-
-## 📚 Contenido
-
-| Unidad | Tema | Contenido principal |
-|:---:|---|---|
-| **01** | Introducción a los Sistemas Operativos | Historia, funciones, kernel, memoria, llamadas al sistema e interrupciones. |
-| **02** | Definición y Control de Procesos | Estados, PCB, PID, hilos, cambio de contexto y planificación de CPU. |
-| **03** | Concurrencia | Sección crítica, exclusión mutua, Peterson, Dekker, mutex, semáforos y monitores. |
-
-### 📘 Unidad 1: Introducción
-
-- Concepto de sistema operativo.
-- Historia y evolución.
-- Funciones principales.
-- Kernel.
-- Gestión de procesos y memoria.
-- Sistemas de archivos.
-- Dispositivos de entrada y salida.
-- Llamadas al sistema.
-- Interrupciones.
-- Modos usuario y kernel.
-- Arquitectura de los sistemas operativos.
-
-### ⚙️ Unidad 2: Procesos y Control
-
-- Diferencia entre programa y proceso.
-- Ciclo de vida de los procesos.
-- Estados de los procesos.
-- PCB y PID.
-- Planificador o scheduler.
-- Cambio de contexto.
-- Hilos y colas de procesos.
-- FCFS, SJF, SRTF y Round Robin.
-- Planificación por prioridades.
-- Aging.
-
-### 🔄 Unidad 3: Concurrencia
-
-- Concurrencia y paralelismo.
-- Procesos e hilos concurrentes.
-- Recursos compartidos.
-- Condiciones de carrera.
-- Sección crítica.
-- Exclusión mutua.
-- Algoritmos de Dekker y Peterson.
-- Mutex, semáforos y monitores.
-- Productor-consumidor.
-- Lectores y escritores.
-- Comunicación entre procesos.
-- Inanición e interbloqueo.
+El proyecto integra un compendio teórico detallado estructurado bajo el framework **Astro Starlight**, diagramas de arquitectura de bajo nivel y un **Simulador de Planificación de CPU y Gestión de Memoria** integrado directamente en la web. Está orientada a estudiantes e ingenieros de sistemas que buscan dominar los fundamentos internos del kernel, el manejo de recursos y la sincronización de hilos.
 
 ---
 
-## 🧠 Funcionamiento de un Sistema Operativo
+## 📊 Módulos Educativos
+
+| Unidad | Título | Temas Clave & Enfoque Teórico |
+| :---: | :--- | :--- |
+| **01** | **Fundamentos & Arquitectura de SO** | • Modos de ejecución (*User/Kernel Mode*).<br>• Arquitecturas Monolíticas vs. Microkernels.<br>• Mecanismos de Interrupciones y Traps.<br>• *System Calls* y abstracción de hardware. |
+| **02** | **Gestión de Procesos & Planificación** | • Bloque de Control del Proceso (*PCB*) y *Context Switching*.<br>• Ciclo de vida y diagramas de transición de estados.<br>• Algoritmos de planificación de CPU (*FCFS, SJF, SRTF, Round Robin, Prioridades*).<br>• Solución a la inanición mediante *Aging*. |
+| **03** | **Concurrencia & Sincronización** | • Exclusión Mutua y Problema de la Sección Crítica.<br>• Soluciones software (*Algoritmos de Dekker y Peterson*).<br>• Primitivas de sincronización (*Mutex, Semáforos, Monitores*).<br>• Problemas clásicos (*Productor-Consumidor, Lectores-Escritores, Cena de los Filósofos*).<br>• Prevención y detección de Interbloqueos (*Deadlocks*). |
+
+---
+
+## ⚙️ Arquitectura Interna del Sistema Operativo
 
 <div align="center">
 
-<img width="1942" height="809" alt="Procesos, CPU, memoria y archivos" src="https://github.com/user-attachments/assets/6560eab3-5da5-4dbc-a37f-e4f85c38d8dc" />
+<img width="90%" alt="Diagrama del Sistema Operativo" src="https://github.com/user-attachments/assets/6560eab3-5da5-4dbc-a37f-e4f85c38d8dc" />
 
 </div>
 
-El sistema operativo coordina los procesos, la memoria RAM, los archivos, los dispositivos y el tiempo de CPU. La Wiki utiliza representaciones visuales para explicar cómo se relacionan estos componentes.
+La plataforma aborda la interacción entre los cuatro pilares fundamentales administrados por el Kernel:
+1. **Planificador de CPU (Scheduler):** Asignación de tiempos de procesamiento y colas de listo/espera.
+2. **Administrador de Memoria:** Mapeo de espacio de direcciones, pila (*stack*) y montón (*heap*).
+3. **Gestor de Archivos e I/O:** Manejo de descriptores de archivos, buffers y controladores.
+4. **Tabla de Procesos:** Control continuo mediante registros de hardware y punteros en el PCB.
 
 ---
 
-## 🖥️ Simulador de Procesos
+## 🖥️ Simulador Interactivo de Procesos & Memoria
 
-La Unidad 2 incluye un simulador interactivo para observar cómo el sistema operativo administra los procesos y los recursos disponibles.
-
-### Funciones del simulador
-
-- Creación y visualización de procesos.
-- Administración de memoria RAM.
-- Representación de estados.
-- Ejecución y seguimiento del progreso.
-- Simulación de planificación de CPU.
-- Visualización de colas de procesos.
+El simulador incorporado en el proyecto permite experimentar en tiempo real con la abstracción del hardware y los algoritmos de la CPU.
 
 <div align="center">
 
-### [▶️ Abrir el simulador](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html)
+### [▶️ Abrir Simulador en Vivo](https://hugo4294.github.io/wiki-sistemas-operativos-/simulador.html)
 
 </div>
 
----
-
-## ✨ Características
-
-- Interfaz moderna y adaptable.
-- Navegación organizada por unidades.
-- Buscador integrado.
-- Modo claro y modo oscuro.
-- Diagramas y recursos gráficos.
-- Contenido desarrollado con MDX.
-- Simulador interactivo.
-- Publicación automática con GitHub Actions.
-- Alojamiento público mediante GitHub Pages.
+### 🌟 Capacidades Técnicas del Simulador:
+* **Creación Dinámica de Procesos:** Definición de PID, tiempo de ráfaga (*burst time*), prioridad y memoria requerida.
+* **Visualización de Memoria RAM:** Representación del espacio mapeado y asignación de bloques.
+* **Monitoreo de Colas en Tiempo Real:** Seguimiento de estados (*Nuevo, Listo, Ejecución, Bloqueado, Terminado*).
+* **Simulación de Planificación:** Ejecución de métricas para calcular *Turnaround Time* (TAT) y *Waiting Time* (WT).
 
 ---
 
-## 🛠️ Tecnologías
+## 🛠️ Stack Tecnológico
 
-| Tecnología | Función |
-|---|---|
-| **Astro** | Construcción y generación del sitio. |
-| **Starlight** | Documentación, navegación y buscador. |
-| **Markdown / MDX** | Creación del contenido educativo. |
-| **HTML** | Estructura del simulador. |
-| **CSS** | Diseño visual personalizado. |
-| **JavaScript** | Funcionamiento interactivo. |
-| **Git y GitHub** | Control de versiones y repositorio. |
-| **GitHub Actions** | Publicación automática. |
-| **GitHub Pages** | Alojamiento de la Wiki. |
+* **Frontend & SSG:** [Astro v5](https://astro.build/) (Static Site Generation de ultra alta velocidad).
+* **UI Documentation Framework:** [Starlight](https://starlight.astro.build/) (Interfaz clara, i18n ready, búsqueda integrada y modo oscuro/claro automático).
+* **Contenido Dinámico:** MDX (Markdown enriquecido con componentes interactivos).
+* **Engine del Simulador:** HTML5, CSS3 vanila estructurado y JavaScript síncrono/asíncrono para manipulación del DOM y simulación de ciclos de reloj.
+* **DevOps & Hosting:** GitHub Actions (Pipeline para build y deploy automatizado) + GitHub Pages.
 
 ---
 
-## 📂 Estructura del proyecto
-
-<details>
-<summary><strong>Ver estructura de carpetas</strong></summary>
+## 📂 Estructura del Repositorio
 
 ```text
 wiki-sistemas-operativos/
-│
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml
-│
-├── public/
+│       └── deploy.yml          # Pipeline de integración y despliegue continuo (CI/CD)
+├── public/                     # Assets estáticos y entrada del simulador
 │   ├── fondo.jpg
 │   ├── readme-portada.png
-│   ├── readme-sistemas-operativos.png
-│   ├── imagen-simulador.png
-│   ├── estructura-memoria.png
-│   ├── cola-procesos.png
-│   ├── mapa-general-procesos.png
-│   ├── programa-proceso.png
-│   └── simulador.html
-│
+│   ├── simulador.html          # Interfaz y motor del simulador standalone
+│   └── ...                     # Diagramas e infografías del sistema
 ├── src/
 │   ├── assets/
 │   │   └── styles/
-│   │       └── custom.css
-│   │
+│   │       └── custom.css      # Reglas CSS personalizadas para Starlight
 │   └── content/
-│       └── docs/
-│           ├── index.mdx
-│           ├── unidad-1/
-│           │   └── introduccion.mdx
-│           ├── unidad-2/
-│           │   └── procesos-y-control.mdx
-│           └── unidad-3/
-│               └── concurrencia.mdx
-│
-├── astro.config.mjs
-├── package.json
-└── README.md
-```
-
-</details>
-
----
-
-##   Instalación y ejecución local
-
-### Requisitos
-
-- Node.js 18 o una versión posterior.
-- npm.
-- Git.
-
-### Descargar el proyecto
-
-```bash
-git clone https://github.com/HUgo4294/wiki-sistemas-operativos-.git
-```
-
-### Entrar en la carpeta
-
-```bash
-cd wiki-sistemas-operativos-
-```
-
-### Instalar las dependencias
-
-```bash
-npm install
-```
-
-### Ejecutar el servidor local
-
-```bash
-npm run dev
-```
-
----
-
-## 🌐 Página publicada
-
-La Wiki está disponible públicamente mediante GitHub Pages:
-
-<div align="center">
-
-### 🔗 [hugo4294.github.io/wiki-sistemas-operativos-](https://hugo4294.github.io/wiki-sistemas-operativos-/)
-
-</div>
-
----
-
-## 👨‍💻 Autor
-
-Desarrollado por **Hugo4294** como proyecto educativo para el curso de **Sistemas Operativos 1**.
-
-<div align="center">
-
-Si este proyecto te resulta útil, puedes apoyar el repositorio con una ⭐
-
-</div>
+│       └── docs/               # Documentación y módulos educativos en MDX
+│           ├── index.mdx       # Página principal de la Wiki
+│           ├── unidad-1/       # Modos del kernel, System Calls e Interrupciones
+│           ├── unidad-2/       # PCB, Scheduler y Algoritmos de Planificación
+│           └── unidad-3/       # Sección Crítica, Semáforos y Deadlocks
+├── astro.config.mjs            # Configuración de Astro e integración de Starlight
+├── package.json                # Dependencias y scripts del proyecto
+└── README.md                   # Documentación principal
